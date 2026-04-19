@@ -1,7 +1,10 @@
 import axios, { AxiosHeaders } from "axios";
 
+const API_BASE_URL =
+    process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://13.124.81.252:8080";
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE,
+    baseURL: API_BASE_URL,
     withCredentials: true,
     // headers: {
     //     'Content-Type': 'application/json'

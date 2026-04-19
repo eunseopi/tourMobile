@@ -1,7 +1,7 @@
-import type { Product } from "src/components/my-page/product/type";
+import type { Product, ProductCategory } from "src/types/ProductTypes";
 import api from "./instance";
 
-export type ProductCategory = 'JEJU_TICON' | 'GOODS';
+export type { ProductCategory };
 
 export type OwnedProduct = {
     exchangeId: string | number;
