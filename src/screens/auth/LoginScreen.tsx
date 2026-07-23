@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -10,13 +9,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import type { AxiosError } from "axios";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { FormTextField } from "src/components/form/FormTextField";
+import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { colors, layout, typography } from "src/design/theme";
-import { commonStyles } from "src/design/commonStyles";
 import { authApi } from "src/api/auth";
 import { useKakaoLogin } from "src/features/auth/useKakaoLogin";
 import { QK } from "src/utils/lib/queryKeys";
@@ -99,49 +98,37 @@ export default function LoginScreen({ navigation }: Props) {
         <Text style={styles.title}>로그인</Text>
 
         <View style={styles.form}>
-          <View style={styles.fieldBlock}>
-            <Text style={styles.label}>이메일</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="you@example.com"
-              placeholderTextColor="#a0a0a0"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              style={styles.input}
-            />
-            {!!validation.errors.email && <Text style={styles.errorText}>{validation.errors.email}</Text>}
-          </View>
+          <FormTextField
+            label="이메일"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="you@example.com"
+            placeholderTextColor="#a0a0a0"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            error={validation.errors.email}
+          />
 
-          <View style={styles.fieldBlock}>
-            <Text style={styles.label}>비밀번호</Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="8자 이상 입력"
-              placeholderTextColor="#a0a0a0"
-              secureTextEntry
-              style={styles.input}
-            />
-            {!!validation.errors.password && (
-              <Text style={styles.errorText}>{validation.errors.password}</Text>
-            )}
-          </View>
+          <FormTextField
+            label="비밀번호"
+            value={password}
+            onChangeText={setPassword}
+            placeholder="8자 이상 입력"
+            placeholderTextColor="#a0a0a0"
+            secureTextEntry
+            error={validation.errors.password}
+          />
 
-          <Pressable
-            style={[styles.submitButton, (!validation.isValid || isSubmitting) && styles.submitButtonDisabled]}
+          <PrimaryActionButton
+            label="이메일로 로그인"
+            isLoading={isSubmitting}
+            disabled={!validation.isValid}
+            style={styles.submitButton}
             onPress={handleLogin}
-            disabled={!validation.isValid || isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.submitButtonText}>이메일로 로그인</Text>
-            )}
-          </Pressable>
+          />
 
           <Pressable
-            style={[styles.kakaoButton, isKakaoLoading && styles.submitButtonDisabled]}
+            style={[styles.kakaoButton, isKakaoLoading && styles.kakaoButtonDisabled]}
             onPress={handleKakaoLogin}
             disabled={isKakaoLoading}
           >
@@ -182,29 +169,8 @@ const styles = StyleSheet.create({
   form: {
     gap: 10,
   },
-  fieldBlock: {
-    gap: 8,
-  },
-  label: {
-    ...typography.body3,
-    color: colors.gray[700],
-  },
-  input: {
-    ...commonStyles.input,
-  },
-  errorText: {
-    ...typography.caption2,
-    color: colors.error[100],
-  },
   submitButton: {
-    ...commonStyles.primaryButton,
     marginTop: 10,
-  },
-  submitButtonDisabled: {
-    backgroundColor: colors.gray[100],
-  },
-  submitButtonText: {
-    ...commonStyles.primaryButtonText,
   },
   kakaoButton: {
     height: 48,
@@ -212,6 +178,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#FEE500",
+  },
+  kakaoButtonDisabled: {
+    backgroundColor: colors.gray[100],
   },
   kakaoButtonText: {
     ...typography.body1,
