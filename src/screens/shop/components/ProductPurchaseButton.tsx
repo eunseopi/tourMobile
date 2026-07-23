@@ -1,6 +1,4 @@
-import { ActivityIndicator, Pressable, Text } from "react-native";
-import { commonStyles } from "src/design/commonStyles";
-import { colors } from "src/design/theme";
+import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 
 type Props = {
   isPurchasing: boolean;
@@ -9,20 +7,6 @@ type Props = {
 
 export function ProductPurchaseButton({ isPurchasing, onPurchase }: Props) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        commonStyles.primaryButton,
-        pressed && commonStyles.primaryButtonPressed,
-        isPurchasing && commonStyles.primaryButtonDisabled,
-      ]}
-      disabled={isPurchasing}
-      onPress={onPurchase}
-    >
-      {isPurchasing ? (
-        <ActivityIndicator color={colors.base[0]} />
-      ) : (
-        <Text style={commonStyles.primaryButtonText}>구매하기</Text>
-      )}
-    </Pressable>
+    <PrimaryActionButton label="구매하기" isLoading={isPurchasing} onPress={onPurchase} />
   );
 }

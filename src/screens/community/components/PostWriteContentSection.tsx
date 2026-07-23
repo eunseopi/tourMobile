@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { FormTextField } from "src/components/form/FormTextField";
 import { colors, typography } from "src/design/theme";
 
 type Props = {
@@ -11,17 +12,16 @@ export function PostWriteContentSection({ description, error, onChangeDescriptio
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>내용</Text>
-      <TextInput
+      <FormTextField
         value={description}
         onChangeText={onChangeDescription}
         placeholder="메시지를 입력해 주세요."
-        placeholderTextColor={colors.gray[400]}
         multiline
         textAlignVertical="top"
         maxLength={200}
-        style={styles.textarea}
+        inputStyle={styles.textarea}
+        error={error}
       />
-      {!!error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }
@@ -40,18 +40,6 @@ const styles = StyleSheet.create({
   },
   textarea: {
     minHeight: 136,
-    paddingHorizontal: 14,
     paddingTop: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-    backgroundColor: colors.bg[0],
-    ...typography.body2,
-    color: colors.gray[800],
-  },
-  errorText: {
-    ...typography.caption2,
-    color: colors.error[100],
-    marginTop: 6,
   },
 });

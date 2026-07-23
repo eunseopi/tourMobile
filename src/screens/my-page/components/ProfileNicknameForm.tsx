@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { commonStyles } from "src/design/commonStyles";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { FormTextField } from "src/components/form/FormTextField";
 import { colors, typography } from "src/design/theme";
 
 type Props = {
@@ -17,46 +17,37 @@ export function ProfileNicknameForm({
 }: Props) {
   return (
     <>
-      <Text style={styles.caption}>닉네임을 입력해주세요.</Text>
       <View style={styles.nicknameRow}>
-        <TextInput
+        <FormTextField
+          label="닉네임을 입력해주세요."
           value={nickname}
           onChangeText={onChangeNickname}
           placeholder="닉네임을 입력하세요"
-          placeholderTextColor={colors.gray[400]}
           maxLength={20}
-          style={[styles.input, error ? styles.inputError : null]}
+          error={error}
+          containerStyle={styles.inputField}
         />
         <Pressable style={styles.checkButton} onPress={onValidateNickname}>
           <Text style={styles.checkButtonText}>확인</Text>
         </Pressable>
       </View>
-      {error ? <Text style={styles.messageError}>{error}</Text> : null}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  caption: {
-    ...typography.body3,
-    color: colors.gray[700],
-    marginTop: 20,
-    marginBottom: 8,
-  },
   nicknameRow: {
     flexDirection: "row",
     gap: 10,
+    marginTop: 20,
   },
-  input: {
-    ...commonStyles.input,
+  inputField: {
     flex: 1,
-  },
-  inputError: {
-    borderColor: colors.error[100],
   },
   checkButton: {
     width: 84,
     minHeight: 48,
+    marginTop: 28,
     borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
@@ -65,10 +56,5 @@ const styles = StyleSheet.create({
   checkButtonText: {
     ...typography.body1,
     color: colors.gray[500],
-  },
-  messageError: {
-    ...typography.caption1,
-    color: colors.error[100],
-    marginTop: 8,
   },
 });

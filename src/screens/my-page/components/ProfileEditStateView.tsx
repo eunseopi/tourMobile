@@ -1,6 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
-import { commonStyles } from "src/design/commonStyles";
-import { colors, typography } from "src/design/theme";
+import { ScreenStateView } from "src/components/ui/ScreenStateView";
 
 type Props = {
   type: "loading" | "error";
@@ -8,40 +6,12 @@ type Props = {
 };
 
 export function ProfileEditStateView({ type, onRetry }: Props) {
-  if (type === "loading") {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary[400]} />
-        <Text style={styles.mutedText}>프로필 정보를 불러오는 중...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.center}>
-      <Text style={styles.errorText}>프로필 정보를 불러오지 못했어요.</Text>
-      <Pressable style={commonStyles.primaryButton} onPress={onRetry}>
-        <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-      </Pressable>
-    </View>
+    <ScreenStateView
+      type={type}
+      loadingText="프로필 정보를 불러오는 중..."
+      errorText="프로필 정보를 불러오지 못했어요."
+      onRetry={onRetry}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    padding: 24,
-    backgroundColor: colors.bg[0],
-  },
-  mutedText: {
-    ...typography.body4,
-    color: colors.gray[500],
-  },
-  errorText: {
-    ...typography.body3,
-    color: colors.error[100],
-  },
-});

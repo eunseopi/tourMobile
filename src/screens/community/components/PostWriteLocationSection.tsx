@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { FormTextField } from "src/components/form/FormTextField";
 import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 
@@ -22,14 +23,12 @@ export function PostWriteLocationSection({
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>위치</Text>
-      <TextInput
+      <FormTextField
         value={name}
         onChangeText={onChangeName}
         placeholder="장소명을 입력해주세요."
-        placeholderTextColor={colors.gray[400]}
-        style={styles.input}
+        error={error}
       />
-      {!!error && <Text style={styles.errorText}>{error}</Text>}
 
       <Pressable style={styles.secondaryButton} onPress={onUseCurrentLocation}>
         <Text style={styles.secondaryButtonText}>현재 위치로 채우기</Text>
@@ -55,14 +54,6 @@ const styles = StyleSheet.create({
     ...typography.head4,
     color: colors.gray[800],
     marginBottom: 10,
-  },
-  input: {
-    ...commonStyles.input,
-  },
-  errorText: {
-    ...typography.caption2,
-    color: colors.error[100],
-    marginTop: 6,
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,

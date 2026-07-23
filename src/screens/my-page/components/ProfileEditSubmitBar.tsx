@@ -1,6 +1,4 @@
-import { ActivityIndicator, Pressable, Text } from "react-native";
-import { commonStyles } from "src/design/commonStyles";
-import { colors } from "src/design/theme";
+import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 
 type Props = {
   isSaving: boolean;
@@ -10,20 +8,6 @@ type Props = {
 
 export function ProfileEditSubmitBar({ isSaving, disabled, onSave }: Props) {
   return (
-    <Pressable
-      style={({ pressed }) => [
-        commonStyles.primaryButton,
-        pressed && commonStyles.primaryButtonPressed,
-        disabled && commonStyles.primaryButtonDisabled,
-      ]}
-      disabled={disabled}
-      onPress={onSave}
-    >
-      {isSaving ? (
-        <ActivityIndicator color={colors.base[0]} />
-      ) : (
-        <Text style={commonStyles.primaryButtonText}>수정하기</Text>
-      )}
-    </Pressable>
+    <PrimaryActionButton label="수정하기" isLoading={isSaving} disabled={disabled} onPress={onSave} />
   );
 }
