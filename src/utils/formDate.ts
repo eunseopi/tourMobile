@@ -7,8 +7,7 @@ export const formatDate = (isoString?: string): string => {
 
     // yyyy-mm-dd 포맷
     return date.toISOString().split("T")[0];
-  } catch (e) {
-    console.error("Invalid date string:", isoString, e);
+  } catch {
     return "";
   }
 };

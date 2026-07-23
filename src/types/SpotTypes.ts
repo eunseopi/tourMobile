@@ -1,3 +1,9 @@
+export type UploadableImage = {
+  uri: string;
+  name?: string;
+  type?: string;
+};
+
 export interface SpotCreate {
   name: string;
   description?: string;
@@ -7,7 +13,7 @@ export interface SpotCreate {
   tag1?: string;
   tag2?: string;
   tag3?: string;
-  images: File[];
+  images: UploadableImage[];
 }
 
 export type SpotAction =

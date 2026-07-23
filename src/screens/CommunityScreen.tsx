@@ -155,30 +155,36 @@ export default function CommunityScreen({ navigation }: Props) {
   }
 
   return (
-    <FlatList
-      style={styles.container}
-      data={posts}
-      keyExtractor={(item) => String(item.id)}
-      ListHeaderComponent={renderHeader}
-      contentContainerStyle={styles.content}
-      refreshControl={
-        <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
-      }
-      ListEmptyComponent={
-        <View style={styles.emptyBox}>
-          <Text style={styles.mutedText}>게시물이 없습니다.</Text>
-        </View>
-      }
-      renderItem={({ item }) => (
-        <PostCard
-          post={item}
-          onPress={() => navigation.navigate("PostDetail", { postId: item.id })}
-          onToggleLike={() =>
-            likeMutation.mutate({ id: item.id, liked: !item.likedByMe })
-          }
-        />
-      )}
-    />
+    <View style={styles.screen}>
+      <FlatList
+        style={styles.container}
+        data={posts}
+        keyExtractor={(item) => String(item.id)}
+        ListHeaderComponent={renderHeader}
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyBox}>
+            <Text style={styles.mutedText}>게시물이 없습니다.</Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <PostCard
+            post={item}
+            onPress={() => navigation.navigate("PostDetail", { postId: item.id })}
+            onToggleLike={() =>
+              likeMutation.mutate({ id: item.id, liked: !item.likedByMe })
+            }
+          />
+        )}
+      />
+
+      <Pressable style={styles.fab} onPress={() => navigation.navigate("PostWrite")}>
+        <Text style={styles.fabText}>+</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -232,6 +238,10 @@ function PostCard({
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -406,5 +416,26 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: "#fff",
     fontWeight: "800",
+  },
+  fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 26,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ff8b4c",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  fabText: {
+    fontSize: 28,
+    fontWeight: "400",
+    color: "#fff",
+    marginTop: -2,
   },
 });

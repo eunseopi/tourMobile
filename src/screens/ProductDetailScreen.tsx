@@ -21,7 +21,7 @@ const CATEGORY_LABEL = {
   GOODS: "굿즈",
 } as const;
 
-export default function ProductDetailScreen({ route }: Props) {
+export default function ProductDetailScreen({ navigation, route }: Props) {
   const { productId, category } = route.params;
   const { data: product, isLoading, isError, refetch } = useProduct(productId);
   const { data: me, isLoading: isLoadingMe } = useSessionMe();
@@ -50,7 +50,12 @@ export default function ProductDetailScreen({ route }: Props) {
         "구매에 실패했습니다.";
 
       if (errorCode === "INSUFFICIENT_HALLABONG") {
-        Alert.alert("한라봉이 부족해요", "챌린지나 포인트 전환으로 한라봉을 모아보세요.");
+        Alert.alert("한라봉이 부족해요", "챌린지나 커뮤니티 활동으로 한라봉을 모아보세요.", [
+          { text: "포인트 전환", onPress: () => navigation.navigate("PointConvert") },
+          { text: "챌린지 보기", onPress: () => navigation.navigate("Challenge") },
+          { text: "스팟 남기기", onPress: () => navigation.navigate("PostWrite") },
+          { text: "닫기", style: "cancel" },
+        ]);
         return;
       }
 

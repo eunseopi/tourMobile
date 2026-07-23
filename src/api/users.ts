@@ -1,4 +1,5 @@
 import api from "./instance";
+import type { UploadableImage } from "src/types/SpotTypes";
 
 // 유저정보
 export type SessionMe = {
@@ -47,9 +48,13 @@ export const userApi = {
     // 프로필 수정
     changeNickname: (nickname: string, signal?: AbortSignal) =>
         api.post<ApiRes<string>>('v1/users/account/nickname', null, { params: { nickname }, signal }),
-    updateProfileImg: (file: File | Blob, signal?: AbortSignal) => {
+    updateProfileImg: (file: UploadableImage, signal?: AbortSignal) => {
         const form = new FormData();
-        form.append('newProfileImage', file);
+        form.append('newProfileImage', {
+            uri: file.uri,
+            name: file.name ?? `profile-${Date.now()}.jpg`,
+            type: file.type ?? 'image/jpeg',
+        } as any);
         return api.put<ApiRes<string>>('v1/users/profile', form, { signal });
     },
     deleteProfileImg: (signal?: AbortSignal) =>

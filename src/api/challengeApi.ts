@@ -26,6 +26,6 @@ export const challengeApi = {
     api.post(`api/challenges/${id}/complete`, {
       latitude,
       longitude,
-      proofUrl, // TODO: 나중에 업로드 API 연동 시 업로드 URL로 교체
+      proofUrl,
     }),
 };

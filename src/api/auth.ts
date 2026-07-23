@@ -1,4 +1,5 @@
 import api from "./instance";
+import type { UploadableImage } from "src/types/SpotTypes";
 
 export const authApi = {
     login: (data: { email: string, password: string }) =>
@@ -25,15 +26,20 @@ export const authApi = {
             gender: 'MALE' | 'FEMALE';
             birthYear: string;
             referrerNickname: string;
-        }, profileFile?: File
+        }, profileFile?: UploadableImage | null
     ) => {
             const fd = new FormData();
 
             const dataBlob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
             fd.append('data', dataBlob);
 
-            // profile 있을 때만,
-            if (profileFile) fd.append('profile', profileFile, profileFile.name);
+            if (profileFile) {
+                fd.append('profile', {
+                    uri: profileFile.uri,
+                    name: profileFile.name ?? `register-${Date.now()}.jpg`,
+                    type: profileFile.type ?? 'image/jpeg',
+                } as any);
+            }
 
             return api.post('/v1/users/register/final', fd)
 

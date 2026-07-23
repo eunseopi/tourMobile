@@ -1,5 +1,5 @@
 import api from "./instance";
-import type { SpotCreate } from "src/types/SpotTypes";
+import type { SpotCreate, UploadableImage } from "src/types/SpotTypes";
 import type { SpotPage } from "src/reducer/types";
 import type { BannerItem } from "src/components/community/types";
 import type { PostDetailProps } from "src/components/community/PostDetail/types";
@@ -20,15 +20,10 @@ export const communityApi = {
     const formData = new FormData();
     const { images, ...data } = payload;
 
-    console.log("payload.images:", images); 
-
-    // formData.append('data', JSON.stringify(data));
     formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/JSON' }));
 
     images.forEach((file) => {
-      if (file instanceof File) {
-        formData.append("images", file);
-      }
+      formData.append("images", toReactNativeFile(file) as any);
     });
 
     const res = await api.post<ApiRes<number>>('/api/spots', formData);
@@ -91,4 +86,12 @@ export const communityApi = {
     return res.data;
   },
 
+}
+
+function toReactNativeFile(file: UploadableImage) {
+  return {
+    uri: file.uri,
+    name: file.name ?? `spot-${Date.now()}.jpg`,
+    type: file.type ?? "image/jpeg",
+  };
 }
