@@ -10,6 +10,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useChangeThemes } from "src/features/user/useChangeThemes";
 
@@ -66,7 +68,7 @@ export default function ThemeEditScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>관심 테마를 불러오는 중...</Text>
       </View>
     );
@@ -76,125 +78,122 @@ export default function ThemeEditScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>관심 테마를 불러오지 못했어요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => refetch()}>
-          <Text style={styles.primaryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>관심 테마</Text>
-      <Text style={styles.description}>최대 3개까지 선택할 수 있어요.</Text>
+    <View style={commonStyles.screen}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <View style={styles.themeGrid}>
+          {THEME_OPTIONS.map((theme) => {
+            const active = selected.includes(theme);
+            return (
+              <Pressable
+                key={theme}
+                style={[styles.themeItem, active && styles.themeItemActive]}
+                onPress={() => toggleTheme(theme)}
+              >
+                <Text style={[styles.themeText, active && styles.themeTextActive]}>
+                  {theme}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-      <View style={styles.themeGrid}>
-        {THEME_OPTIONS.map((theme) => {
-          const active = selected.includes(theme);
-          return (
-            <Pressable
-              key={theme}
-              style={[styles.themeChip, active && styles.themeChipActive]}
-              onPress={() => toggleTheme(theme)}
-            >
-              <Text style={[styles.themeChipText, active && styles.themeChipTextActive]}>
-                {theme}
-              </Text>
-            </Pressable>
-          );
-        })}
+        <View style={styles.alertBox}>
+          <Text style={styles.alertText}>관심 테마는 최대 3개까지 선택할 수 있어요.</Text>
+        </View>
+      </ScrollView>
+
+      <View style={commonStyles.bottomAction}>
+        <Pressable
+          style={({ pressed }) => [
+            commonStyles.primaryButton,
+            pressed && commonStyles.primaryButtonPressed,
+            changeThemes.isPending && commonStyles.primaryButtonDisabled,
+          ]}
+          onPress={handleSave}
+          disabled={changeThemes.isPending}
+        >
+          {changeThemes.isPending ? (
+            <ActivityIndicator color={colors.base[0]} />
+          ) : (
+            <Text style={commonStyles.primaryButtonText}>수정하기</Text>
+          )}
+        </Pressable>
       </View>
-
-      <Pressable
-        style={[styles.primaryButton, changeThemes.isPending && styles.primaryButtonDisabled]}
-        onPress={handleSave}
-        disabled={changeThemes.isPending}
-      >
-        {changeThemes.isPending ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.primaryButtonText}>저장하기</Text>
-        )}
-      </Pressable>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "900",
-    color: "#191919",
-  },
-  description: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "#777",
+    flexGrow: 1,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 59,
+    paddingBottom: 132,
   },
   themeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginTop: 22,
+    gap: 11,
   },
-  themeChip: {
-    minHeight: 42,
-    paddingHorizontal: 14,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  themeChipActive: {
-    backgroundColor: "#ffeddc",
+  themeItem: {
+    width: "30.8%",
+    minHeight: 68,
+    paddingVertical: 24,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#ffb585",
-  },
-  themeChipText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#555",
-  },
-  themeChipTextActive: {
-    color: "#b6612c",
-  },
-  primaryButton: {
-    marginTop: 28,
-    minHeight: 54,
-    borderRadius: 16,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
   },
-  primaryButtonDisabled: {
-    opacity: 0.55,
+  themeItemActive: {
+    borderColor: colors.primary[300],
+    backgroundColor: colors.primary[50],
   },
-  primaryButtonText: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#fff",
+  themeText: {
+    ...typography.body3,
+    color: colors.gray[500],
+    textAlign: "center",
+  },
+  themeTextActive: {
+    color: colors.primary[400],
+  },
+  alertBox: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 32,
+  },
+  alertText: {
+    ...typography.body3,
+    color: colors.gray[500],
+    textAlign: "center",
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d14b4b",
-    fontWeight: "700",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });

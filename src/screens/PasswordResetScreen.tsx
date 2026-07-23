@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useResetPassword } from "src/features/user/useResetPassword";
 import {
@@ -60,7 +62,7 @@ export default function PasswordResetScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>계정 정보를 불러오는 중...</Text>
       </View>
     );
@@ -70,130 +72,111 @@ export default function PasswordResetScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>계정 정보를 불러오지 못했어요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => refetch()}>
-          <Text style={styles.primaryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.label}>이메일</Text>
-      <View style={styles.readonlyField}>
-        <Text style={styles.readonlyText}>{me.email}</Text>
-      </View>
-
-      <Text style={[styles.label, styles.spacingTop]}>새 비밀번호</Text>
-      <TextInput
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        placeholder="새 비밀번호를 입력하세요"
-        placeholderTextColor="#aaa"
-        style={[styles.input, passwordError ? styles.inputError : null]}
-      />
-      {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-
-      <Text style={[styles.label, styles.spacingTop]}>비밀번호 확인</Text>
-      <TextInput
-        value={confirm}
-        onChangeText={setConfirm}
-        secureTextEntry
-        placeholder="비밀번호를 다시 입력하세요"
-        placeholderTextColor="#aaa"
-        style={[styles.input, confirmError ? styles.inputError : null]}
-      />
-      {confirmError ? <Text style={styles.errorText}>{confirmError}</Text> : null}
-
-      <Pressable
-        style={[
-          styles.primaryButton,
-          (!canSubmit || resetPassword.isPending) && styles.disabledButton,
-        ]}
-        disabled={!canSubmit || resetPassword.isPending}
-        onPress={handleSubmit}
+    <View style={commonStyles.screen}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={styles.container}
+        contentContainerStyle={styles.content}
       >
-        <Text style={styles.primaryButtonText}>
-          {resetPassword.isPending ? "변경 중..." : "비밀번호 변경"}
-        </Text>
-      </Pressable>
-    </ScrollView>
+        <Text style={styles.title}>비밀번호를 입력해주세요.</Text>
+
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="특수문자 포함 8-12자로 입력해주세요."
+          placeholderTextColor={colors.gray[400]}
+          style={[styles.input, passwordError ? styles.inputError : null]}
+        />
+        {passwordError ? <Text style={styles.messageError}>{passwordError}</Text> : null}
+
+        <Text style={styles.caption}>비밀번호를 한번 더 확인해주세요.</Text>
+        <TextInput
+          value={confirm}
+          onChangeText={setConfirm}
+          secureTextEntry
+          placeholder="비밀번호를 다시 입력해주세요."
+          placeholderTextColor={colors.gray[400]}
+          editable={!resetPassword.isPending}
+          style={[styles.input, confirmError ? styles.inputError : null]}
+        />
+        {confirmError ? <Text style={styles.messageError}>{confirmError}</Text> : null}
+      </ScrollView>
+
+      <View style={commonStyles.bottomAction}>
+        <Pressable
+          style={({ pressed }) => [
+            commonStyles.primaryButton,
+            pressed && commonStyles.primaryButtonPressed,
+            (!canSubmit || resetPassword.isPending) && commonStyles.primaryButtonDisabled,
+          ]}
+          disabled={!canSubmit || resetPassword.isPending}
+          onPress={handleSubmit}
+        >
+          {resetPassword.isPending ? (
+            <ActivityIndicator color={colors.base[0]} />
+          ) : (
+            <Text style={commonStyles.primaryButtonText}>수정하기</Text>
+          )}
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 24,
+    paddingBottom: 132,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#444",
+  title: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 24,
   },
-  spacingTop: {
-    marginTop: 18,
-  },
-  readonlyField: {
-    marginTop: 8,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    justifyContent: "center",
-    backgroundColor: "#f4f4f4",
-  },
-  readonlyText: {
-    fontSize: 15,
-    color: "#555",
+  caption: {
+    ...typography.body3,
+    color: colors.gray[700],
+    marginTop: 28,
+    marginBottom: 8,
   },
   input: {
-    marginTop: 8,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    backgroundColor: "#f9f9f9",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#ddd",
-    fontSize: 15,
-    color: "#222",
+    ...commonStyles.input,
   },
   inputError: {
-    borderColor: "#d33",
+    borderColor: colors.error[100],
   },
-  primaryButton: {
-    marginTop: 24,
-    height: 54,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "900",
+  messageError: {
+    ...typography.caption1,
+    color: colors.error[100],
+    marginTop: 8,
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    marginTop: 8,
-    color: "#d33",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -13,6 +13,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useProfileEditor } from "src/features/user/useProfileEditor";
 import type { UploadableImage } from "src/types/SpotTypes";
@@ -29,6 +31,14 @@ export default function ProfileEditScreen({ navigation }: Props) {
   useEffect(() => {
     if (me?.nickname) setNickname(me.nickname);
   }, [me?.nickname]);
+
+  const nicknameChanged = useMemo(
+    () => (me?.nickname ?? "") !== nickname,
+    [me?.nickname, nickname]
+  );
+
+  const hasImageChange = !!selectedImage;
+  const disabled = isSaving || (!nicknameChanged && !hasImageChange);
 
   const validate = (value: string) => {
     const trimmed = value.trim();
@@ -140,7 +150,7 @@ export default function ProfileEditScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>프로필 정보를 불러오는 중...</Text>
       </View>
     );
@@ -150,218 +160,220 @@ export default function ProfileEditScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>프로필 정보를 불러오지 못했어요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => refetch()}>
-          <Text style={styles.primaryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
 
+  const profileUri = selectedImage?.uri ?? me.profile ?? undefined;
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.label}>이메일</Text>
-      <View style={styles.readonlyField}>
-        <Text style={styles.readonlyText}>{me.email}</Text>
-      </View>
+    <View style={commonStyles.screen}>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        style={styles.container}
+        contentContainerStyle={styles.content}
+      >
+        <View style={styles.profileUploadBox}>
+          <Pressable style={styles.profileUploadWrapper} onPress={handlePickImage}>
+            {profileUri ? (
+              <Image source={{ uri: profileUri }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.profileFallback}>
+                <Text style={styles.profileFallbackText}>
+                  {(me.nickname || me.name || "제").slice(0, 1)}
+                </Text>
+              </View>
+            )}
+            <View style={styles.cameraIcon}>
+              <Text style={styles.cameraText}>+</Text>
+            </View>
+          </Pressable>
+        </View>
 
-      <Text style={[styles.label, styles.spacingTop]}>닉네임</Text>
-      <TextInput
-        value={nickname}
-        onChangeText={(value) => {
-          setNickname(value);
-          if (error) setError("");
-        }}
-        placeholder="닉네임을 입력하세요"
-        placeholderTextColor="#aaa"
-        maxLength={20}
-        style={[styles.input, error ? styles.inputError : null]}
-      />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
-      <Text style={[styles.label, styles.spacingTop]}>프로필 이미지</Text>
-      <View style={styles.imageSection}>
-        {selectedImage?.uri || me.profile ? (
-          <Image
-            source={{ uri: selectedImage?.uri ?? me.profile ?? undefined }}
-            style={styles.profileImage}
+        <Text style={styles.caption}>닉네임을 입력해주세요.</Text>
+        <View style={styles.nicknameRow}>
+          <TextInput
+            value={nickname}
+            onChangeText={(value) => {
+              setNickname(value);
+              if (error) setError("");
+            }}
+            placeholder="닉네임을 입력하세요"
+            placeholderTextColor={colors.gray[400]}
+            maxLength={20}
+            style={[styles.input, error ? styles.inputError : null]}
           />
-        ) : (
-          <View style={styles.profileFallback}>
-            <Text style={styles.profileFallbackText}>
-              {(me.nickname || me.name || "제").slice(0, 1)}
-            </Text>
-          </View>
-        )}
+          <Pressable style={styles.checkButton} onPress={() => setError(validate(nickname))}>
+            <Text style={styles.checkButtonText}>확인</Text>
+          </Pressable>
+        </View>
+        {error ? <Text style={styles.messageError}>{error}</Text> : null}
 
         <View style={styles.imageButtons}>
-          <Pressable style={styles.secondaryButton} onPress={handlePickImage}>
-            <Text style={styles.secondaryButtonText}>이미지 선택</Text>
+          <Pressable style={commonStyles.secondaryButton} onPress={handlePickImage}>
+            <Text style={commonStyles.secondaryButtonText}>이미지 선택</Text>
           </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={handleTakeImage}>
-            <Text style={styles.secondaryButtonText}>지금 촬영</Text>
+          <Pressable style={commonStyles.secondaryButton} onPress={handleTakeImage}>
+            <Text style={commonStyles.secondaryButtonText}>지금 촬영</Text>
           </Pressable>
           {selectedImage || me.profile ? (
             <Pressable
-              style={styles.secondaryGhostButton}
+              style={styles.clearButton}
               onPress={handleDeleteProfileImage}
               disabled={isDeletingImage}
             >
-              <Text style={styles.secondaryGhostButtonText}>
+              <Text style={styles.clearButtonText}>
                 {selectedImage ? "선택 취소" : isDeletingImage ? "삭제 중..." : "이미지 삭제"}
               </Text>
             </Pressable>
           ) : null}
         </View>
-      </View>
+      </ScrollView>
 
-      <Pressable
-        style={[styles.primaryButton, isSaving && styles.disabledButton]}
-        disabled={isSaving}
-        onPress={handleSave}
-      >
-        <Text style={styles.primaryButtonText}>
-          {isSaving ? "저장 중..." : "저장하기"}
-        </Text>
-      </Pressable>
-    </ScrollView>
+      <View style={commonStyles.bottomAction}>
+        <Pressable
+          style={({ pressed }) => [
+            commonStyles.primaryButton,
+            pressed && commonStyles.primaryButtonPressed,
+            disabled && commonStyles.primaryButtonDisabled,
+          ]}
+          disabled={disabled}
+          onPress={handleSave}
+        >
+          {isSaving ? (
+            <ActivityIndicator color={colors.base[0]} />
+          ) : (
+            <Text style={commonStyles.primaryButtonText}>수정하기</Text>
+          )}
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 20,
+    paddingBottom: 148,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#444",
+  profileUploadBox: {
+    paddingVertical: 20,
   },
-  spacingTop: {
-    marginTop: 18,
-  },
-  readonlyField: {
-    marginTop: 8,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    justifyContent: "center",
-    backgroundColor: "#f4f4f4",
-  },
-  readonlyText: {
-    fontSize: 15,
-    color: "#555",
-  },
-  input: {
-    marginTop: 8,
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    backgroundColor: "#f9f9f9",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#ddd",
-    fontSize: 15,
-    color: "#222",
-  },
-  inputError: {
-    borderColor: "#d33",
-  },
-  helpBox: {
-    marginTop: 18,
-    padding: 14,
-    borderRadius: 14,
-    backgroundColor: "#fff4ec",
-  },
-  helpText: {
-    fontSize: 13,
-    lineHeight: 19,
-    color: "#855234",
-  },
-  imageSection: {
-    marginTop: 10,
-    gap: 14,
+  profileUploadWrapper: {
+    width: 90,
+    height: 90,
+    alignSelf: "center",
   },
   profileImage: {
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    backgroundColor: "#eee",
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: colors.gray[200],
+    borderWidth: 1,
+    borderColor: colors.gray[300],
   },
   profileFallback: {
-    width: 112,
-    height: 112,
-    borderRadius: 56,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffccaa",
+    backgroundColor: colors.gray[200],
   },
   profileFallbackText: {
-    color: "#fff",
-    fontSize: 36,
-    fontWeight: "900",
+    ...typography.head2,
+    color: colors.gray[500],
+  },
+  cameraIcon: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.base[0],
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gray[200],
+  },
+  cameraText: {
+    ...typography.head4,
+    color: colors.gray[600],
+    marginTop: -2,
+  },
+  caption: {
+    ...typography.body3,
+    color: colors.gray[700],
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  nicknameRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  input: {
+    ...commonStyles.input,
+    flex: 1,
+  },
+  inputError: {
+    borderColor: colors.error[100],
+  },
+  checkButton: {
+    width: 84,
+    minHeight: 48,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gray[100],
+  },
+  checkButtonText: {
+    ...typography.body1,
+    color: colors.gray[500],
   },
   imageButtons: {
     gap: 10,
+    marginTop: 28,
   },
-  secondaryButton: {
-    minHeight: 46,
-    paddingHorizontal: 16,
-    borderRadius: 14,
+  clearButton: {
+    minHeight: layout.buttonHeight,
+    borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.gray[100],
   },
-  secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#8b532f",
+  clearButtonText: {
+    ...typography.body1,
+    color: colors.gray[500],
   },
-  secondaryGhostButton: {
-    minHeight: 44,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f3f3f3",
-  },
-  secondaryGhostButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#555",
-  },
-  primaryButton: {
-    marginTop: 24,
-    height: 54,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "900",
+  messageError: {
+    ...typography.caption1,
+    color: colors.error[100],
+    marginTop: 8,
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    marginTop: 8,
-    color: "#d33",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });
