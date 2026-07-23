@@ -35,9 +35,9 @@ export function ProfileStep({
 }: Props) {
   return (
     <View style={styles.section}>
+      <Text style={styles.heading}>프로필을 설정해주세요.</Text>
       {!isKakaoRegister ? (
         <>
-          <Text style={styles.label}>프로필 이미지</Text>
           <View style={styles.profileImageSection}>
             {imageUrl ? (
               <Image source={{ uri: imageUrl }} style={styles.profilePreview} />
@@ -60,11 +60,11 @@ export function ProfileStep({
         <Text style={styles.profileNotice}>카카오 가입은 닉네임, 추천인, 관심 테마를 입력하면 완료됩니다.</Text>
       )}
 
-      <Text style={styles.label}>닉네임</Text>
+      <Text style={styles.label}>닉네임을 입력해주세요.</Text>
       <TextInput
         value={nickname}
         onChangeText={onChangeNickname}
-        placeholder="2자 이상 8자 이하"
+        placeholder="최대 8자까지 가능해요."
         placeholderTextColor="#a0a0a0"
         style={styles.input}
       />
@@ -74,13 +74,11 @@ export function ProfileStep({
         {isCheckingNickname ? (
           <ActivityIndicator color="#8b532f" />
         ) : (
-          <Text style={styles.secondaryButtonText}>
-            {isNicknameDuplicatedChecked ? "확인 완료" : "닉네임 중복 확인"}
-          </Text>
+          <Text style={styles.secondaryButtonText}>{isNicknameDuplicatedChecked ? "확인 완료" : "중복확인"}</Text>
         )}
       </Pressable>
 
-      <Text style={[styles.label, styles.inlineTop]}>추천인</Text>
+      <Text style={[styles.label, styles.inlineTop]}>추천인을 입력해주세요.</Text>
       <TextInput
         value={referralCode}
         onChangeText={onChangeReferralCode}
@@ -100,6 +98,11 @@ const styles = StyleSheet.create({
   label: {
     ...typography.body3,
     color: colors.gray[700],
+  },
+  heading: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 20,
   },
   inlineTop: {
     marginTop: 18,

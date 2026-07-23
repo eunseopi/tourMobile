@@ -23,13 +23,13 @@ export function EmailStep({
 
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>이메일</Text>
+      <Text style={styles.heading}>이메일을 입력해주세요.</Text>
       <View style={[styles.inputShell, emailError ? styles.inputShellError : null]}>
         <TextInput
           value={email}
           onChangeText={onChangeEmail}
           onBlur={onBlurEmail}
-          placeholder="이메일을 입력해주세요."
+          placeholder="이메일을 입력해주세요"
           placeholderTextColor="#a0a0a0"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -67,6 +67,11 @@ const styles = StyleSheet.create({
     ...typography.body3,
     color: colors.gray[700],
   },
+  heading: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 20,
+  },
   inputShell: {
     minHeight: 48,
     borderRadius: 10,
@@ -98,14 +103,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary[400],
   },
   duplicateButtonDisabled: {
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.gray[400],
   },
   duplicateButtonText: {
     ...typography.caption1,
     color: colors.base[0],
   },
   duplicateButtonTextDisabled: {
-    color: colors.gray[400],
+    color: colors.base[0],
   },
   errorText: {
     marginTop: 6,

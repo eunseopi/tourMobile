@@ -17,21 +17,20 @@ export function PasswordStep({
 }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>비밀번호</Text>
+      <Text style={styles.heading}>비밀번호를 입력해주세요.</Text>
       <TextInput
         value={password}
         onChangeText={onChangePassword}
-        placeholder="8자 이상 입력"
+        placeholder="특수문자 포함 8-12자로 입력해주세요."
         placeholderTextColor="#a0a0a0"
         secureTextEntry
         style={styles.input}
       />
 
-      <Text style={[styles.label, styles.inlineTop]}>비밀번호 확인</Text>
+      <Text style={[styles.label, styles.inlineTop]}>비밀번호를 한번 더 확인해주세요.</Text>
       <TextInput
         value={passwordConfirm}
         onChangeText={onChangePasswordConfirm}
-        placeholder="한 번 더 입력"
         placeholderTextColor="#a0a0a0"
         secureTextEntry
         style={styles.input}
@@ -47,6 +46,11 @@ const styles = StyleSheet.create({
   label: {
     ...typography.body3,
     color: colors.gray[700],
+  },
+  heading: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 20,
   },
   inlineTop: {
     marginTop: 18,

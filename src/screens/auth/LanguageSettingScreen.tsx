@@ -20,7 +20,7 @@ export default function LanguageSettingScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.body}>
-        <Text style={styles.guide}>언어를 선택해주세요.</Text>
+        <Text style={styles.guide}>하루제주에 입장 전{"\n"}언어를 선택해주세요.</Text>
         <View style={styles.options}>
           {LANGUAGES.map((item) => {
             const active = selected === item.key;

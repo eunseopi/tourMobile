@@ -13,8 +13,9 @@ type Props = NativeStackScreenProps<RootStackParamList, "Permission">;
 
 const PERMISSIONS = [
   { title: "알림", description: "푸시알림 발송" },
-  { title: "카메라", description: "미션 인증 및 이미지 등록" },
-  { title: "위치", description: "근처 스팟 추천 및 챌린지" },
+  { title: "카메라", description: "사진 업로드" },
+  { title: "사진", description: "사진 업로드" },
+  { title: "위치", description: "사용자 위치 기반" },
 ] as const;
 
 export default function PermissionScreen({ navigation }: Props) {
@@ -69,9 +70,9 @@ export default function PermissionScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.wrapper}>
-        <Text style={styles.guide}>서비스 이용을 위해
-접근 권한을 허용해주세요.</Text>
+        <Text style={styles.guide}>앱 사용 권한을 위해{"\n"}접근 권한을 허용해주세요.</Text>
         <View style={styles.listBox}>
+          <Text style={styles.permissionSectionTitle}>선택 권한</Text>
           {PERMISSIONS.map((item) => (
             <View key={item.title} style={styles.permissionRow}>
               <View style={styles.permissionLeft}>
@@ -89,7 +90,7 @@ export default function PermissionScreen({ navigation }: Props) {
           {isSubmitting ? (
             <ActivityIndicator color={colors.base[0]} />
           ) : (
-            <Text style={commonStyles.primaryButtonText}>권한 허용하기</Text>
+            <Text style={commonStyles.primaryButtonText}>확인</Text>
           )}
         </Pressable>
       </View>
@@ -111,8 +112,15 @@ const styles = StyleSheet.create({
   listBox: {
     gap: 20,
   },
+  permissionSectionTitle: {
+    ...typography.body1,
+    color: colors.gray[600],
+  },
   permissionRow: {
-    gap: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 15,
   },
   permissionLeft: {
     flexDirection: "row",
@@ -130,8 +138,7 @@ const styles = StyleSheet.create({
     color: colors.base[100],
   },
   permissionDescription: {
-    ...typography.body3,
+    ...typography.body4,
     color: colors.gray[600],
-    marginLeft: 16,
   },
 });

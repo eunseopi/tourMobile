@@ -21,8 +21,8 @@ type Props = {
 export function ThemeStep({ selectedThemes, onToggleTheme }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.label}>관심 테마</Text>
-      <Text style={styles.helperText}>최대 3개까지 선택할 수 있어요.</Text>
+      <Text style={styles.heading}>테마를 선택해주세요</Text>
+      <Text style={styles.helperText}>선택한 테마를 참고하여 추천해드릴게요!</Text>
       <View style={styles.themeGrid}>
         {THEME_OPTIONS.map((theme) => {
           const active = selectedThemes.includes(theme);
@@ -37,6 +37,9 @@ export function ThemeStep({ selectedThemes, onToggleTheme }: Props) {
           );
         })}
       </View>
+      <View style={styles.alertBox}>
+        <Text style={styles.alertText}>최대 3개까지 선택 가능합니다.</Text>
+      </View>
     </View>
   );
 }
@@ -49,16 +52,33 @@ const styles = StyleSheet.create({
     ...typography.body3,
     color: colors.gray[700],
   },
+  heading: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 5,
+  },
   helperText: {
-    marginTop: 6,
+    marginTop: 0,
     ...typography.caption2,
-    color: colors.gray[500],
+    color: colors.gray[700],
   },
   themeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 11,
     marginTop: 59,
+  },
+  alertBox: {
+    marginTop: 16,
+    minHeight: 36,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary[50],
+  },
+  alertText: {
+    ...typography.caption2,
+    color: colors.gray[600],
   },
   themeChip: {
     width: "30.8%",

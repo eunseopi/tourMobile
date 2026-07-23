@@ -130,20 +130,17 @@ export default function LoginScreen({ navigation }: Props) {
               secureTextEntry
               error={passwordError}
             />
-
-            <PrimaryActionButton
-              label="이메일로 로그인"
-              isLoading={isSubmitting}
-              disabled={!validation.isValid}
-              style={styles.submitButton}
-              onPress={handleLogin}
-            />
-
-            <Pressable style={styles.outlineButton} onPress={() => navigation.navigate("Register")}>
-              <Text style={styles.outlineButtonText}>회원가입</Text>
-            </Pressable>
           </View>
         </ScrollView>
+
+        <View style={styles.bottomAction}>
+          <PrimaryActionButton
+            label="입장하기"
+            isLoading={isSubmitting}
+            disabled={!email.trim() || !password.trim() || isSubmitting}
+            onPress={handleLogin}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -161,7 +158,7 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingHorizontal: layout.screenPadding,
-    paddingTop: 32,
+    paddingTop: 10,
     paddingBottom: 140,
   },
   backButton: {
@@ -191,20 +188,21 @@ const styles = StyleSheet.create({
   form: {
     gap: 10,
   },
-  submitButton: {
-    marginTop: 10,
-  },
-  outlineButton: {
-    height: 48,
-    borderRadius: 7,
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-    alignItems: "center",
-    justifyContent: "center",
+  bottomAction: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 12,
+    paddingBottom: layout.bottomActionPaddingBottom,
     backgroundColor: colors.bg[0],
-  },
-  outlineButtonText: {
-    ...typography.body1,
-    color: colors.gray[700],
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.gray[200],
+    shadowColor: "#D2D2D2",
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
 });

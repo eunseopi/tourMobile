@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors, typography } from "src/design/theme";
+import { StyleSheet, View } from "react-native";
+import { colors } from "src/design/theme";
 
 type Props = {
   totalSteps: number;
@@ -7,22 +7,21 @@ type Props = {
   title: string;
 };
 
-export function RegisterStepBar({ totalSteps, currentStep, title }: Props) {
+export function RegisterStepBar({ totalSteps, currentStep }: Props) {
   return (
     <View style={styles.header}>
       <View style={styles.stepBar}>
         {Array.from({ length: totalSteps }).map((_, index) => (
-          <View key={index} style={[styles.stepItem, index <= currentStep && styles.stepItemActive]} />
+          <View key={index} style={[styles.stepItem, index === currentStep && styles.stepItemActive]} />
         ))}
       </View>
-      <Text style={styles.title}>{title}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: 20,
+    marginBottom: 0,
   },
   stepBar: {
     flexDirection: "row",
@@ -40,9 +39,5 @@ const styles = StyleSheet.create({
   },
   stepItemActive: {
     backgroundColor: colors.primary[400],
-  },
-  title: {
-    ...typography.head3,
-    color: colors.gray[800],
   },
 });

@@ -34,17 +34,17 @@ export function BasicInfoStep({
         </>
       ) : null}
 
-      <Text style={styles.label}>성별</Text>
+      <Text style={styles.heading}>성별을 선택해주세요.</Text>
       <View style={styles.segmentRow}>
-        <SegmentButton active={gender === "male"} label="남성" onPress={() => onChangeGender("male")} />
-        <SegmentButton active={gender === "female"} label="여성" onPress={() => onChangeGender("female")} />
+        <SegmentButton active={gender === "male"} label="남자" onPress={() => onChangeGender("male")} />
+        <SegmentButton active={gender === "female"} label="여자" onPress={() => onChangeGender("female")} />
       </View>
 
-      <Text style={[styles.label, styles.inlineTop]}>출생연도</Text>
+      <Text style={styles.heading}>태어난 연도를 알려주세요.</Text>
       <TextInput
         value={birthYear}
         onChangeText={onChangeBirthYear}
-        placeholder="예: 1998"
+        placeholder="예)1999"
         placeholderTextColor="#a0a0a0"
         keyboardType="number-pad"
         maxLength={4}
@@ -79,12 +79,14 @@ const styles = StyleSheet.create({
     ...typography.body3,
     color: colors.gray[700],
   },
-  inlineTop: {
-    marginTop: 18,
+  heading: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 20,
   },
   input: {
     ...commonStyles.input,
-    marginTop: 8,
+    marginTop: 0,
   },
   errorText: {
     marginTop: 6,
