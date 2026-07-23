@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useNotification } from "src/features/my-page/useNotification";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
@@ -42,7 +44,7 @@ export default function MyPageScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>내 정보를 불러오는 중...</Text>
       </View>
     );
@@ -52,8 +54,8 @@ export default function MyPageScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => refetch()}>
-          <Text style={styles.primaryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
@@ -61,62 +63,80 @@ export default function MyPageScreen({ navigation }: Props) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.profileCard}>
-        <View style={styles.avatarBox}>
-          {me.profile ? (
-            <Image source={{ uri: me.profile }} style={styles.avatar} />
-          ) : (
-            <Text style={styles.avatarInitial}>
-              {(me.nickname || me.name || "제").slice(0, 1)}
-            </Text>
-          )}
-        </View>
-
-        <View style={styles.profileText}>
-          <Text style={styles.nickname}>{me.nickname || me.name || "게스트"}</Text>
-          <Text style={styles.grade}>{gradeName}</Text>
-        </View>
-      </View>
-
-      <View style={styles.statRow}>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>보유 한라봉</Text>
-          <Text style={styles.statValue}>{me.hallabong ?? 0}</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statLabel}>총 걸음수</Text>
-          <Text style={styles.statValue}>{(me.totalSteps ?? 0).toLocaleString()}</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <View style={styles.settingRow}>
-          <View>
-            <Text style={styles.settingTitle}>알림 받기</Text>
-            <Text style={styles.settingDescription}>이벤트와 챌린지 소식을 받아요.</Text>
+      <View style={styles.profileWrapper}>
+        <Pressable style={styles.profileBox} onPress={() => navigation.navigate("ProfileEdit")}>
+          <View style={styles.profileImageWrapper}>
+            {me.profile ? (
+              <Image source={{ uri: me.profile }} style={styles.profileImage} />
+            ) : (
+              <Text style={styles.avatarInitial}>
+                {(me.nickname || me.name || "제").slice(0, 1)}
+              </Text>
+            )}
           </View>
-          <Switch
-            value={notiEnabled}
-            onValueChange={toggleNoti}
-            trackColor={{ false: "#dedede", true: "#ffc09a" }}
-            thumbColor={notiEnabled ? "#ff8b4c" : "#f5f5f5"}
-          />
+
+          <View style={styles.nicknameWrapper}>
+            <View style={styles.nicknameBox}>
+              <Text style={styles.nickname} numberOfLines={1}>{me.nickname || me.name || "게스트"}</Text>
+              <Text style={styles.chevron}>›</Text>
+            </View>
+            <Text style={styles.level}>LV. {gradeName}</Text>
+          </View>
+        </Pressable>
+
+        <View style={styles.hallabongWrapper}>
+          <View style={styles.goToStoreBox}>
+            <View style={styles.hallabongIcon}>
+              <Text style={styles.hallabongIconText}>●</Text>
+            </View>
+            <Pressable style={styles.goToStore} onPress={() => navigation.navigate("Shop")}>
+              <View style={styles.storeTextBox}>
+                <Text style={styles.storeTitle}>상점</Text>
+                <Text style={styles.storeDesc}>한라봉으로 다양한 상품을 구매해요!</Text>
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
+          </View>
+          <Pressable style={styles.giftButton} onPress={() => navigation.navigate("MyCoupons")}>
+            <Text style={styles.giftButtonText}>내 상품권 확인하기</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={styles.menuArea}>
+        <View style={styles.menuWrapper}>
+          <MenuItem icon="◎" label="커뮤니티 보러가기" onPress={() => navigation.navigate("Community")} />
+          <MenuItem icon="◇" label="챌린지 보러가기" onPress={() => navigation.navigate("Challenge")} />
+          <View style={styles.menuRow}>
+            <View style={styles.menuBox}>
+              <Text style={styles.menuIcon}>◉</Text>
+              <Text style={styles.menuText}>알림설정</Text>
+            </View>
+            <Switch
+              value={notiEnabled}
+              onValueChange={toggleNoti}
+              trackColor={{ false: colors.gray[400], true: colors.primary[400] }}
+              thumbColor={colors.base[0]}
+              ios_backgroundColor={colors.gray[400]}
+            />
+          </View>
+          <MenuItem icon="⚙" label="프로필 수정" onPress={() => navigation.navigate("ProfileEdit")} />
+          <MenuItem icon="⚙" label="테마 수정" onPress={() => navigation.navigate("ThemeEdit")} />
+          <MenuItem icon="⚙" label="비밀번호 수정" onPress={() => navigation.navigate("PasswordReset")} />
         </View>
 
         <View style={styles.pushStatusBox}>
-          <View style={styles.pushStatusTextBox}>
-            <Text style={styles.pushStatusTitle}>기기 알림 연결</Text>
-            <Text style={styles.pushStatusDescription}>
-              {permissionGranted
-                ? expoPushToken
-                  ? "이 기기에서 푸시를 받을 준비가 됐어요."
-                  : "권한은 있지만 아직 기기 토큰을 다시 확인하는 중이에요."
-                : "아직 이 기기에서 알림 권한이 허용되지 않았어요."}
-            </Text>
-            {lastNotificationTitle ? (
-              <Text style={styles.pushStatusMeta}>최근 수신: {lastNotificationTitle}</Text>
-            ) : null}
-          </View>
+          <Text style={styles.pushStatusTitle}>기기 알림 연결</Text>
+          <Text style={styles.pushStatusDescription}>
+            {permissionGranted
+              ? expoPushToken
+                ? "이 기기에서 푸시를 받을 준비가 됐어요."
+                : "권한은 있지만 아직 기기 토큰을 다시 확인하는 중이에요."
+              : "아직 이 기기에서 알림 권한이 허용되지 않았어요."}
+          </Text>
+          {lastNotificationTitle ? (
+            <Text style={styles.pushStatusMeta}>최근 수신: {lastNotificationTitle}</Text>
+          ) : null}
           <Pressable
             style={styles.tokenButton}
             onPress={() => void registerForPushNotificationsAsync({ requestPermission: true })}
@@ -128,22 +148,17 @@ export default function MyPageScreen({ navigation }: Props) {
           </Pressable>
         </View>
       </View>
-
-      <View style={styles.section}>
-        <MenuItem label="내 쿠폰" onPress={() => navigation.navigate("MyCoupons")} />
-        <MenuItem label="포인트 전환" onPress={() => navigation.navigate("PointConvert")} />
-        <MenuItem label="프로필 수정" onPress={() => navigation.navigate("ProfileEdit")} />
-        <MenuItem label="관심 테마 수정" onPress={() => navigation.navigate("ThemeEdit")} />
-        <MenuItem label="비밀번호 재설정" onPress={() => navigation.navigate("PasswordReset")} />
-      </View>
     </ScrollView>
   );
 }
 
-function MenuItem({ label, onPress }: { label: string; onPress?: () => void }) {
+function MenuItem({ icon, label, onPress }: { icon: string; label: string; onPress?: () => void }) {
   return (
-    <Pressable style={styles.menuItem} onPress={onPress}>
-      <Text style={styles.menuText}>{label}</Text>
+    <Pressable style={styles.menuRow} onPress={onPress}>
+      <View style={styles.menuBox}>
+        <Text style={styles.menuIcon}>{icon}</Text>
+        <Text style={styles.menuText}>{label}</Text>
+      </View>
       <Text style={styles.chevron}>›</Text>
     </Pressable>
   );
@@ -152,183 +167,206 @@ function MenuItem({ label, onPress }: { label: string; onPress?: () => void }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingBottom: 90,
   },
-  profileCard: {
+  profileWrapper: {
+    backgroundColor: colors.bg[0],
+    padding: 20,
+    gap: 20,
+  },
+  profileBox: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 18,
-    borderRadius: 18,
-    backgroundColor: "#fff4ec",
+    gap: 30,
   },
-  avatarBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+  profileImageWrapper: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.gray[200],
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#ffccaa",
   },
-  avatar: {
+  profileImage: {
     width: "100%",
     height: "100%",
   },
   avatarInitial: {
-    fontSize: 26,
-    fontWeight: "900",
-    color: "#fff",
+    ...typography.head1,
+    color: colors.gray[500],
   },
-  profileText: {
+  nicknameWrapper: {
     flex: 1,
-    marginLeft: 14,
+    paddingTop: 20,
+    paddingBottom: 18,
+  },
+  nicknameBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 12,
   },
   nickname: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#202020",
+    width: 140,
+    ...typography.head3,
+    color: colors.gray[800],
   },
-  grade: {
-    marginTop: 5,
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#9a5b35",
+  level: {
+    ...typography.body4,
+    color: colors.gray[600],
   },
-  statRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 14,
-  },
-  statCard: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: "#f8f8f8",
-  },
-  statLabel: {
-    fontSize: 13,
-    color: "#777",
-  },
-  statValue: {
-    marginTop: 8,
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#ff8b4c",
-  },
-  section: {
-    marginTop: 16,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: "#fafafa",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e6e6e6",
-  },
-  settingRow: {
-    minHeight: 72,
+  hallabongWrapper: {
+    paddingVertical: 18,
     paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  settingTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#222",
-  },
-  settingDescription: {
-    marginTop: 4,
-    fontSize: 13,
-    color: "#777",
-  },
-  pushStatusBox: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  pushStatusTextBox: {
-    flex: 1,
-  },
-  pushStatusTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#222",
-  },
-  pushStatusDescription: {
-    marginTop: 6,
-    fontSize: 13,
-    lineHeight: 19,
-    color: "#666",
-  },
-  pushStatusMeta: {
-    marginTop: 6,
-    fontSize: 12,
-    color: "#9a5b35",
-  },
-  tokenButton: {
-    minWidth: 88,
-    minHeight: 40,
-    paddingHorizontal: 12,
     borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
+  },
+  goToStoreBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 20,
+  },
+  hallabongIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.primary[100],
   },
-  tokenButtonText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#8b532f",
+  hallabongIconText: {
+    color: colors.primary[400],
+    fontSize: 20,
   },
-  menuItem: {
-    minHeight: 54,
+  goToStore: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  storeTextBox: {
+    flex: 1,
+  },
+  storeTitle: {
+    ...typography.head4,
+    color: colors.gray[700],
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  storeDesc: {
+    ...typography.body4,
+    color: colors.gray[600],
+  },
+  giftButton: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: colors.primary[100],
+    alignItems: "center",
+  },
+  giftButtonText: {
+    ...typography.body3,
+    color: colors.primary[500],
+  },
+  menuArea: {
+    flex: 1,
+    padding: 20,
+    paddingBottom: 90,
+    backgroundColor: colors.bg[50],
+  },
+  menuWrapper: {
+    marginTop: 10,
+    marginBottom: 30,
+    borderRadius: 12,
+    overflow: "hidden",
+    ...shadow.card,
+  },
+  menuRow: {
+    minHeight: 66,
+    paddingVertical: 20.5,
     paddingHorizontal: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#e8e8e8",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
+  },
+  menuBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  menuIcon: {
+    width: 26,
+    textAlign: "center",
+    fontSize: 20,
+    color: colors.gray[500],
   },
   menuText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#333",
+    ...typography.body1,
+    color: colors.gray[700],
   },
   chevron: {
     fontSize: 26,
-    color: "#aaa",
+    lineHeight: 26,
+    color: colors.gray[400],
   },
-  primaryButton: {
-    marginTop: 16,
-    height: 48,
-    paddingHorizontal: 18,
-    borderRadius: 14,
+  pushStatusBox: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+  },
+  pushStatusTitle: {
+    ...typography.body3,
+    color: colors.gray[700],
+  },
+  pushStatusDescription: {
+    ...typography.caption2,
+    color: colors.gray[600],
+    marginTop: 6,
+  },
+  pushStatusMeta: {
+    ...typography.caption2,
+    color: colors.primary[400],
+    marginTop: 6,
+  },
+  tokenButton: {
+    alignSelf: "flex-start",
+    minHeight: 40,
+    marginTop: 12,
+    paddingHorizontal: 14,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    backgroundColor: colors.primary[100],
   },
-  primaryButtonText: {
-    color: "#fff",
-    fontWeight: "800",
+  tokenButtonText: {
+    ...typography.body3,
+    color: colors.primary[500],
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d33",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });
