@@ -17,6 +17,8 @@ import type { RootStackParamList } from "../../App";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { communityApi } from "src/api/community";
 import { formatDate } from "src/utils/formDate";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, typography } from "src/design/theme";
 import type { SpotComment } from "src/components/community/Comment/types";
 import {
   useAllComments,
@@ -114,7 +116,7 @@ export default function PostDetailScreen({ route }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>게시글을 불러오는 중...</Text>
       </View>
     );
@@ -124,14 +126,12 @@ export default function PostDetailScreen({ route }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>게시글을 찾을 수 없어요.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
-
-  const firstImage = data.imageUrls?.[0];
 
   return (
     <KeyboardAvoidingView
@@ -141,16 +141,28 @@ export default function PostDetailScreen({ route }: Props) {
     >
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <Text style={styles.title}>{data.name}</Text>
-        {firstImage ? <Image source={{ uri: firstImage }} style={styles.heroImage} /> : null}
-        <Text style={styles.meta}>
-          {data.userNickname || "익명"} · {formatDate(data.createdAt)}
-        </Text>
-        <Text style={styles.description}>{data.description}</Text>
-        <Pressable style={styles.likeButton} onPress={handleToggleLike} disabled={likeMutation.isPending}>
-          <Text style={[styles.likeText, data.likedByMe && styles.likedText]}>
-            {data.likedByMe ? "♥" : "♡"} 좋아요 {data.likeCount ?? 0}
+        {data.imageUrls?.length ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.sliderWrapper}
+          >
+            {data.imageUrls.map((image, index) => (
+              <Image key={`${image}-${index}`} source={{ uri: image }} style={styles.slideImage} />
+            ))}
+          </ScrollView>
+        ) : null}
+        <View style={styles.postWrapper}>
+          <Text style={styles.meta}>
+            {data.userNickname || "익명"} · {formatDate(data.createdAt)}
           </Text>
-        </Pressable>
+          <Text style={styles.description}>{data.description}</Text>
+          <Pressable style={styles.likeButton} onPress={handleToggleLike} disabled={likeMutation.isPending}>
+            <Text style={[styles.likeText, data.likedByMe && styles.likedText]}>
+              {data.likedByMe ? "♥" : "♡"} 좋아요 {data.likeCount ?? 0}
+            </Text>
+          </Pressable>
+        </View>
 
         <View style={styles.commentHeader}>
           <Text style={styles.commentTitle}>댓글 {comments.length}</Text>
@@ -161,7 +173,7 @@ export default function PostDetailScreen({ route }: Props) {
 
         {isLoadingComments ? (
           <View style={styles.commentsLoading}>
-            <ActivityIndicator color="#ff8b4c" />
+            <ActivityIndicator color={colors.primary[400]} />
           </View>
         ) : comments.length === 0 ? (
           <View style={styles.emptyComments}>
@@ -256,70 +268,75 @@ function CommentItem({
 const styles = StyleSheet.create({
   keyboardRoot: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   content: {
-    padding: 16,
     paddingBottom: 120,
   },
   title: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "900",
-    color: "#191919",
+    ...typography.head2,
+    color: colors.gray[800],
+    paddingLeft: 20,
+    paddingTop: 10,
   },
-  heroImage: {
-    width: "100%",
-    aspectRatio: 1.2,
-    marginTop: 14,
-    borderRadius: 18,
-    backgroundColor: "#eee",
+  sliderWrapper: {
+    gap: 10,
+    paddingVertical: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+  },
+  slideImage: {
+    width: 260,
+    height: 260,
+    borderRadius: 8,
+    backgroundColor: colors.gray[300],
+  },
+  postWrapper: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 22,
   },
   meta: {
-    marginTop: 14,
-    fontSize: 13,
-    color: "#888",
+    ...typography.caption2,
+    color: colors.gray[400],
   },
   description: {
-    marginTop: 12,
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#444",
+    ...typography.body4,
+    color: colors.gray[700],
+    paddingVertical: 10,
   },
   likeButton: {
     alignSelf: "flex-start",
-    marginTop: 18,
     minHeight: 36,
     justifyContent: "center",
   },
   likeText: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#ff8b4c",
+    ...typography.body3,
+    color: colors.gray[500],
   },
   likedText: {
-    color: "#e65050",
+    color: colors.primary[400],
   },
   commentHeader: {
-    marginTop: 28,
-    marginBottom: 8,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: colors.bg[50],
   },
   commentTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#222",
+    ...typography.head4,
+    color: colors.gray[800],
   },
   refreshText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#ff8b4c",
+    ...typography.caption1,
+    color: colors.primary[400],
   },
   commentsLoading: {
     paddingVertical: 32,
@@ -327,16 +344,19 @@ const styles = StyleSheet.create({
   emptyComments: {
     paddingVertical: 36,
     alignItems: "center",
+    backgroundColor: colors.bg[50],
   },
   commentItem: {
     flexDirection: "row",
     gap: 10,
     paddingVertical: 14,
+    paddingHorizontal: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#ededed",
+    borderBottomColor: colors.gray[200],
+    backgroundColor: colors.bg[0],
   },
   replyItem: {
-    marginLeft: 42,
+    paddingLeft: 62,
   },
   commentAvatar: {
     width: 34,
@@ -345,16 +365,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#ffccaa",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.gray[100],
   },
   commentAvatarImage: {
     width: "100%",
     height: "100%",
   },
   commentAvatarText: {
-    color: "#fff",
-    fontSize: 13,
-    fontWeight: "900",
+    ...typography.caption1,
+    color: colors.gray[500],
   },
   commentBody: {
     flex: 1,
@@ -365,28 +386,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   commentAuthor: {
-    fontSize: 14,
-    fontWeight: "900",
-    color: "#222",
+    ...typography.body3,
+    color: colors.gray[800],
   },
   commentDate: {
-    fontSize: 12,
-    color: "#999",
+    ...typography.caption2,
+    color: colors.gray[400],
   },
   commentText: {
+    ...typography.body4,
+    color: colors.gray[700],
     marginTop: 5,
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#444",
   },
   replyButton: {
     alignSelf: "flex-start",
     marginTop: 8,
   },
   replyButtonText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#888",
+    ...typography.caption1,
+    color: colors.gray[500],
   },
   replyBanner: {
     minHeight: 38,
@@ -394,30 +412,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.primary[50],
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#ffd5bd",
+    borderTopColor: colors.primary[200],
   },
   replyBannerText: {
     flex: 1,
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#855234",
+    ...typography.caption1,
+    color: colors.primary[500],
   },
   cancelReplyText: {
     marginLeft: 12,
-    fontSize: 13,
-    fontWeight: "900",
-    color: "#ff8b4c",
+    ...typography.caption1,
+    color: colors.primary[400],
   },
   inputBar: {
     padding: 12,
     flexDirection: "row",
     alignItems: "flex-end",
     gap: 8,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#e5e5e5",
+    borderTopColor: colors.gray[200],
   },
   input: {
     flex: 1,
@@ -425,52 +441,40 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 14,
     paddingVertical: 11,
-    borderRadius: 16,
-    backgroundColor: "#f5f5f5",
-    fontSize: 15,
-    color: "#222",
+    borderRadius: 12,
+    backgroundColor: colors.gray[100],
+    ...typography.body4,
+    color: colors.gray[800],
   },
   submitButton: {
     height: 44,
     paddingHorizontal: 16,
-    borderRadius: 14,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    backgroundColor: colors.primary[400],
   },
   disabledButton: {
-    opacity: 0.5,
+    backgroundColor: colors.gray[100],
   },
   submitButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "900",
+    ...typography.body3,
+    color: colors.base[0],
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d33",
-  },
-  retryButton: {
-    marginTop: 14,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  retryButtonText: {
-    color: "#fff",
-    fontWeight: "800",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });

@@ -19,6 +19,8 @@ import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import type { Spot, SpotPage } from "src/reducer/types";
 import { useCommunityStore } from "src/stores/communityStore";
 import { formatDate } from "src/utils/formDate";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Community">;
 type CommunityTab = "latest" | "popular";
@@ -137,7 +139,7 @@ export default function CommunityScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>게시글을 불러오는 중...</Text>
       </View>
     );
@@ -147,8 +149,8 @@ export default function CommunityScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
@@ -217,22 +219,39 @@ function PostCard({
         </View>
       </View>
 
-      {firstImage ? (
-        <Image source={{ uri: firstImage }} style={styles.postImage} />
+      {post.imageUrls?.length ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.imageContainer}
+        >
+          {post.imageUrls.map((image, index) => (
+            <Image key={`${image}-${index}`} source={{ uri: image }} style={styles.postImage} />
+          ))}
+        </ScrollView>
       ) : null}
 
-      <Text style={styles.spotName} numberOfLines={1}>
-        {post.name}
-      </Text>
-      <Text style={styles.description} numberOfLines={3}>
-        {post.description}
-      </Text>
-
-      <Pressable style={styles.likeButton} onPress={onToggleLike}>
-        <Text style={[styles.likeText, post.likedByMe && styles.likedText]}>
-          {post.likedByMe ? "♥" : "♡"} 좋아요 {post.likeCount || 0}
+      <View style={styles.contentSection}>
+        <View style={styles.locationTag}>
+          <Text style={styles.locationIcon}>⌖</Text>
+          <Text style={styles.locationText} numberOfLines={1}>{post.name}</Text>
+        </View>
+        <Text style={styles.description} numberOfLines={3}>
+          {post.description}
         </Text>
-      </Pressable>
+      </View>
+
+      <View style={styles.actionSection}>
+        <Pressable style={styles.actionButton} onPress={onToggleLike}>
+          <Text style={[styles.actionText, post.likedByMe && styles.likedText]}>
+            {post.likedByMe ? "♥" : "♡"} 좋아요 {post.likeCount || 0}
+          </Text>
+        </Pressable>
+        <View style={styles.actionDivider} />
+        <View style={styles.actionButton}>
+          <Text style={styles.actionText}>댓글 보기</Text>
+        </View>
+      </View>
     </Pressable>
   );
 }
@@ -240,20 +259,22 @@ function PostCard({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 96,
+    gap: 20,
   },
   title: {
-    fontSize: 26,
-    fontWeight: "900",
-    color: "#191919",
+    ...typography.head2,
+    color: colors.gray[800],
+    marginBottom: 4,
   },
   bannerList: {
     gap: 12,
@@ -262,9 +283,9 @@ const styles = StyleSheet.create({
   bannerCard: {
     width: 280,
     height: 112,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: "hidden",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.primary[50],
   },
   bannerImage: {
     width: "100%",
@@ -275,167 +296,184 @@ const styles = StyleSheet.create({
     left: 14,
     right: 14,
     bottom: 12,
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#fff",
+    ...typography.body1,
+    color: colors.base[0],
   },
   tabs: {
     flexDirection: "row",
-    gap: 8,
-    marginBottom: 14,
+    alignItems: "center",
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray[200],
+    backgroundColor: colors.bg[0],
   },
   tab: {
     flex: 1,
-    height: 42,
-    borderRadius: 12,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f3f3f3",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
   },
   activeTab: {
-    backgroundColor: "#ff8b4c",
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.primary[400],
   },
   tabText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#777",
+    ...typography.body1,
+    fontWeight: "400",
+    color: colors.gray[500],
   },
   activeTabText: {
-    color: "#fff",
+    fontWeight: "600",
+    color: colors.primary[400],
   },
   postCard: {
-    marginBottom: 16,
-    padding: 14,
-    borderRadius: 18,
-    backgroundColor: "#fafafa",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e8e8e8",
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
   },
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
   },
   avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#ffccaa",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.gray[100],
   },
   avatarImage: {
     width: "100%",
     height: "100%",
   },
   avatarText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "900",
+    ...typography.body3,
+    color: colors.gray[500],
   },
   authorBox: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 9,
+    gap: 2,
   },
   author: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#222",
+    ...typography.body3,
+    color: colors.gray[800],
   },
   date: {
-    marginTop: 3,
-    fontSize: 12,
-    color: "#888",
+    ...typography.caption2,
+    color: colors.gray[400],
+  },
+  imageContainer: {
+    gap: 8,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   postImage: {
-    width: "100%",
-    aspectRatio: 1.45,
-    marginTop: 12,
-    borderRadius: 14,
-    backgroundColor: "#eee",
+    width: 130,
+    height: 130,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+    backgroundColor: colors.gray[100],
   },
-  spotName: {
-    marginTop: 12,
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#222",
+  contentSection: {
+    gap: 12,
+    paddingTop: 7,
+    paddingBottom: 12,
+  },
+  locationTag: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    maxWidth: "100%",
+    paddingVertical: 6,
+    paddingHorizontal: 7,
+    borderRadius: 50,
+    backgroundColor: colors.gray[100],
+  },
+  locationIcon: {
+    ...typography.caption1,
+    color: colors.gray[400],
+  },
+  locationText: {
+    ...typography.caption1,
+    color: colors.gray[500],
   },
   description: {
-    marginTop: 6,
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#555",
+    ...typography.body4,
+    color: colors.gray[600],
   },
-  likeButton: {
-    alignSelf: "flex-start",
-    marginTop: 12,
-    paddingHorizontal: 12,
-    height: 36,
-    borderRadius: 18,
+  actionSection: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e2e2e2",
+    paddingVertical: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.gray[200],
   },
-  likeText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#555",
+  actionButton: {
+    flex: 1,
+    minHeight: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionDivider: {
+    width: StyleSheet.hairlineWidth,
+    height: 18,
+    backgroundColor: colors.gray[200],
+  },
+  actionText: {
+    ...typography.caption1,
+    color: colors.gray[500],
   },
   likedText: {
-    color: "#ff8b4c",
+    color: colors.primary[400],
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   emptyBox: {
     paddingVertical: 80,
     alignItems: "center",
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d33",
-  },
-  retryButton: {
-    marginTop: 14,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  retryButtonText: {
-    color: "#fff",
-    fontWeight: "800",
+    ...typography.body3,
+    color: colors.error[100],
   },
   fab: {
     position: "absolute",
-    right: 20,
-    bottom: 26,
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    right: 17,
+    bottom: 96,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
+    backgroundColor: colors.primary[400],
+    ...shadow.card,
   },
   fabText: {
     fontSize: 28,
     fontWeight: "400",
-    color: "#fff",
+    color: colors.base[0],
     marginTop: -2,
   },
 });

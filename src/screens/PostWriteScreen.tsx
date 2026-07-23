@@ -18,6 +18,8 @@ import { useCreateSpot } from "src/features/spot/useCreateSpot";
 import { initialSpot, spotReducer } from "src/reducer/SpotReducer";
 import type { SpotCreate } from "src/types/SpotTypes";
 import { buildSpotErrorMessage, getSpotErrors } from "src/utils/validation/spotValidation";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "PostWrite">;
 
@@ -282,7 +284,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
           value={spot.name || ""}
           onChangeText={(value) => dispatch({ type: "SET_LOCATION_TEXT", value })}
           placeholder="장소명을 입력해주세요."
-          placeholderTextColor="#9a9a9a"
+          placeholderTextColor={colors.gray[400]}
           style={styles.input}
         />
         {!!errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
@@ -309,7 +311,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
             }
           }}
           placeholder="메시지를 입력해 주세요."
-          placeholderTextColor="#9a9a9a"
+          placeholderTextColor={colors.gray[400]}
           multiline
           textAlignVertical="top"
           maxLength={200}
@@ -345,7 +347,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
             value={tagInput}
             onChangeText={setTagInput}
             placeholder="해시태그 입력"
-            placeholderTextColor="#9a9a9a"
+            placeholderTextColor={colors.gray[400]}
             style={styles.tagInput}
             onSubmitEditing={handleAddTag}
           />
@@ -369,7 +371,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
         disabled={createSpot.isPending}
       >
         {createSpot.isPending ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.base[0]} />
         ) : (
           <Text style={styles.primaryButtonText}>등록하기</Text>
         )}
@@ -381,14 +383,18 @@ export default function PostWriteScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
-    padding: 16,
+    paddingHorizontal: layout.screenPadding,
+    paddingVertical: 20,
     paddingBottom: 36,
   },
   section: {
     marginBottom: 22,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
   },
   imageRow: {
     gap: 10,
@@ -400,8 +406,8 @@ const styles = StyleSheet.create({
   imagePreview: {
     width: 112,
     height: 112,
-    borderRadius: 16,
-    backgroundColor: "#eee",
+    borderRadius: 8,
+    backgroundColor: colors.gray[200],
   },
   imageRemoveButton: {
     position: "absolute",
@@ -412,123 +418,102 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: "rgba(34,31,31,0.65)",
   },
   imageRemoveButtonText: {
-    color: "#fff",
+    color: colors.base[0],
     fontSize: 16,
     lineHeight: 18,
     fontWeight: "700",
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#1f1f1f",
+    ...typography.head4,
+    color: colors.gray[800],
     marginBottom: 10,
   },
   helperText: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: "#777",
+    ...typography.caption2,
+    color: colors.gray[500],
   },
   input: {
-    minHeight: 52,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#fffdfc",
-    fontSize: 15,
-    color: "#222",
+    ...commonStyles.input,
   },
   textarea: {
     minHeight: 136,
     paddingHorizontal: 14,
     paddingTop: 14,
-    borderRadius: 14,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#fffdfc",
-    fontSize: 15,
-    color: "#222",
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
+    ...typography.body2,
+    color: colors.gray[800],
   },
   errorText: {
+    ...typography.caption2,
+    color: colors.error[100],
     marginTop: 6,
-    fontSize: 12,
-    color: "#d14b4b",
   },
   secondaryButton: {
+    ...commonStyles.secondaryButton,
     marginTop: 12,
-    minHeight: 46,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff4ec",
   },
   secondaryButtonText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#8b532f",
+    ...commonStyles.secondaryButtonText,
   },
   coordinateText: {
+    ...typography.caption2,
+    color: colors.gray[500],
     marginTop: 10,
-    fontSize: 12,
-    color: "#777",
   },
   themeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 11,
   },
   themeChip: {
-    minHeight: 40,
-    paddingHorizontal: 14,
-    borderRadius: 20,
+    width: "30.8%",
+    minHeight: 68,
+    paddingVertical: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: colors.bg[0],
   },
   themeChipActive: {
-    backgroundColor: "#ffeddc",
-    borderWidth: 1,
-    borderColor: "#ffb585",
+    borderColor: colors.primary[300],
+    backgroundColor: colors.primary[50],
   },
   themeChipText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#555",
+    ...typography.body3,
+    color: colors.gray[500],
+    textAlign: "center",
   },
   themeChipTextActive: {
-    color: "#b6612c",
+    color: colors.primary[400],
   },
   tagInputRow: {
     flexDirection: "row",
     gap: 10,
   },
   tagInput: {
+    ...commonStyles.input,
     flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#fffdfc",
-    fontSize: 14,
-    color: "#222",
   },
   tagAddButton: {
     minWidth: 72,
-    minHeight: 48,
+    minHeight: layout.buttonHeight,
     paddingHorizontal: 14,
-    borderRadius: 14,
+    borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: colors.gray[100],
   },
   tagAddButtonText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#444",
+    ...typography.body3,
+    color: colors.gray[500],
   },
   tagList: {
     flexDirection: "row",
@@ -542,26 +527,19 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.primary[50],
   },
   tagChipText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#8b532f",
+    ...typography.caption1,
+    color: colors.primary[500],
   },
   primaryButton: {
-    minHeight: 54,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    ...commonStyles.primaryButton,
   },
   primaryButtonDisabled: {
-    opacity: 0.55,
+    ...commonStyles.primaryButtonDisabled,
   },
   primaryButtonText: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#fff",
+    ...commonStyles.primaryButtonText,
   },
 });
