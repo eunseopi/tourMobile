@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { HallabongLogo } from "src/components/brand/HallabongLogo";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 
@@ -19,12 +20,11 @@ export default function SplashScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.logoWrapper}>
-        <View style={styles.logoMark}>
-          <Text style={styles.logoText}>JD</Text>
-        </View>
+        <HallabongLogo />
         <View style={styles.welcome}>
-          <Text style={styles.title}>제주데이</Text>
-          <Text style={styles.subtitle}>제주 여행을 더 가볍게</Text>
+          <Text style={styles.title}>하루제주의 첫 걸음</Text>
+          <Text style={styles.subtitle}>하루제주에 오신 것을 환영합니다.</Text>
+          <Text style={styles.subtitle}>지금 챌린지에 입장하세요!</Text>
         </View>
       </View>
 
@@ -48,18 +48,6 @@ const styles = StyleSheet.create({
     paddingBottom: 154,
     alignItems: "center",
     justifyContent: "center",
-  },
-  logoMark: {
-    width: 112,
-    height: 112,
-    borderRadius: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary[400],
-  },
-  logoText: {
-    ...typography.head1,
-    color: colors.base[0],
   },
   welcome: {
     marginTop: 32,

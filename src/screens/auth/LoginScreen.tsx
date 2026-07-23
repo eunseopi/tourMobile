@@ -17,7 +17,6 @@ import { FormTextField } from "src/components/form/FormTextField";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { colors, layout, typography } from "src/design/theme";
 import { authApi } from "src/api/auth";
-import { useKakaoLogin } from "src/features/auth/useKakaoLogin";
 import { QK } from "src/utils/lib/queryKeys";
 import { validateLoginForm } from "src/utils/validation/authValidation";
 
@@ -34,7 +33,6 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { run: runKakaoLogin, isLoading: isKakaoLoading } = useKakaoLogin(navigation);
 
   const validation = useMemo(() => validateLoginForm(email, password), [email, password]);
 
@@ -77,18 +75,6 @@ export default function LoginScreen({ navigation }: Props) {
     }
   };
 
-  const handleKakaoLogin = async () => {
-    try {
-      await runKakaoLogin();
-    } catch (error) {
-      const axiosError = error as AxiosError<{ message?: string }>;
-      const message =
-        axiosError.response?.data?.message ||
-        (error instanceof Error ? error.message : "카카오 로그인에 실패했습니다.");
-      Alert.alert("카카오 로그인 실패", message);
-    }
-  };
-
   return (
     <KeyboardAvoidingView
       style={styles.keyboardView}
@@ -127,16 +113,6 @@ export default function LoginScreen({ navigation }: Props) {
             onPress={handleLogin}
           />
 
-          <Pressable
-            style={[styles.kakaoButton, isKakaoLoading && styles.kakaoButtonDisabled]}
-            onPress={handleKakaoLogin}
-            disabled={isKakaoLoading}
-          >
-            <Text style={styles.kakaoButtonText}>
-              {isKakaoLoading ? "카카오 로그인 중..." : "카카오로 로그인"}
-            </Text>
-          </Pressable>
-
           <Pressable style={styles.outlineButton} onPress={() => navigation.navigate("PasswordReset")}>
             <Text style={styles.outlineButtonText}>비밀번호 재설정</Text>
           </Pressable>
@@ -171,20 +147,6 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 10,
-  },
-  kakaoButton: {
-    height: 48,
-    borderRadius: 7,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FEE500",
-  },
-  kakaoButtonDisabled: {
-    backgroundColor: colors.gray[100],
-  },
-  kakaoButtonText: {
-    ...typography.body1,
-    color: "#2b1d00",
   },
   outlineButton: {
     height: 48,

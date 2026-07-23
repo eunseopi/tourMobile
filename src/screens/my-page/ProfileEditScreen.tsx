@@ -13,7 +13,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "ProfileEdit">;
 
 export default function ProfileEditScreen({ navigation }: Props) {
   const profileEdit = useProfileEditFlow({
-    onComplete: navigation.goBack,
+    onComplete: () => {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+      navigation.navigate("MyPage");
+    },
   });
 
   if (profileEdit.isLoading) {

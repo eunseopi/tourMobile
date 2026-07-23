@@ -12,7 +12,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "ThemeEdit">;
 
 export default function ThemeEditScreen({ navigation }: Props) {
   const themeEdit = useThemeEditFlow({
-    onComplete: navigation.goBack,
+    onComplete: () => {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+      navigation.navigate("MyPage");
+    },
   });
 
   if (themeEdit.isLoading) {

@@ -41,7 +41,18 @@ export default function PointConvertScreen({ navigation }: Props) {
       Alert.alert(
         "전환 완료",
         `${result.convertedPoints}포인트가 한라봉으로 전환됐어요.`,
-        [{ text: "확인", onPress: () => navigation.goBack() }]
+        [
+          {
+            text: "확인",
+            onPress: () => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+                return;
+              }
+              navigation.navigate("Shop");
+            },
+          },
+        ]
       );
     } catch (error: any) {
       Alert.alert(

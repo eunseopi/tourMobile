@@ -16,7 +16,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 export default function RegisterScreen({ navigation, route }: Props) {
   const register = useRegisterFlow({
     routeParams: route.params,
-    onBack: navigation.goBack,
+    onBack: () => {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+      navigation.replace("RegisterChoice");
+    },
     onComplete: () => navigation.replace("Main"),
   });
 

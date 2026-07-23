@@ -15,7 +15,13 @@ type Props = NativeStackScreenProps<RootStackParamList, "PostWrite">;
 export default function PostWriteScreen({ navigation, route }: Props) {
   const postWrite = usePostWriteFlow({
     routeParams: route.params,
-    onBack: navigation.goBack,
+    onBack: () => {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+      navigation.navigate("Community");
+    },
     onOpenCreatedPost: (postId) => navigation.replace("PostDetail", { postId }),
     onOpenCreatedSpotOnMap: ({ spotId, latitude, longitude }) => {
       navigation.replace("Map", {

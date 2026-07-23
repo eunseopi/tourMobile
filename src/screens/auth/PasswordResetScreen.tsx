@@ -50,7 +50,11 @@ export default function PasswordResetScreen({ navigation }: Props) {
         newPassword: password,
       });
       Alert.alert("변경 완료", "비밀번호가 재설정되었어요.");
-      navigation.goBack();
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+      navigation.replace("Login");
     } catch (e: any) {
       Alert.alert(
         "변경 실패",
