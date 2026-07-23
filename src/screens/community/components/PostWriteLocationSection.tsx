@@ -22,11 +22,11 @@ export function PostWriteLocationSection({
 }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>위치</Text>
+      <Text style={styles.sectionTitle}>위치를 알려주세요.<Text style={styles.required}>*</Text></Text>
       <FormTextField
         value={name}
         onChangeText={onChangeName}
-        placeholder="장소명을 입력해주세요."
+        placeholder="현재 위치 입력"
         error={error}
       />
 
@@ -54,6 +54,9 @@ const styles = StyleSheet.create({
     ...typography.head4,
     color: colors.gray[800],
     marginBottom: 10,
+  },
+  required: {
+    color: colors.error[100],
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,

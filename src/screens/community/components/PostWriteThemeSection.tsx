@@ -10,7 +10,7 @@ type Props = {
 export function PostWriteThemeSection({ themeId, onSelectTheme }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>테마</Text>
+      <Text style={styles.sectionTitle}>테마를 선택해주세요.</Text>
       <View style={styles.themeGrid}>
         {POST_THEME_OPTIONS.map((item) => {
           const active = themeId === item.id;

@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { colors, layout } from "src/design/theme";
 import { usePostWriteFlow } from "src/features/community/usePostWriteFlow";
@@ -35,47 +35,50 @@ export default function PostWriteScreen({ navigation, route }: Props) {
   });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <PostWriteImageSection
-        images={postWrite.spot.images}
-        onPickImages={postWrite.handlePickImages}
-        onTakeImages={postWrite.handleTakeImages}
-        onRemoveImage={postWrite.handleRemoveImage}
-      />
+    <View style={styles.container}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <PostWriteImageSection
+          images={postWrite.spot.images}
+          onPickImages={postWrite.handlePickImages}
+          onTakeImages={postWrite.handleTakeImages}
+          onRemoveImage={postWrite.handleRemoveImage}
+        />
 
-      <PostWriteLocationSection
-        name={postWrite.spot.name || ""}
-        latitude={postWrite.spot.latitude}
-        longitude={postWrite.spot.longitude}
-        error={postWrite.errors.name}
-        onChangeName={postWrite.handleChangeLocationText}
-        onUseCurrentLocation={postWrite.handleUseCurrentLocation}
-      />
+        <PostWriteLocationSection
+          name={postWrite.spot.name || ""}
+          latitude={postWrite.spot.latitude}
+          longitude={postWrite.spot.longitude}
+          error={postWrite.errors.name}
+          onChangeName={postWrite.handleChangeLocationText}
+          onUseCurrentLocation={postWrite.handleUseCurrentLocation}
+        />
 
-      <PostWriteContentSection
-        description={postWrite.spot.description ?? ""}
-        error={postWrite.errors.description}
-        onChangeDescription={postWrite.handleChangeDescription}
-      />
+        <PostWriteContentSection
+          description={postWrite.spot.description ?? ""}
+          error={postWrite.errors.description}
+          onChangeDescription={postWrite.handleChangeDescription}
+        />
 
-      <PostWriteThemeSection
-        themeId={postWrite.spot.themeId}
-        onSelectTheme={postWrite.handleSelectTheme}
-      />
+        <PostWriteThemeSection
+          themeId={postWrite.spot.themeId}
+          onSelectTheme={postWrite.handleSelectTheme}
+        />
 
-      <PostWriteTagSection
-        tagInput={postWrite.tagInput}
-        tags={postWrite.tags}
-        onChangeTagInput={postWrite.setTagInput}
-        onAddTag={postWrite.handleAddTag}
-        onRemoveTag={postWrite.handleRemoveTag}
-      />
-
-      <PostWriteSubmitButton
-        isSubmitting={postWrite.isSubmitting}
-        onSubmit={postWrite.handleSubmit}
-      />
-    </ScrollView>
+        <PostWriteTagSection
+          tagInput={postWrite.tagInput}
+          tags={postWrite.tags}
+          onChangeTagInput={postWrite.setTagInput}
+          onAddTag={postWrite.handleAddTag}
+          onRemoveTag={postWrite.handleRemoveTag}
+        />
+      </ScrollView>
+      <View style={styles.bottomAction}>
+        <PostWriteSubmitButton
+          isSubmitting={postWrite.isSubmitting}
+          onSubmit={postWrite.handleSubmit}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -84,9 +87,25 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg[50],
   },
+  scroll: {
+    flex: 1,
+  },
   content: {
     paddingHorizontal: layout.screenPadding,
     paddingVertical: 20,
-    paddingBottom: 36,
+    paddingBottom: 137,
+  },
+  bottomAction: {
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 12,
+    paddingBottom: layout.bottomActionPaddingBottom,
+    backgroundColor: colors.bg[0],
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.gray[200],
+    shadowColor: "#D2D2D2",
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
 });

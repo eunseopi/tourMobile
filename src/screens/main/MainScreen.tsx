@@ -106,7 +106,7 @@ export default function MainScreen({ navigation }: Props) {
           actions={[
             { label: "지도", onPress: () => navigation.navigate("Map") },
             { label: "상점", onPress: () => navigation.navigate("Shop") },
-            { label: "커뮤니티", onPress: () => navigation.navigate("Community") },
+            { label: "주간제주", onPress: () => navigation.navigate("Community") },
             { label: "챌린지", onPress: () => navigation.navigate("Challenge") },
             { label: "마이페이지", onPress: () => navigation.navigate("MyPage") },
           ]}

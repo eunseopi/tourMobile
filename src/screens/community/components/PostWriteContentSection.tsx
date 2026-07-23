@@ -11,7 +11,7 @@ type Props = {
 export function PostWriteContentSection({ description, error, onChangeDescription }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>내용</Text>
+      <Text style={styles.sectionTitle}>내용을 입력해주세요.<Text style={styles.required}>*</Text></Text>
       <FormTextField
         value={description}
         onChangeText={onChangeDescription}
@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
     ...typography.head4,
     color: colors.gray[800],
     marginBottom: 10,
+  },
+  required: {
+    color: colors.error[100],
   },
   textarea: {
     minHeight: 136,

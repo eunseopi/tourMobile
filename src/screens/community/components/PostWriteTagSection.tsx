@@ -19,12 +19,12 @@ export function PostWriteTagSection({
 }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>해시태그</Text>
+      <Text style={styles.sectionTitle}>해시태그를 입력해주세요.</Text>
       <View style={styles.tagInputRow}>
         <TextInput
           value={tagInput}
           onChangeText={onChangeTagInput}
-          placeholder="해시태그 입력"
+          placeholder="최대 3개까지 가능해요."
           placeholderTextColor={colors.gray[400]}
           style={styles.tagInput}
           onSubmitEditing={onAddTag}
