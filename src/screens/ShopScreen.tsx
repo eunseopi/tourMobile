@@ -11,6 +11,9 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
+import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useProducts } from "src/features/product/useProducts";
 import type { ProductCategory } from "src/types/ProductTypes";
 
@@ -23,6 +26,7 @@ const CATEGORIES: Array<{ key: ProductCategory; label: string }> = [
 
 export default function ShopScreen({ navigation }: Props) {
   const [category, setCategory] = useState<ProductCategory>("JEJU_TICON");
+  const { data: me } = useSessionMe();
   const { products, isLoading, isError, error, refetch } = useProducts(category);
 
   const handlePressProduct = useCallback(
@@ -34,7 +38,18 @@ export default function ShopScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>한라봉으로 교환해요</Text>
+      <View style={styles.balancePill}>
+        <View style={styles.balanceLeft}>
+          <Text style={styles.fruitIcon}>●</Text>
+          <Text style={styles.balanceLabel}>내 한라봉</Text>
+          <Text style={styles.balanceValue}>{(me?.hallabong ?? 0).toLocaleString("ko-KR")}</Text>
+        </View>
+        <View style={styles.balanceDivider} />
+        <Pressable style={styles.chargeButton} onPress={() => navigation.navigate("PointConvert")}>
+          <Text style={styles.chargeText}>충전하기</Text>
+          <Text style={styles.chargeArrow}>›</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.tabs}>
         {CATEGORIES.map((item) => {
@@ -42,12 +57,13 @@ export default function ShopScreen({ navigation }: Props) {
           return (
             <Pressable
               key={item.key}
-              style={[styles.tab, active && styles.activeTab]}
+              style={styles.tab}
               onPress={() => setCategory(item.key)}
             >
               <Text style={[styles.tabText, active && styles.activeTabText]}>
                 {item.label}
               </Text>
+              {active ? <View style={styles.tabIndicator} /> : null}
             </Pressable>
           );
         })}
@@ -55,14 +71,14 @@ export default function ShopScreen({ navigation }: Props) {
 
       {isLoading ? (
         <View style={styles.center}>
-          <ActivityIndicator color="#ff8b4c" />
+          <ActivityIndicator color={colors.primary[400]} />
           <Text style={styles.mutedText}>상품을 불러오는 중...</Text>
         </View>
       ) : isError ? (
         <View style={styles.center}>
           <Text style={styles.errorText}>{error ?? "상품 목록을 불러오지 못했어요."}</Text>
-          <Pressable style={styles.retryButton} onPress={() => refetch()}>
-            <Text style={styles.retryButtonText}>다시 시도</Text>
+          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+            <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
           </Pressable>
         </View>
       ) : (
@@ -76,27 +92,25 @@ export default function ShopScreen({ navigation }: Props) {
             <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
           }
           ListEmptyComponent={
-            <View style={styles.center}>
+            <View style={styles.emptyBox}>
               <Text style={styles.mutedText}>표시할 상품이 없어요.</Text>
             </View>
           }
           renderItem={({ item }) => (
             <Pressable
-              style={styles.card}
+              style={styles.productCard}
               onPress={() => handlePressProduct(item.productId)}
             >
-              <View style={styles.imageBox}>
+              <View style={styles.productImageWrapper}>
                 {item.imageUrl ? (
-                  <Image source={{ uri: item.imageUrl }} style={styles.image} />
-                ) : (
-                  <Text style={styles.placeholderText}>No Image</Text>
-                )}
+                  <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+                ) : null}
               </View>
-              <Text style={styles.productName} numberOfLines={2}>
+              <Text style={styles.productName} numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text style={styles.price}>
-                {item.hallabongCost ?? 0} 한라봉
+              <Text style={styles.productPrice}>
+                {(item.hallabongCost ?? 0).toLocaleString("ko-KR")} 한라봉
               </Text>
             </Pressable>
           )}
@@ -109,113 +123,137 @@ export default function ShopScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingTop: 18,
+    paddingHorizontal: layout.screenPadding,
+    backgroundColor: colors.bg[50],
   },
-  heading: {
+  balancePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.primary[200],
+    backgroundColor: colors.primary[50],
+  },
+  balanceLeft: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  fruitIcon: {
+    color: colors.primary[400],
+    fontSize: 14,
+    marginRight: 8,
+  },
+  balanceLabel: {
+    ...typography.body3,
+    color: colors.gray[600],
+    marginRight: 6,
+  },
+  balanceValue: {
+    ...typography.body1,
+    color: colors.primary[400],
+  },
+  balanceDivider: {
+    width: 1,
+    alignSelf: "stretch",
+    backgroundColor: colors.primary[200],
+  },
+  chargeButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    gap: 9,
+  },
+  chargeText: {
+    ...typography.body1,
+    color: colors.primary[400],
+  },
+  chargeArrow: {
     fontSize: 22,
-    fontWeight: "800",
-    color: "#191919",
+    lineHeight: 22,
+    color: colors.primary[400],
   },
   tabs: {
     flexDirection: "row",
-    gap: 8,
-    marginTop: 18,
-    marginBottom: 12,
+    minHeight: 48,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
   },
   tab: {
     flex: 1,
-    height: 42,
-    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f3f3f3",
-  },
-  activeTab: {
-    backgroundColor: "#ff8b4c",
   },
   tabText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#777",
+    ...typography.body1,
+    color: colors.gray[500],
   },
   activeTabText: {
-    color: "#fff",
+    color: colors.primary[400],
+  },
+  tabIndicator: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: -1,
+    height: 2,
+    backgroundColor: colors.primary[400],
   },
   listContent: {
-    paddingBottom: 28,
+    paddingVertical: 30,
+    paddingBottom: 44,
   },
   row: {
-    gap: 12,
+    gap: 15,
   },
-  card: {
+  productCard: {
     flex: 1,
-    marginBottom: 16,
-    borderRadius: 14,
-    padding: 12,
-    backgroundColor: "#fafafa",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e8e8e8",
+    marginBottom: 15,
   },
-  imageBox: {
-    aspectRatio: 1,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
+  productImageWrapper: {
+    width: "100%",
+    aspectRatio: 32 / 27,
+    marginBottom: 10,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: colors.gray[200],
   },
-  image: {
+  productImage: {
     width: "100%",
     height: "100%",
   },
-  placeholderText: {
-    fontSize: 12,
-    color: "#999",
-  },
   productName: {
-    marginTop: 10,
-    minHeight: 40,
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: "700",
-    color: "#222",
+    ...typography.body2,
+    color: colors.gray[700],
   },
-  price: {
-    marginTop: 6,
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#ff8b4c",
+  productPrice: {
+    ...typography.body3,
+    color: colors.gray[700],
+    marginTop: 2,
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
   },
-  mutedText: {
-    marginTop: 10,
-    fontSize: 14,
-    color: "#777",
-  },
-  errorText: {
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: "center",
-    color: "#d33",
-  },
-  retryButton: {
-    marginTop: 14,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 12,
+  emptyBox: {
+    minHeight: 220,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
   },
-  retryButtonText: {
-    color: "#fff",
-    fontWeight: "700",
+  mutedText: {
+    ...typography.body4,
+    color: colors.gray[500],
+  },
+  errorText: {
+    ...typography.body3,
+    color: colors.error[100],
+    textAlign: "center",
   },
 });

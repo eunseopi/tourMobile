@@ -11,6 +11,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 import { useExchangeDetail } from "src/features/my-page/useExchangeDetail";
 import { useAcceptToggle } from "src/features/my-page/useAcceptToggle";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
@@ -23,10 +25,10 @@ export default function CouponDetailScreen({ route }: Props) {
   const { data: coupon, isLoading, isError, refetch } = useExchangeDetail(exchangeId);
   const acceptToggle = useAcceptToggle();
 
-  const categoryLabel = useMemo(() => {
-    if (!coupon) return "쿠폰";
-    return coupon.category === "JEJU_TICON" ? "제주티콘" : "굿즈";
-  }, [coupon]);
+  const disabled = useMemo(
+    () => !coupon || coupon.accepted || acceptToggle.isPending,
+    [acceptToggle.isPending, coupon]
+  );
 
   const handleAcceptToggle = async () => {
     if (!coupon || coupon.accepted) return;
@@ -36,7 +38,7 @@ export default function CouponDetailScreen({ route }: Props) {
         exchangeId: coupon.exchangeId,
         userId: me?.userId,
       });
-      Alert.alert("사용 완료", "쿠폰 사용 상태가 반영되었어요.");
+      Alert.alert("수령 완료", "쿠폰 사용 상태가 반영되었어요.");
       void refetch();
     } catch (error: any) {
       Alert.alert(
@@ -49,7 +51,7 @@ export default function CouponDetailScreen({ route }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>쿠폰 정보를 불러오는 중...</Text>
       </View>
     );
@@ -59,170 +61,145 @@ export default function CouponDetailScreen({ route }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>쿠폰 정보를 찾을 수 없어요.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        {coupon.imageUrl ? (
-          <Image source={{ uri: coupon.imageUrl }} style={styles.image} />
-        ) : (
-          <Text style={styles.placeholderText}>Coupon</Text>
-        )}
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <View style={styles.couponBox}>
+        <View style={styles.productImageWrapper}>
+          {coupon.imageUrl ? (
+            <Image source={{ uri: coupon.imageUrl }} style={styles.productImage} />
+          ) : null}
+        </View>
+
+        <View style={styles.couponInformation}>
+          <Text style={styles.couponName} numberOfLines={2}>{coupon.name}</Text>
+          <View style={styles.bar} />
+
+          <View style={styles.availablePlace}>
+            <Text style={styles.placeCaption}>사용처</Text>
+            <Text style={styles.placeText}>
+              인천광역시 중구 공항로271, 인천국제공항 제 1 여객터미널 교통센터 지하 1층
+            </Text>
+          </View>
+
+          <View style={styles.alertBox}>
+            <Text style={styles.alertText}>
+              해당 버튼은 담당자에게 물품 수령 시 제출하며{`
+`}
+              1회만 사용 가능하고 재사용은 불가합니다.{`
+`}
+              ※ 사용 전 내용을 꼭 확인해 주세요. ※
+            </Text>
+          </View>
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [
+            commonStyles.primaryButton,
+            pressed && commonStyles.primaryButtonPressed,
+            disabled && commonStyles.primaryButtonDisabled,
+          ]}
+          disabled={disabled}
+          onPress={handleAcceptToggle}
+        >
+          {acceptToggle.isPending ? (
+            <ActivityIndicator color={colors.base[0]} />
+          ) : (
+            <Text style={commonStyles.primaryButtonText}>
+              {coupon.accepted ? "수령완료" : "수령하기"}
+            </Text>
+          )}
+        </Pressable>
       </View>
-
-      <Text style={styles.category}>{categoryLabel}</Text>
-      <Text style={styles.name}>{coupon.name}</Text>
-
-      <View style={styles.infoBox}>
-        <InfoRow label="교환 번호" value={String(coupon.exchangeId)} />
-        <InfoRow label="상품 번호" value={String(coupon.productId)} />
-        <InfoRow
-          label="상태"
-          value={coupon.accepted ? "사용 완료" : "사용 가능"}
-        />
-      </View>
-
-      <Pressable
-        style={[
-          styles.primaryButton,
-          (coupon.accepted || acceptToggle.isPending) && styles.disabledButton,
-        ]}
-        disabled={coupon.accepted || acceptToggle.isPending}
-        onPress={handleAcceptToggle}
-      >
-        <Text style={styles.primaryButtonText}>
-          {coupon.accepted
-            ? "이미 사용했어요"
-            : acceptToggle.isPending
-              ? "처리 중..."
-              : "사용 처리하기"}
-        </Text>
-      </Pressable>
     </ScrollView>
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 44,
   },
-  hero: {
+  couponBox: {
+    paddingVertical: 18,
+    paddingHorizontal: 15,
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
+  },
+  productImageWrapper: {
     width: "100%",
-    aspectRatio: 1.2,
-    borderRadius: 18,
-    alignItems: "center",
-    justifyContent: "center",
+    aspectRatio: 32 / 27,
+    marginBottom: 10,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: colors.gray[200],
   },
-  image: {
+  productImage: {
     width: "100%",
     height: "100%",
   },
-  placeholderText: {
-    color: "#999",
-    fontWeight: "800",
+  couponInformation: {
+    marginVertical: 20,
   },
-  category: {
-    marginTop: 20,
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#ff8b4c",
+  couponName: {
+    ...typography.head4,
+    color: colors.gray[800],
+    fontWeight: "600",
   },
-  name: {
-    marginTop: 8,
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "900",
-    color: "#191919",
+  bar: {
+    height: 1,
+    marginVertical: 16,
+    backgroundColor: colors.gray[200],
   },
-  infoBox: {
-    marginTop: 22,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: "#fafafa",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e6e6e6",
+  availablePlace: {
+    marginBottom: 8,
   },
-  infoRow: {
-    minHeight: 52,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#e8e8e8",
+  placeCaption: {
+    ...typography.body3,
+    color: colors.gray[700],
+    marginBottom: 4,
   },
-  infoLabel: {
-    fontSize: 14,
-    color: "#777",
+  placeText: {
+    ...typography.caption2,
+    color: colors.gray[600],
   },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#333",
+  alertBox: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: colors.bg[50],
   },
-  primaryButton: {
-    marginTop: 24,
-    height: 54,
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "900",
+  alertText: {
+    ...typography.caption2,
+    color: colors.gray[400],
+    textAlign: "center",
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d33",
-  },
-  retryButton: {
-    marginTop: 14,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  retryButtonText: {
-    color: "#fff",
-    fontWeight: "800",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });

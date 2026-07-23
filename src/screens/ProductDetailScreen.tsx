@@ -10,6 +10,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 import { useProduct } from "src/features/product/useProduct";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useExchangeProduct } from "src/features/product/useExchangeProduct";
@@ -66,7 +68,7 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>상품 정보를 불러오는 중...</Text>
       </View>
     );
@@ -76,164 +78,200 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>상품 정보를 찾을 수 없어요.</Text>
-        <Pressable style={styles.primaryButton} onPress={() => refetch()}>
-          <Text style={styles.primaryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.imageBox}>
-        {product.imageUrl ? (
-          <Image source={{ uri: product.imageUrl }} style={styles.image} />
-        ) : (
-          <Text style={styles.placeholderText}>No Image</Text>
-        )}
+    <View style={styles.screen}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <View style={styles.balancePillSmall}>
+          <Text style={styles.balanceLabel}>내 한라봉</Text>
+          <Text style={styles.balanceValue}>
+            {isLoadingMe ? "확인 중..." : `${(me?.hallabong ?? 0).toLocaleString("ko-KR")}`}
+          </Text>
+        </View>
+
+        <View style={styles.productImageWrapper}>
+          {product.imageUrl ? (
+            <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
+          ) : null}
+        </View>
+
+        <View style={styles.productInfo}>
+          <View style={styles.productArea}>
+            <Text style={styles.productAreaText}>{category ? CATEGORY_LABEL[category] : "상품"}</Text>
+            <Text style={styles.chevron}>›</Text>
+          </View>
+          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.productPrice}>
+            {(product.hallabongCost ?? 0).toLocaleString("ko-KR")} 한라봉
+          </Text>
+          {product.description ? (
+            <Text style={styles.description}>{product.description}</Text>
+          ) : null}
+        </View>
+
+        <Pressable style={styles.banner} onPress={() => navigation.navigate("PointConvert")}>
+          <View style={styles.bannerImage} />
+          <View style={styles.bannerTextBox}>
+            <Text style={styles.bannerTitle}>한라봉 충전하기</Text>
+            <Text style={styles.bannerSubtitle}>포인트를 한라봉으로 바꿔보세요.</Text>
+          </View>
+          <Text style={styles.bannerArrow}>›</Text>
+        </Pressable>
+      </ScrollView>
+
+      <View style={commonStyles.bottomAction}>
+        <Pressable
+          style={({ pressed }) => [
+            commonStyles.primaryButton,
+            pressed && commonStyles.primaryButtonPressed,
+            exchangeProduct.isPending && commonStyles.primaryButtonDisabled,
+          ]}
+          disabled={exchangeProduct.isPending}
+          onPress={handlePurchase}
+        >
+          {exchangeProduct.isPending ? (
+            <ActivityIndicator color={colors.base[0]} />
+          ) : (
+            <Text style={commonStyles.primaryButtonText}>구매하기</Text>
+          )}
+        </Pressable>
       </View>
-
-      <Text style={styles.category}>
-        {category ? CATEGORY_LABEL[category] : "상품"}
-      </Text>
-      <Text style={styles.name}>{product.name}</Text>
-
-      {product.description ? (
-        <Text style={styles.description}>{product.description}</Text>
-      ) : null}
-
-      <View style={styles.priceBox}>
-        <Text style={styles.priceLabel}>교환 비용</Text>
-        <Text style={styles.price}>{product.hallabongCost ?? 0} 한라봉</Text>
-      </View>
-
-      <View style={styles.balanceBox}>
-        <Text style={styles.balanceLabel}>보유 한라봉</Text>
-        <Text style={styles.balanceText}>
-          {isLoadingMe ? "확인 중..." : `${me?.hallabong ?? 0} 한라봉`}
-        </Text>
-      </View>
-
-      <Pressable
-        style={[
-          styles.primaryButton,
-          exchangeProduct.isPending && styles.disabledButton,
-        ]}
-        disabled={exchangeProduct.isPending}
-        onPress={handlePurchase}
-      >
-        <Text style={styles.primaryButtonText}>
-          {exchangeProduct.isPending ? "구매 중..." : "구매하기"}
-        </Text>
-      </Pressable>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg[50],
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
-    padding: 16,
-    paddingBottom: 36,
+    paddingHorizontal: layout.screenPadding,
+    paddingBottom: 172,
   },
-  imageBox: {
-    width: "100%",
-    aspectRatio: 1,
-    borderRadius: 18,
+  balancePillSmall: {
+    alignSelf: "flex-end",
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: "#f3f3f3",
+    gap: 8,
+    marginTop: 10,
+    marginBottom: 25,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.primary[200],
+    backgroundColor: colors.primary[50],
   },
-  image: {
+  balanceLabel: {
+    ...typography.body3,
+    color: colors.gray[600],
+  },
+  balanceValue: {
+    ...typography.body1,
+    color: colors.primary[400],
+  },
+  productImageWrapper: {
+    width: "100%",
+    aspectRatio: 32 / 27,
+    marginBottom: 20,
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: colors.gray[200],
+  },
+  productImage: {
     width: "100%",
     height: "100%",
   },
-  placeholderText: {
-    color: "#999",
+  productInfo: {
+    marginTop: 0,
   },
-  category: {
-    marginTop: 22,
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#ff8b4c",
+  productArea: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  name: {
-    marginTop: 8,
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "800",
-    color: "#1f1f1f",
+  productAreaText: {
+    ...typography.head4,
+    color: colors.gray[500],
+    fontWeight: "600",
+  },
+  chevron: {
+    fontSize: 20,
+    lineHeight: 20,
+    color: colors.gray[400],
+  },
+  productName: {
+    ...typography.head2,
+    color: colors.gray[800],
+    marginTop: 10,
+    marginBottom: 2,
+  },
+  productPrice: {
+    ...typography.head3,
+    color: colors.gray[700],
   },
   description: {
+    ...typography.body4,
+    color: colors.gray[600],
     marginTop: 12,
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#666",
   },
-  priceBox: {
-    marginTop: 22,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#fff4ec",
-  },
-  priceLabel: {
-    fontSize: 13,
-    color: "#855234",
-  },
-  price: {
-    marginTop: 6,
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#ff8b4c",
-  },
-  balanceBox: {
-    marginTop: 12,
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: "#f8f8f8",
-  },
-  balanceLabel: {
-    fontSize: 13,
-    color: "#777",
-  },
-  balanceText: {
-    marginTop: 6,
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#333",
-  },
-  primaryButton: {
-    marginTop: 24,
-    height: 54,
-    borderRadius: 15,
+  banner: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    gap: 8,
+    height: 91,
+    marginTop: 40,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#FFF4DB",
   },
-  disabledButton: {
-    opacity: 0.55,
+  bannerImage: {
+    width: 104,
+    height: "100%",
+    backgroundColor: colors.primary[100],
   },
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "800",
+  bannerTextBox: {
+    flex: 1,
+  },
+  bannerTitle: {
+    ...typography.head4,
+    color: colors.primary[500],
+    fontWeight: "600",
+  },
+  bannerSubtitle: {
+    ...typography.body4,
+    color: colors.primary[400],
+    marginTop: 4,
+  },
+  bannerArrow: {
+    paddingRight: 20,
+    fontSize: 24,
+    color: colors.primary[400],
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   mutedText: {
-    marginTop: 10,
-    color: "#777",
+    ...typography.body4,
+    color: colors.gray[500],
   },
   errorText: {
-    color: "#d33",
+    ...typography.body3,
+    color: colors.error[100],
   },
 });

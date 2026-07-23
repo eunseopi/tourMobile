@@ -10,6 +10,8 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../App";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useMyProducts } from "src/features/my-page/useMyProducts";
 
@@ -28,7 +30,7 @@ export default function MyCouponsScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#ff8b4c" />
+        <ActivityIndicator color={colors.primary[400]} />
         <Text style={styles.mutedText}>쿠폰을 불러오는 중...</Text>
       </View>
     );
@@ -38,8 +40,8 @@ export default function MyCouponsScreen({ navigation }: Props) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>쿠폰 목록을 불러오지 못했어요.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>다시 시도</Text>
+        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
         </Pressable>
       </View>
     );
@@ -50,6 +52,8 @@ export default function MyCouponsScreen({ navigation }: Props) {
       style={styles.container}
       data={coupons}
       keyExtractor={(item) => String(item.exchangeId)}
+      numColumns={2}
+      columnWrapperStyle={styles.row}
       contentContainerStyle={styles.content}
       refreshControl={
         <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
@@ -61,29 +65,22 @@ export default function MyCouponsScreen({ navigation }: Props) {
       }
       renderItem={({ item }) => (
         <Pressable
-          style={styles.card}
+          style={styles.productCard}
           onPress={() =>
             navigation.navigate("CouponDetail", { exchangeId: item.exchangeId })
           }
         >
-          <View style={styles.imageBox}>
+          <View style={styles.productImageWrapper}>
             {item.imageUrl ? (
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
-            ) : (
-              <Text style={styles.placeholderText}>Coupon</Text>
-            )}
+              <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+            ) : null}
           </View>
-          <View style={styles.body}>
-            <Text style={styles.category}>
-              {item.category === "JEJU_TICON" ? "제주티콘" : "굿즈"}
-            </Text>
-            <Text style={styles.name} numberOfLines={2}>
-              {item.name}
-            </Text>
-            <Text style={[styles.status, item.accepted && styles.acceptedStatus]}>
-              {item.accepted ? "사용 완료" : "사용 가능"}
-            </Text>
-          </View>
+          <Text style={styles.productName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={[styles.status, item.accepted && styles.acceptedStatus]}>
+            {item.accepted ? "수령완료" : "사용 가능"}
+          </Text>
         </Pressable>
       )}
     />
@@ -93,93 +90,63 @@ export default function MyCouponsScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: layout.screenPadding,
+    paddingVertical: 30,
+    paddingBottom: 44,
   },
-  card: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 14,
-    padding: 12,
-    borderRadius: 18,
-    backgroundColor: "#fafafa",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#e8e8e8",
+  row: {
+    gap: 15,
   },
-  imageBox: {
-    width: 96,
-    height: 96,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
+  productCard: {
+    flex: 1,
+    marginBottom: 15,
+  },
+  productImageWrapper: {
+    width: "100%",
+    aspectRatio: 32 / 27,
+    marginBottom: 10,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: colors.gray[200],
   },
-  image: {
+  productImage: {
     width: "100%",
     height: "100%",
   },
-  placeholderText: {
-    color: "#999",
-    fontWeight: "800",
-  },
-  body: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  category: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#ff8b4c",
-  },
-  name: {
-    marginTop: 6,
-    fontSize: 17,
-    lineHeight: 23,
-    fontWeight: "900",
-    color: "#222",
+  productName: {
+    ...typography.body2,
+    color: colors.gray[700],
   },
   status: {
-    marginTop: 10,
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#2a7f39",
+    ...typography.caption1,
+    color: colors.primary[400],
+    marginTop: 2,
   },
   acceptedStatus: {
-    color: "#999",
+    color: colors.gray[400],
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     padding: 24,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   emptyBox: {
-    paddingVertical: 100,
-    alignItems: "center",
-  },
-  mutedText: {
-    marginTop: 10,
-    color: "#777",
-  },
-  errorText: {
-    color: "#d33",
-  },
-  retryButton: {
-    marginTop: 14,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 12,
+    minHeight: 360,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
   },
-  retryButtonText: {
-    color: "#fff",
-    fontWeight: "800",
+  mutedText: {
+    ...typography.body4,
+    color: colors.gray[500],
+  },
+  errorText: {
+    ...typography.body3,
+    color: colors.error[100],
   },
 });
