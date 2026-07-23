@@ -33,11 +33,15 @@ export function RootNavigator() {
       <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Permission" component={PermissionScreen} options={{ title: "권한 안내" }} />
       <Stack.Screen name="LanguageSetting" component={LanguageSettingScreen} options={{ title: "언어 설정" }} />
-      <Stack.Screen name="RegisterChoice" component={RegisterChoiceScreen} options={{ title: "가입 방식 선택" }} />
+      <Stack.Screen name="RegisterChoice" component={RegisterChoiceScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={MainScreen} options={{ title: "제주데이" }} />
       <Stack.Screen name="Map" component={MapScreen} options={{ title: "지도 탐색" }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ title: "로그인" }} />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ title: "회원가입" }} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ title: "", headerBackTitle: "", headerShadowVisible: false }}
+      />
+      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Shop" component={ShopScreen} options={{ title: "구매하기" }} />
       <Stack.Screen name="MyPage" component={MyPageScreen} options={{ title: "마이페이지" }} />
       <Stack.Screen name="MyCoupons" component={MyCouponsScreen} options={{ title: "내 쿠폰" }} />

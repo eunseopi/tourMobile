@@ -20,19 +20,20 @@ export function HallabongLogo({ size = 160 }: Props) {
             top: 44 * scale,
           },
         ]}
-      />
-      <View
-        style={[
-          styles.highlight,
-          {
-            width: 40 * scale,
-            height: 40 * scale,
-            borderRadius: 20 * scale,
-            left: 34 * scale,
-            top: 47 * scale,
-          },
-        ]}
-      />
+      >
+        <View
+          style={[
+            styles.highlight,
+            {
+              width: 40 * scale,
+              height: 40 * scale,
+              borderRadius: 20 * scale,
+              left: 4 * scale,
+              top: 3 * scale,
+            },
+          ]}
+        />
+      </View>
       <View
         style={[
           styles.leafLarge,
@@ -72,6 +73,7 @@ const styles = StyleSheet.create({
   fruit: {
     position: "absolute",
     backgroundColor: "#FF9D00",
+    overflow: "hidden",
   },
   highlight: {
     position: "absolute",

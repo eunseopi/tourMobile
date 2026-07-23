@@ -33,8 +33,11 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [touched, setTouched] = useState({ email: false, password: false });
 
   const validation = useMemo(() => validateLoginForm(email, password), [email, password]);
+  const emailError = touched.email ? validation.errors.email : undefined;
+  const passwordError = touched.password ? validation.errors.password : undefined;
 
   const handleLogin = async () => {
     if (!validation.isValid || isSubmitting) {
@@ -87,22 +90,30 @@ export default function LoginScreen({ navigation }: Props) {
           <FormTextField
             label="이메일"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(value) => {
+              setEmail(value);
+              if (!touched.email) setTouched((prev) => ({ ...prev, email: true }));
+            }}
+            onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
             placeholder="you@example.com"
             placeholderTextColor="#a0a0a0"
             autoCapitalize="none"
             keyboardType="email-address"
-            error={validation.errors.email}
+            error={emailError}
           />
 
           <FormTextField
             label="비밀번호"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(value) => {
+              setPassword(value);
+              if (!touched.password) setTouched((prev) => ({ ...prev, password: true }));
+            }}
+            onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
             placeholder="8자 이상 입력"
             placeholderTextColor="#a0a0a0"
             secureTextEntry
-            error={validation.errors.password}
+            error={passwordError}
           />
 
           <PrimaryActionButton
