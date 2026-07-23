@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";

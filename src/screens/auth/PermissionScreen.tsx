@@ -4,7 +4,7 @@ import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";

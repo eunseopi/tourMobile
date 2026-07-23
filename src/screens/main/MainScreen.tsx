@@ -11,7 +11,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import CheckInModal from "src/components/main/CheckInModal";
 import { useLoadOngoingChallenges, useLoadUpcomingChallenges } from "src/features/challenges/useChallengeQueries";
 import { useCheckIn } from "src/features/main/useCheckIn";

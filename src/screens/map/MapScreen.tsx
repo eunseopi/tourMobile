@@ -14,7 +14,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { spotsApi } from "src/api/spotsApi";
 import { useLoadOngoingChallenges } from "src/features/challenges/useChallengeQueries";
 import { useNearbySpots } from "src/features/main/useNearbySpots";

@@ -13,7 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { useCreateSpot } from "src/features/spot/useCreateSpot";
 import { initialSpot, spotReducer } from "src/reducer/SpotReducer";
 import type { SpotCreate } from "src/types/SpotTypes";

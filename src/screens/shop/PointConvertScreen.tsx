@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
 import { commonStyles } from "src/design/commonStyles";

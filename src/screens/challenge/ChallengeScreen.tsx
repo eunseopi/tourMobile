@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import {
   useLoadCompletedChallenges,
   useLoadOngoingChallenges,

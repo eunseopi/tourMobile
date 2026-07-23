@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { useKakaoLogin } from "src/features/auth/useKakaoLogin";
 import { colors, layout, typography } from "src/design/theme";
 

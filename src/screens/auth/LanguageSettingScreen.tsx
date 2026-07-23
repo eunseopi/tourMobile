@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { useAppPreferenceStore } from "src/stores/appPreferenceStore";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";

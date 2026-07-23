@@ -4,7 +4,7 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import type { NavigationProp } from "@react-navigation/native";
 import { authApi } from "src/api/auth";
-import type { RootStackParamList } from "../../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { QK } from "src/utils/lib/queryKeys";
 
 WebBrowser.maybeCompleteAuthSession();

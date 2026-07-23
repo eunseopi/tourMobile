@@ -13,7 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { communityApi } from "src/api/community";
 import { formatDate } from "src/utils/formDate";

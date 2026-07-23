@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { communityApi } from "src/api/community";
 import { formatDate } from "src/utils/formDate";
 import { commonStyles } from "src/design/commonStyles";

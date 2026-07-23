@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, layout, typography } from "src/design/theme";
 import { useProduct } from "src/features/product/useProduct";

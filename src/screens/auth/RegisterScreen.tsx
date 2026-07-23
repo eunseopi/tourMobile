@@ -16,7 +16,7 @@ import {
   View,
 } from "react-native";
 import type { AxiosError } from "axios";
-import type { RootStackParamList } from "../../App";
+import type { RootStackParamList } from "src/app/navigation/types";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import { authApi } from "src/api/auth";
