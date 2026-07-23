@@ -39,7 +39,7 @@ export function RootNavigator() {
       <Stack.Screen
         name="Login"
         component={LoginScreen}
-        options={{ title: "", headerBackTitle: "", headerShadowVisible: false }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Shop" component={ShopScreen} options={{ title: "구매하기" }} />

@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import type { AxiosError } from "axios";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { FormTextField } from "src/components/form/FormTextField";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
@@ -78,66 +79,80 @@ export default function LoginScreen({ navigation }: Props) {
     }
   };
 
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+    navigation.replace("RegisterChoice");
+  };
+
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardView}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>로그인</Text>
-
-        <View style={styles.form}>
-          <FormTextField
-            label="이메일"
-            value={email}
-            onChangeText={(value) => {
-              setEmail(value);
-              if (!touched.email) setTouched((prev) => ({ ...prev, email: true }));
-            }}
-            onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-            placeholder="you@example.com"
-            placeholderTextColor="#a0a0a0"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            error={emailError}
-          />
-
-          <FormTextField
-            label="비밀번호"
-            value={password}
-            onChangeText={(value) => {
-              setPassword(value);
-              if (!touched.password) setTouched((prev) => ({ ...prev, password: true }));
-            }}
-            onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-            placeholder="8자 이상 입력"
-            placeholderTextColor="#a0a0a0"
-            secureTextEntry
-            error={passwordError}
-          />
-
-          <PrimaryActionButton
-            label="이메일로 로그인"
-            isLoading={isSubmitting}
-            disabled={!validation.isValid}
-            style={styles.submitButton}
-            onPress={handleLogin}
-          />
-
-          <Pressable style={styles.outlineButton} onPress={() => navigation.navigate("PasswordReset")}>
-            <Text style={styles.outlineButtonText}>비밀번호 재설정</Text>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
+            <Text style={styles.backButtonText}>{"<"}</Text>
           </Pressable>
 
-          <Pressable style={styles.outlineButton} onPress={() => navigation.navigate("Register")}>
-            <Text style={styles.outlineButtonText}>회원가입</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <Text style={styles.title}>로그인</Text>
+
+          <View style={styles.form}>
+            <FormTextField
+              label="이메일"
+              value={email}
+              onChangeText={(value) => {
+                setEmail(value);
+                if (!touched.email) setTouched((prev) => ({ ...prev, email: true }));
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
+              placeholder="you@example.com"
+              placeholderTextColor="#a0a0a0"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              error={emailError}
+            />
+
+            <FormTextField
+              label="비밀번호"
+              value={password}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (!touched.password) setTouched((prev) => ({ ...prev, password: true }));
+              }}
+              onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+              placeholder="8자 이상 입력"
+              placeholderTextColor="#a0a0a0"
+              secureTextEntry
+              error={passwordError}
+            />
+
+            <PrimaryActionButton
+              label="이메일로 로그인"
+              isLoading={isSubmitting}
+              disabled={!validation.isValid}
+              style={styles.submitButton}
+              onPress={handleLogin}
+            />
+
+            <Pressable style={styles.outlineButton} onPress={() => navigation.navigate("Register")}>
+              <Text style={styles.outlineButtonText}>회원가입</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.bg[0],
+  },
   keyboardView: {
     flex: 1,
     backgroundColor: colors.bg[0],
@@ -147,6 +162,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPadding,
     paddingTop: 32,
     paddingBottom: 140,
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    minWidth: 32,
+    minHeight: 32,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginBottom: 18,
+  },
+  backButtonText: {
+    fontSize: 28,
+    lineHeight: 32,
+    fontWeight: "400",
+    color: colors.gray[800],
   },
   title: {
     ...typography.head3,
