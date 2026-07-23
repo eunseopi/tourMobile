@@ -98,7 +98,8 @@ export default function LoginScreen({ navigation }: Props) {
             <Text style={styles.backButtonText}>{"<"}</Text>
           </Pressable>
 
-          <Text style={styles.title}>로그인</Text>
+          <Text style={styles.title}>다시 오신 것을 환영해요 :)</Text>
+          <Text style={styles.subtitle}>로그인해주세요.</Text>
 
           <View style={styles.form}>
             <FormTextField
@@ -109,7 +110,7 @@ export default function LoginScreen({ navigation }: Props) {
                 if (!touched.email) setTouched((prev) => ({ ...prev, email: true }));
               }}
               onBlur={() => setTouched((prev) => ({ ...prev, email: true }))}
-              placeholder="you@example.com"
+              placeholder="이메일을 입력해주세요."
               placeholderTextColor="#a0a0a0"
               autoCapitalize="none"
               keyboardType="email-address"
@@ -124,7 +125,7 @@ export default function LoginScreen({ navigation }: Props) {
                 if (!touched.password) setTouched((prev) => ({ ...prev, password: true }));
               }}
               onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-              placeholder="8자 이상 입력"
+              placeholder="비밀번호를 입력해주세요."
               placeholderTextColor="#a0a0a0"
               secureTextEntry
               error={passwordError}
@@ -180,7 +181,12 @@ const styles = StyleSheet.create({
   title: {
     ...typography.head3,
     color: colors.gray[800],
-    marginBottom: 20,
+    marginBottom: 6,
+  },
+  subtitle: {
+    ...typography.body2,
+    color: colors.gray[600],
+    marginBottom: 28,
   },
   form: {
     gap: 10,

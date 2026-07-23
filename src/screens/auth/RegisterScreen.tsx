@@ -45,17 +45,10 @@ export default function RegisterScreen({ navigation, route }: Props) {
               <EmailStep
                 email={register.state.email}
                 emailError={register.state.emailError}
-                authCode={register.state.authCode}
-                authError={register.state.authError}
-                showAuthInput={register.state.showAuthInput}
-                authPassed={register.state.authPassed}
                 isSendingCode={register.isSendingCode}
-                isVerifyingCode={register.isVerifyingCode}
                 onChangeEmail={register.handleChangeEmail}
                 onBlurEmail={register.handleBlurEmail}
-                onChangeAuthCode={register.handleChangeAuthCode}
                 onSendCode={register.handleSendCode}
-                onVerifyCode={register.handleVerifyCode}
               />
             )}
 

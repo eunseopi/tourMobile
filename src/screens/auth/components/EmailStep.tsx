@@ -1,82 +1,46 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { colors, typography } from "src/design/theme";
-import { commonStyles } from "src/design/commonStyles";
 
 type Props = {
   email: string;
   emailError?: string;
-  authCode: string;
-  authError?: string;
-  showAuthInput: boolean;
-  authPassed: boolean;
   isSendingCode: boolean;
-  isVerifyingCode: boolean;
   onChangeEmail: (value: string) => void;
   onBlurEmail: () => void;
-  onChangeAuthCode: (value: string) => void;
   onSendCode: () => void;
-  onVerifyCode: () => void;
 };
 
 export function EmailStep({
   email,
   emailError,
-  authCode,
-  authError,
-  showAuthInput,
-  authPassed,
   isSendingCode,
-  isVerifyingCode,
   onChangeEmail,
   onBlurEmail,
-  onChangeAuthCode,
   onSendCode,
-  onVerifyCode,
 }: Props) {
   return (
     <View style={styles.section}>
       <Text style={styles.label}>이메일</Text>
-      <TextInput
-        value={email}
-        onChangeText={onChangeEmail}
-        onBlur={onBlurEmail}
-        placeholder="you@example.com"
-        placeholderTextColor="#a0a0a0"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={styles.input}
-      />
+      <View style={[styles.inputShell, emailError ? styles.inputShellError : null]}>
+        <TextInput
+          value={email}
+          onChangeText={onChangeEmail}
+          onBlur={onBlurEmail}
+          placeholder="이메일을 입력해주세요."
+          placeholderTextColor="#a0a0a0"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          style={styles.input}
+        />
+        <Pressable style={styles.duplicateButton} onPress={onSendCode} disabled={isSendingCode}>
+          {isSendingCode ? (
+            <ActivityIndicator color={colors.primary[500]} />
+          ) : (
+            <Text style={styles.duplicateButtonText}>중복확인</Text>
+          )}
+        </Pressable>
+      </View>
       {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
-
-      <Pressable style={styles.secondaryButton} onPress={onSendCode} disabled={isSendingCode}>
-        {isSendingCode ? (
-          <ActivityIndicator color="#8b532f" />
-        ) : (
-          <Text style={styles.secondaryButtonText}>인증번호 받기</Text>
-        )}
-      </Pressable>
-
-      {showAuthInput && (
-        <>
-          <Text style={[styles.label, styles.inlineTop]}>인증번호</Text>
-          <TextInput
-            value={authCode}
-            onChangeText={onChangeAuthCode}
-            placeholder="이메일로 받은 코드 입력"
-            placeholderTextColor="#a0a0a0"
-            style={styles.input}
-          />
-          {!!authError && <Text style={styles.errorText}>{authError}</Text>}
-
-          <Pressable style={styles.secondaryButton} onPress={onVerifyCode} disabled={isVerifyingCode}>
-            {isVerifyingCode ? (
-              <ActivityIndicator color="#8b532f" />
-            ) : (
-              <Text style={styles.secondaryButtonText}>{authPassed ? "인증 완료" : "인증 확인"}</Text>
-            )}
-          </Pressable>
-        </>
-      )}
     </View>
   );
 }
@@ -89,23 +53,43 @@ const styles = StyleSheet.create({
     ...typography.body3,
     color: colors.gray[700],
   },
-  inlineTop: {
-    marginTop: 18,
+  inputShell: {
+    minHeight: 48,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
   },
   input: {
-    ...commonStyles.input,
-    marginTop: 8,
+    flex: 1,
+    minHeight: 48,
+    paddingLeft: 14,
+    paddingRight: 8,
+    ...typography.body2,
+    color: colors.gray[800],
+  },
+  inputShellError: {
+    borderColor: colors.error[100],
+  },
+  duplicateButton: {
+    minWidth: 76,
+    minHeight: 34,
+    marginRight: 7,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary[100],
+  },
+  duplicateButtonText: {
+    ...typography.caption1,
+    color: colors.primary[500],
   },
   errorText: {
     marginTop: 6,
     ...typography.caption2,
     color: colors.error[100],
-  },
-  secondaryButton: {
-    ...commonStyles.secondaryButton,
-    marginTop: 12,
-  },
-  secondaryButtonText: {
-    ...commonStyles.secondaryButtonText,
   },
 });

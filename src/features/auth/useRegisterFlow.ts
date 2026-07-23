@@ -244,15 +244,14 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       }
 
       dispatch({ type: "CHECK_DUPLICATE_SUCCESS" });
-      dispatch({ type: "SHOW_AUTH_INPUT" });
+      dispatch({ type: "AUTH_SUCCESS" });
       dispatch({ type: "SET_EMAIL_ERROR", message: "" });
 
-      await authApi.sendEmailCode(state.email.trim());
-      Alert.alert("인증번호 발송", "이메일로 인증번호를 보냈어요.");
+      Alert.alert("사용 가능", "사용 가능한 이메일입니다.");
     } catch (error) {
       dispatch({
         type: "SET_EMAIL_ERROR",
-        message: getErrorMessage(error, "인증번호 발송 중 오류가 발생했습니다."),
+        message: getErrorMessage(error, "이메일 중복 확인 중 오류가 발생했습니다."),
       });
     } finally {
       setIsSendingCode(false);
