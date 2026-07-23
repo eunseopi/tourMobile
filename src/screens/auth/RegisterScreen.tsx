@@ -3,22 +3,16 @@ import * as ImagePicker from "expo-image-picker";
 import { useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
-  ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from "react-native";
 import type { AxiosError } from "axios";
 import type { RootStackParamList } from "src/app/navigation/types";
-import { colors, layout, typography } from "src/design/theme";
-import { commonStyles } from "src/design/commonStyles";
+import { colors, layout } from "src/design/theme";
 import { authApi } from "src/api/auth";
 import { QK } from "src/utils/lib/queryKeys";
 import {
@@ -28,6 +22,13 @@ import {
 } from "src/utils/validation/authValidation";
 import type { RegisterAction, RegisterState } from "src/types/RegisterTypes";
 import type { UploadableImage } from "src/types/SpotTypes";
+import { BasicInfoStep } from "./components/BasicInfoStep";
+import { EmailStep } from "./components/EmailStep";
+import { PasswordStep } from "./components/PasswordStep";
+import { ProfileStep } from "./components/ProfileStep";
+import { RegisterFooter } from "./components/RegisterFooter";
+import { RegisterStepBar } from "./components/RegisterStepBar";
+import { ThemeStep } from "./components/ThemeStep";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 
@@ -39,18 +40,6 @@ type ApiBody<T = unknown> = {
   message?: string;
   data?: T;
 };
-
-const THEME_OPTIONS = [
-  "데이트",
-  "힐링",
-  "반려동물",
-  "사진 명소",
-  "가족 여행",
-  "자연",
-  "한달 살이",
-  "나홀로 여행",
-  "맛집 탐방",
-] as const;
 
 const initialRegisterState: RegisterState = {
   email: "",
@@ -566,266 +555,90 @@ export default function RegisterScreen({ navigation, route }: Props) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.header}>
-          <View style={styles.stepBar}>
-            {Array.from({ length: totalSteps }).map((_, index) => (
-              <View key={index} style={[styles.stepItem, index <= step && styles.stepItemActive]} />
-            ))}
-          </View>
-          <Text style={styles.title}>{stepTitle}</Text>
-        </View>
+        <RegisterStepBar totalSteps={totalSteps} currentStep={step} title={stepTitle} />
 
         <View style={styles.form}>
           {step === 0 && !isKakaoRegister && (
-            <View style={styles.section}>
-              <Text style={styles.label}>이메일</Text>
-              <TextInput
-                value={state.email}
-                onChangeText={(value) => dispatch({ type: "SET_EMAIL", value })}
-                onBlur={() => dispatch({ type: "VALIDATE_EMAIL" })}
-                placeholder="you@example.com"
-                placeholderTextColor="#a0a0a0"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                style={styles.input}
-              />
-              {!!state.emailError && <Text style={styles.errorText}>{state.emailError}</Text>}
-
-              <Pressable style={styles.secondaryButton} onPress={handleSendCode} disabled={isSendingCode}>
-                {isSendingCode ? (
-                  <ActivityIndicator color="#8b532f" />
-                ) : (
-                  <Text style={styles.secondaryButtonText}>인증번호 받기</Text>
-                )}
-              </Pressable>
-
-              {state.showAuthInput && (
-                <>
-                  <Text style={[styles.label, styles.inlineTop]}>인증번호</Text>
-                  <TextInput
-                    value={state.authCode}
-                    onChangeText={(value) => dispatch({ type: "SET_AUTH_CODE", value })}
-                    placeholder="이메일로 받은 코드 입력"
-                    placeholderTextColor="#a0a0a0"
-                    style={styles.input}
-                  />
-                  {!!state.authError && <Text style={styles.errorText}>{state.authError}</Text>}
-
-                  <Pressable
-                    style={styles.secondaryButton}
-                    onPress={handleVerifyCode}
-                    disabled={isVerifyingCode}
-                  >
-                    {isVerifyingCode ? (
-                      <ActivityIndicator color="#8b532f" />
-                    ) : (
-                      <Text style={styles.secondaryButtonText}>
-                        {state.authPassed ? "인증 완료" : "인증 확인"}
-                      </Text>
-                    )}
-                  </Pressable>
-                </>
-              )}
-            </View>
+            <EmailStep
+              email={state.email}
+              emailError={state.emailError}
+              authCode={state.authCode}
+              authError={state.authError}
+              showAuthInput={state.showAuthInput}
+              authPassed={state.authPassed}
+              isSendingCode={isSendingCode}
+              isVerifyingCode={isVerifyingCode}
+              onChangeEmail={(value) => dispatch({ type: "SET_EMAIL", value })}
+              onBlurEmail={() => dispatch({ type: "VALIDATE_EMAIL" })}
+              onChangeAuthCode={(value) => dispatch({ type: "SET_AUTH_CODE", value })}
+              onSendCode={handleSendCode}
+              onVerifyCode={handleVerifyCode}
+            />
           )}
 
           {(isKakaoRegister ? step === 0 : step === 1) && (
-            <View style={styles.section}>
-              {isKakaoRegister ? (
-                <>
-                  <Text style={styles.label}>카카오 계정</Text>
-                  <View style={styles.kakaoInfoBox}>
-                    <Text style={styles.kakaoInfoText}>{state.kakaoEmail || "이메일 정보 없음"}</Text>
-                  </View>
-                </>
-              ) : null}
-              <Text style={styles.label}>성별</Text>
-              <View style={styles.segmentRow}>
-                <SegmentButton
-                  active={state.gender === "male"}
-                  label="남성"
-                  onPress={() => dispatch({ type: "SET_GENDER", value: "male" })}
-                />
-                <SegmentButton
-                  active={state.gender === "female"}
-                  label="여성"
-                  onPress={() => dispatch({ type: "SET_GENDER", value: "female" })}
-                />
-              </View>
-
-              <Text style={[styles.label, styles.inlineTop]}>출생연도</Text>
-              <TextInput
-                value={state.birthYear}
-                onChangeText={(value) => dispatch({ type: "SET_BIRTH_YEAR", value })}
-                placeholder="예: 1998"
-                placeholderTextColor="#a0a0a0"
-                keyboardType="number-pad"
-                maxLength={4}
-                style={styles.input}
-              />
-              {!!state.birthYearError && <Text style={styles.errorText}>{state.birthYearError}</Text>}
-            </View>
+            <BasicInfoStep
+              isKakaoRegister={isKakaoRegister}
+              kakaoEmail={state.kakaoEmail}
+              gender={state.gender as GenderValue}
+              birthYear={state.birthYear}
+              birthYearError={state.birthYearError}
+              onChangeGender={(value) => dispatch({ type: "SET_GENDER", value })}
+              onChangeBirthYear={(value) => dispatch({ type: "SET_BIRTH_YEAR", value })}
+            />
           )}
 
           {!isKakaoRegister && step === 2 && (
-            <View style={styles.section}>
-              <Text style={styles.label}>비밀번호</Text>
-              <TextInput
-                value={state.password}
-                onChangeText={(value) => dispatch({ type: "SET_PASSWORD", value })}
-                placeholder="8자 이상 입력"
-                placeholderTextColor="#a0a0a0"
-                secureTextEntry
-                style={styles.input}
-              />
-
-              <Text style={[styles.label, styles.inlineTop]}>비밀번호 확인</Text>
-              <TextInput
-                value={passwordConfirm}
-                onChangeText={setPasswordConfirm}
-                placeholder="한 번 더 입력"
-                placeholderTextColor="#a0a0a0"
-                secureTextEntry
-                style={styles.input}
-              />
-            </View>
+            <PasswordStep
+              password={state.password}
+              passwordConfirm={passwordConfirm}
+              onChangePassword={(value) => dispatch({ type: "SET_PASSWORD", value })}
+              onChangePasswordConfirm={setPasswordConfirm}
+            />
           )}
 
           {(isKakaoRegister ? step === 1 : step === 3) && (
-            <View style={styles.section}>
-              {!isKakaoRegister ? (
-                <>
-                  <Text style={styles.label}>프로필 이미지</Text>
-                  <View style={styles.profileImageSection}>
-                    {state.imageUrl ? (
-                      <Image source={{ uri: state.imageUrl }} style={styles.profilePreview} />
-                    ) : (
-                      <View style={styles.profilePreviewFallback}>
-                        <Text style={styles.profilePreviewFallbackText}>프로필</Text>
-                      </View>
-                    )}
-                    <View style={styles.profileButtonColumn}>
-                      <Pressable style={styles.secondaryButton} onPress={handlePickProfileImage}>
-                        <Text style={styles.secondaryButtonText}>이미지 선택</Text>
-                      </Pressable>
-                      <Pressable style={styles.secondaryButton} onPress={handleTakeProfileImage}>
-                        <Text style={styles.secondaryButtonText}>지금 촬영</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                </>
-              ) : (
-                <Text style={styles.profileNotice}>
-                  카카오 가입은 닉네임, 추천인, 관심 테마를 입력하면 완료됩니다.
-                </Text>
-              )}
-
-              <Text style={styles.label}>닉네임</Text>
-              <TextInput
-                value={state.nickname}
-                onChangeText={(value) => {
-                  dispatch({ type: "SET_NICKNAME", value });
-                  dispatch({ type: "SET_NICKNAME_DUPLICATE_CHECKED", payload: false });
-                  dispatch({ type: "SET_NICKNAME_ERROR", payload: "" });
-                }}
-                placeholder="2자 이상 8자 이하"
-                placeholderTextColor="#a0a0a0"
-                style={styles.input}
-              />
-              {!!state.nicknameError && <Text style={styles.errorText}>{state.nicknameError}</Text>}
-
-              <Pressable
-                style={styles.secondaryButton}
-                onPress={handleCheckNickname}
-                disabled={isCheckingNickname}
-              >
-                {isCheckingNickname ? (
-                  <ActivityIndicator color="#8b532f" />
-                ) : (
-                  <Text style={styles.secondaryButtonText}>
-                    {state.isNicknameDuplicatedChecked ? "확인 완료" : "닉네임 중복 확인"}
-                  </Text>
-                )}
-              </Pressable>
-
-              <Text style={[styles.label, styles.inlineTop]}>추천인</Text>
-              <TextInput
-                value={state.referralCode}
-                onChangeText={(value) => {
-                  dispatch({ type: "SET_REFERRAL_CODE", payload: value });
-                  dispatch({
-                    type: "SET_REFERRAL_ERROR",
-                    payload: value.trim() ? "" : "추천인을 입력해주세요. (ex. 제주데이)",
-                  });
-                }}
-                placeholder="예: 제주데이"
-                placeholderTextColor="#a0a0a0"
-                style={styles.input}
-              />
-              {!!state.referralError && <Text style={styles.errorText}>{state.referralError}</Text>}
-            </View>
+            <ProfileStep
+              isKakaoRegister={isKakaoRegister}
+              imageUrl={state.imageUrl}
+              nickname={state.nickname}
+              nicknameError={state.nicknameError}
+              referralCode={state.referralCode}
+              referralError={state.referralError}
+              isCheckingNickname={isCheckingNickname}
+              isNicknameDuplicatedChecked={state.isNicknameDuplicatedChecked}
+              onPickImage={handlePickProfileImage}
+              onTakeImage={handleTakeProfileImage}
+              onChangeNickname={(value) => {
+                dispatch({ type: "SET_NICKNAME", value });
+                dispatch({ type: "SET_NICKNAME_DUPLICATE_CHECKED", payload: false });
+                dispatch({ type: "SET_NICKNAME_ERROR", payload: "" });
+              }}
+              onCheckNickname={handleCheckNickname}
+              onChangeReferralCode={(value) => {
+                dispatch({ type: "SET_REFERRAL_CODE", payload: value });
+                dispatch({
+                  type: "SET_REFERRAL_ERROR",
+                  payload: value.trim() ? "" : "추천인을 입력해주세요. (ex. 제주데이)",
+                });
+              }}
+            />
           )}
 
           {(isKakaoRegister ? step === 2 : step === 4) && (
-            <View style={styles.section}>
-              <Text style={styles.label}>관심 테마</Text>
-              <Text style={styles.helperText}>최대 3개까지 선택할 수 있어요.</Text>
-              <View style={styles.themeGrid}>
-                {THEME_OPTIONS.map((theme) => {
-                  const active = state.themes.includes(theme);
-                  return (
-                    <Pressable
-                      key={theme}
-                      style={[styles.themeChip, active && styles.themeChipActive]}
-                      onPress={() => toggleTheme(theme)}
-                    >
-                      <Text style={[styles.themeChipText, active && styles.themeChipTextActive]}>
-                        {theme}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
+            <ThemeStep selectedThemes={state.themes} onToggleTheme={toggleTheme} />
           )}
 
-          <View style={styles.footerRow}>
-            <Pressable style={styles.backButton} onPress={handleBack}>
-              <Text style={styles.backButtonText}>{step === 0 ? "뒤로" : "이전"}</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.primaryButton, isSubmitting && styles.primaryButtonDisabled]}
-              onPress={handleNext}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.primaryButtonText}>
-                  {step === totalSteps - 1 ? "회원가입 완료" : "다음"}
-                </Text>
-              )}
-            </Pressable>
-          </View>
+          <RegisterFooter
+            step={step}
+            totalSteps={totalSteps}
+            isSubmitting={isSubmitting}
+            onBack={handleBack}
+            onNext={handleNext}
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
-  );
-}
-
-function SegmentButton({
-  active,
-  label,
-  onPress,
-}: {
-  active: boolean;
-  label: string;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable style={[styles.segmentButton, active && styles.segmentButtonActive]} onPress={onPress}>
-      <Text style={[styles.segmentButtonText, active && styles.segmentButtonTextActive]}>{label}</Text>
-    </Pressable>
   );
 }
 
@@ -840,209 +653,7 @@ const styles = StyleSheet.create({
     paddingTop: 7,
     paddingBottom: 40,
   },
-  header: {
-    marginBottom: 20,
-  },
-  stepBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
-    paddingTop: 7,
-    paddingBottom: 22,
-    gap: 4,
-  },
-  stepItem: {
-    flex: 1,
-    height: 3,
-    borderRadius: 50,
-    backgroundColor: colors.gray[300],
-  },
-  stepItemActive: {
-    backgroundColor: colors.primary[400],
-  },
-  title: {
-    ...typography.head3,
-    color: colors.gray[800],
-  },
   form: {
     flex: 1,
-  },
-  section: {
-    minHeight: 360,
-  },
-  label: {
-    ...typography.body3,
-    color: colors.gray[700],
-  },
-  inlineTop: {
-    marginTop: 18,
-  },
-  input: {
-    ...commonStyles.input,
-    marginTop: 8,
-  },
-  errorText: {
-    marginTop: 6,
-    ...typography.caption2,
-    color: colors.error[100],
-  },
-  helperText: {
-    marginTop: 6,
-    ...typography.caption2,
-    color: colors.gray[500],
-  },
-  kakaoInfoBox: {
-    marginBottom: 16,
-    marginTop: 8,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 10,
-    justifyContent: "center",
-    backgroundColor: colors.gray[100],
-  },
-  kakaoInfoText: {
-    ...typography.body4,
-    color: colors.gray[600],
-  },
-  profileNotice: {
-    marginBottom: 16,
-    ...typography.caption1,
-    color: colors.gray[600],
-  },
-  profileImageSection: {
-    paddingVertical: 20,
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  profilePreview: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: colors.gray[200],
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-  },
-  profilePreviewFallback: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.gray[200],
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-  },
-  profilePreviewFallbackText: {
-    ...typography.caption1,
-    color: colors.gray[500],
-  },
-  profileButtonColumn: {
-    width: "100%",
-    gap: 10,
-  },
-  secondaryButton: {
-    marginTop: 12,
-    minHeight: 48,
-    borderRadius: 7,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-    backgroundColor: colors.bg[0],
-  },
-  secondaryButtonText: {
-    ...typography.body1,
-    color: colors.gray[700],
-  },
-  segmentRow: {
-    flexDirection: "row",
-    gap: 14,
-    width: "100%",
-    marginTop: 10,
-    marginBottom: 32,
-  },
-  segmentButton: {
-    flex: 1,
-    minHeight: 72,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-    backgroundColor: colors.bg[0],
-  },
-  segmentButtonActive: {
-    backgroundColor: colors.primary[50],
-    borderColor: colors.primary[300],
-  },
-  segmentButtonText: {
-    ...typography.body2,
-    color: colors.gray[500],
-  },
-  segmentButtonTextActive: {
-    ...typography.body1,
-    color: colors.primary[400],
-  },
-  themeGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 11,
-    marginTop: 59,
-  },
-  themeChip: {
-    width: "30.8%",
-    minHeight: 68,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.bg[0],
-  },
-  themeChipActive: {
-    backgroundColor: colors.primary[50],
-    borderColor: colors.primary[300],
-  },
-  themeChipText: {
-    ...typography.body3,
-    color: colors.gray[500],
-    textAlign: "center",
-  },
-  themeChipTextActive: {
-    color: colors.primary[400],
-  },
-  footerRow: {
-    flexDirection: "row",
-    gap: 15,
-    marginTop: 8,
-  },
-  backButton: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.gray[100],
-  },
-  backButtonText: {
-    ...typography.body1,
-    color: colors.gray[400],
-  },
-  primaryButton: {
-    flex: 2,
-    minHeight: 48,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary[400],
-  },
-  primaryButtonDisabled: {
-    backgroundColor: colors.gray[100],
-  },
-  primaryButtonText: {
-    ...typography.body1,
-    color: colors.base[0],
   },
 });
