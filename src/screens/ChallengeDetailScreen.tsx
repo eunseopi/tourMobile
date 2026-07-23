@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import type { RootStackParamList } from "../../App";
 import { useStartChallenge } from "src/features/challenges/useChallengeMutations";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ChallengeDetail">;
 
@@ -79,7 +81,7 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
         disabled={busy}
         onPress={handleStart}
       >
-        {busy ? <ActivityIndicator color="#fff" /> : null}
+        {busy ? <ActivityIndicator color={colors.base[0]} /> : null}
         <Text style={styles.primaryButtonText}>
           {busy ? "시작 중..." : "시작하기"}
         </Text>
@@ -91,87 +93,106 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 36,
   },
   imageBox: {
     width: "100%",
-    aspectRatio: 1.25,
-    borderRadius: 18,
+    aspectRatio: 335 / 180,
+    padding: 10,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
   },
   image: {
     width: "100%",
     height: "100%",
+    borderRadius: 8,
   },
   placeholderText: {
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#ff8b4c",
+    ...typography.body1,
+    color: colors.primary[400],
   },
   badge: {
     alignSelf: "flex-start",
     marginTop: 18,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomRightRadius: 12,
     overflow: "hidden",
-    backgroundColor: "#fff4ec",
-    color: "#ff8b4c",
-    fontSize: 13,
-    fontWeight: "900",
+    backgroundColor: colors.primary[400],
+    ...typography.body1,
+    color: colors.base[0],
   },
   title: {
+    ...typography.head2,
+    color: colors.gray[800],
     marginTop: 10,
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: "900",
-    color: "#191919",
   },
   date: {
+    ...typography.body4,
+    color: colors.gray[500],
     marginTop: 8,
-    fontSize: 14,
-    color: "#777",
   },
   infoBox: {
     marginTop: 22,
     padding: 16,
-    borderRadius: 16,
-    backgroundColor: "#f8f8f8",
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
   },
   infoTitle: {
-    fontSize: 16,
-    fontWeight: "900",
-    color: "#222",
+    ...typography.head4,
+    color: colors.gray[800],
   },
   infoText: {
+    ...typography.body4,
+    color: colors.gray[600],
     marginTop: 8,
-    fontSize: 14,
-    lineHeight: 21,
-    color: "#666",
   },
-  primaryButton: {
-    marginTop: 24,
-    height: 54,
-    borderRadius: 15,
-    flexDirection: "row",
-    gap: 8,
+  secondaryButton: {
+    ...commonStyles.secondaryButton,
+    marginTop: 16,
+  },
+  secondaryButtonText: {
+    ...commonStyles.secondaryButtonText,
+  },
+  proofImage: {
+    width: "100%",
+    aspectRatio: 1.1,
+    marginTop: 16,
+    borderRadius: 8,
+    backgroundColor: colors.gray[200],
+  },
+  proofPlaceholder: {
+    width: "100%",
+    aspectRatio: 1.1,
+    marginTop: 16,
+    borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    backgroundColor: colors.gray[200],
+  },
+  proofPlaceholderText: {
+    ...typography.caption1,
+    color: colors.gray[500],
+  },
+  primaryButton: {
+    ...commonStyles.primaryButton,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 24,
   },
   disabledButton: {
-    opacity: 0.55,
+    ...commonStyles.primaryButtonDisabled,
   },
   primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "900",
+    ...commonStyles.primaryButtonText,
   },
 });
