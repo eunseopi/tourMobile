@@ -170,6 +170,49 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
 
   const totalSteps = isKakaoRegister ? 3 : 5;
 
+  const canProceed = useMemo(() => {
+    if (isSubmitting) return false;
+
+    if (isKakaoRegister) {
+      if (step === 0) return !!state.gender && /^\d{4}$/.test(state.birthYear.trim());
+      if (step === 1) {
+        return (
+          state.nickname.trim().length >= 2 &&
+          state.isNicknameDuplicatedChecked &&
+          !!state.referralCode.trim()
+        );
+      }
+      return state.themes.length > 0;
+    }
+
+    if (step === 0) return state.authPassed;
+    if (step === 1) return !!state.gender && /^\d{4}$/.test(state.birthYear.trim());
+    if (step === 2) {
+      return !validatePassword(state.password) && !validatePasswordConfirm(state.password, passwordConfirm);
+    }
+    if (step === 3) {
+      return (
+        state.nickname.trim().length >= 2 &&
+        state.isNicknameDuplicatedChecked &&
+        !!state.referralCode.trim()
+      );
+    }
+    return state.themes.length > 0;
+  }, [
+    isKakaoRegister,
+    isSubmitting,
+    passwordConfirm,
+    state.authPassed,
+    state.birthYear,
+    state.gender,
+    state.isNicknameDuplicatedChecked,
+    state.nickname,
+    state.password,
+    state.referralCode,
+    state.themes.length,
+    step,
+  ]);
+
   const validateBirthYear = () => {
     const value = state.birthYear.trim();
     if (!/^\d{4}$/.test(value)) {
@@ -587,6 +630,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
     step,
     stepTitle,
     totalSteps,
+    canProceed,
     isKakaoRegister,
     passwordConfirm,
     isSendingCode,

@@ -29,81 +29,80 @@ export default function RegisterScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <KeyboardAvoidingView
-        style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <RegisterStepBar
-            totalSteps={register.totalSteps}
-            currentStep={register.step}
-            title={register.stepTitle}
-          />
-
-          <View style={styles.form}>
-            {register.step === 0 && !register.isKakaoRegister && (
-              <EmailStep
-                email={register.state.email}
-                emailError={register.state.emailError}
-                isSendingCode={register.isSendingCode}
-                onChangeEmail={register.handleChangeEmail}
-                onBlurEmail={register.handleBlurEmail}
-                onSendCode={register.handleSendCode}
-              />
-            )}
-
-            {(register.isKakaoRegister ? register.step === 0 : register.step === 1) && (
-              <BasicInfoStep
-                isKakaoRegister={register.isKakaoRegister}
-                kakaoEmail={register.state.kakaoEmail}
-                gender={register.state.gender}
-                birthYear={register.state.birthYear}
-                birthYearError={register.state.birthYearError}
-                onChangeGender={register.handleChangeGender}
-                onChangeBirthYear={register.handleChangeBirthYear}
-              />
-            )}
-
-            {!register.isKakaoRegister && register.step === 2 && (
-              <PasswordStep
-                password={register.state.password}
-                passwordConfirm={register.passwordConfirm}
-                onChangePassword={register.handleChangePassword}
-                onChangePasswordConfirm={register.setPasswordConfirm}
-              />
-            )}
-
-            {(register.isKakaoRegister ? register.step === 1 : register.step === 3) && (
-              <ProfileStep
-                isKakaoRegister={register.isKakaoRegister}
-                imageUrl={register.state.imageUrl}
-                nickname={register.state.nickname}
-                nicknameError={register.state.nicknameError}
-                referralCode={register.state.referralCode}
-                referralError={register.state.referralError}
-                isCheckingNickname={register.isCheckingNickname}
-                isNicknameDuplicatedChecked={register.state.isNicknameDuplicatedChecked}
-                onPickImage={register.handlePickProfileImage}
-                onTakeImage={register.handleTakeProfileImage}
-                onChangeNickname={register.handleChangeNickname}
-                onCheckNickname={register.handleCheckNickname}
-                onChangeReferralCode={register.handleChangeReferralCode}
-              />
-            )}
-
-            {(register.isKakaoRegister ? register.step === 2 : register.step === 4) && (
-              <ThemeStep selectedThemes={register.state.themes} onToggleTheme={register.toggleTheme} />
-            )}
-
-            <RegisterFooter
-              step={register.step}
+      <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <View style={styles.layout}>
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            <RegisterStepBar
               totalSteps={register.totalSteps}
-              isSubmitting={register.isSubmitting}
-              onBack={register.handleBack}
-              onNext={register.handleNext}
+              currentStep={register.step}
+              title={register.stepTitle}
             />
-          </View>
-        </ScrollView>
+
+            <View style={styles.form}>
+              {register.step === 0 && !register.isKakaoRegister && (
+                <EmailStep
+                  email={register.state.email}
+                  emailError={register.state.emailError}
+                  isSendingCode={register.isSendingCode}
+                  onChangeEmail={register.handleChangeEmail}
+                  onBlurEmail={register.handleBlurEmail}
+                  onSendCode={register.handleSendCode}
+                />
+              )}
+
+              {(register.isKakaoRegister ? register.step === 0 : register.step === 1) && (
+                <BasicInfoStep
+                  isKakaoRegister={register.isKakaoRegister}
+                  kakaoEmail={register.state.kakaoEmail}
+                  gender={register.state.gender}
+                  birthYear={register.state.birthYear}
+                  birthYearError={register.state.birthYearError}
+                  onChangeGender={register.handleChangeGender}
+                  onChangeBirthYear={register.handleChangeBirthYear}
+                />
+              )}
+
+              {!register.isKakaoRegister && register.step === 2 && (
+                <PasswordStep
+                  password={register.state.password}
+                  passwordConfirm={register.passwordConfirm}
+                  onChangePassword={register.handleChangePassword}
+                  onChangePasswordConfirm={register.setPasswordConfirm}
+                />
+              )}
+
+              {(register.isKakaoRegister ? register.step === 1 : register.step === 3) && (
+                <ProfileStep
+                  isKakaoRegister={register.isKakaoRegister}
+                  imageUrl={register.state.imageUrl}
+                  nickname={register.state.nickname}
+                  nicknameError={register.state.nicknameError}
+                  referralCode={register.state.referralCode}
+                  referralError={register.state.referralError}
+                  isCheckingNickname={register.isCheckingNickname}
+                  isNicknameDuplicatedChecked={register.state.isNicknameDuplicatedChecked}
+                  onPickImage={register.handlePickProfileImage}
+                  onTakeImage={register.handleTakeProfileImage}
+                  onChangeNickname={register.handleChangeNickname}
+                  onCheckNickname={register.handleCheckNickname}
+                  onChangeReferralCode={register.handleChangeReferralCode}
+                />
+              )}
+
+              {(register.isKakaoRegister ? register.step === 2 : register.step === 4) && (
+                <ThemeStep selectedThemes={register.state.themes} onToggleTheme={register.toggleTheme} />
+              )}
+            </View>
+          </ScrollView>
+          <RegisterFooter
+            step={register.step}
+            totalSteps={register.totalSteps}
+            isSubmitting={register.isSubmitting}
+            isNextEnabled={register.canProceed}
+            onBack={register.handleBack}
+            onNext={register.handleNext}
+          />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -118,11 +117,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg[0],
   },
+  layout: {
+    flex: 1,
+  },
   content: {
     flexGrow: 1,
     paddingHorizontal: layout.screenPadding,
     paddingTop: 12,
-    paddingBottom: 40,
+    paddingBottom: 132,
   },
   form: {
     flex: 1,

@@ -18,6 +18,9 @@ export function EmailStep({
   onBlurEmail,
   onSendCode,
 }: Props) {
+  const canCheckDuplicate = email.trim().length > 0;
+  const isDuplicateButtonDisabled = isSendingCode || !canCheckDuplicate;
+
   return (
     <View style={styles.section}>
       <Text style={styles.label}>이메일</Text>
@@ -32,11 +35,22 @@ export function EmailStep({
           keyboardType="email-address"
           style={styles.input}
         />
-        <Pressable style={styles.duplicateButton} onPress={onSendCode} disabled={isSendingCode}>
+        <Pressable
+          style={[styles.duplicateButton, isDuplicateButtonDisabled && styles.duplicateButtonDisabled]}
+          onPress={onSendCode}
+          disabled={isDuplicateButtonDisabled}
+        >
           {isSendingCode ? (
             <ActivityIndicator color={colors.primary[500]} />
           ) : (
-            <Text style={styles.duplicateButtonText}>중복확인</Text>
+            <Text
+              style={[
+                styles.duplicateButtonText,
+                isDuplicateButtonDisabled && styles.duplicateButtonTextDisabled,
+              ]}
+            >
+              중복확인
+            </Text>
           )}
         </Pressable>
       </View>
@@ -81,11 +95,17 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary[100],
+    backgroundColor: colors.primary[400],
+  },
+  duplicateButtonDisabled: {
+    backgroundColor: colors.gray[100],
   },
   duplicateButtonText: {
     ...typography.caption1,
-    color: colors.primary[500],
+    color: colors.base[0],
+  },
+  duplicateButtonTextDisabled: {
+    color: colors.gray[400],
   },
   errorText: {
     marginTop: 6,

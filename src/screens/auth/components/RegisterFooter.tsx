@@ -5,25 +5,30 @@ type Props = {
   step: number;
   totalSteps: number;
   isSubmitting: boolean;
+  isNextEnabled: boolean;
   onBack: () => void;
   onNext: () => void;
 };
 
-export function RegisterFooter({ step, totalSteps, isSubmitting, onBack, onNext }: Props) {
+export function RegisterFooter({ step, totalSteps, isSubmitting, isNextEnabled, onBack, onNext }: Props) {
+  const isDisabled = isSubmitting || !isNextEnabled;
+
   return (
     <View style={styles.footerRow}>
       <Pressable style={styles.backButton} onPress={onBack}>
         <Text style={styles.backButtonText}>{step === 0 ? "뒤로" : "이전"}</Text>
       </Pressable>
       <Pressable
-        style={[styles.primaryButton, isSubmitting && styles.primaryButtonDisabled]}
+        style={[styles.primaryButton, isDisabled && styles.primaryButtonDisabled]}
         onPress={onNext}
-        disabled={isSubmitting}
+        disabled={isDisabled}
       >
         {isSubmitting ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.primaryButtonText}>{step === totalSteps - 1 ? "회원가입 완료" : "다음"}</Text>
+          <Text style={[styles.primaryButtonText, isDisabled && styles.primaryButtonTextDisabled]}>
+            {step === totalSteps - 1 ? "회원가입 완료" : "다음"}
+          </Text>
         )}
       </Pressable>
     </View>
@@ -32,9 +37,16 @@ export function RegisterFooter({ step, totalSteps, isSubmitting, onBack, onNext 
 
 const styles = StyleSheet.create({
   footerRow: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: "row",
     gap: 15,
-    marginTop: 8,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 34,
+    backgroundColor: colors.bg[0],
   },
   backButton: {
     flex: 1,
@@ -62,5 +74,8 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     ...typography.body1,
     color: colors.base[0],
+  },
+  primaryButtonTextDisabled: {
+    color: colors.gray[400],
   },
 });
