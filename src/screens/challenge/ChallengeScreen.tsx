@@ -48,9 +48,9 @@ export default function ChallengeScreen({ navigation, route }: Props) {
     completedQuery.isRefetching;
 
   const emptyText = useMemo(() => {
-    if (tab === "done") return "완료된 챌린지가 없어요.";
-    if (tab === "doing") return "현재 진행중인 챌린지가 없어요.";
-    return "추천 챌린지가 없어요.";
+    if (tab === "done") return "완료된 챌린지가 없어요!";
+    if (tab === "doing") return "현재 진행중인 챌린지가 없어요!";
+    return "추천 챌린지가 없어요!";
   }, [tab]);
 
   const handleRefresh = () => {

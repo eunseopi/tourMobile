@@ -25,7 +25,7 @@ export function ShopHeader({ hallabong, category, onChangeCategory, onPressCharg
         </View>
         <View style={styles.balanceDivider} />
         <Pressable style={styles.chargeButton} onPress={onPressCharge}>
-          <Text style={styles.chargeText}>충전하기</Text>
+          <Text style={styles.chargeText}>한라봉 채우기</Text>
           <Text style={styles.chargeArrow}>›</Text>
         </Pressable>
       </View>
