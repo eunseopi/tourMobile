@@ -17,6 +17,8 @@ import {
 } from "react-native";
 import type { AxiosError } from "axios";
 import type { RootStackParamList } from "../../App";
+import { colors, layout, typography } from "src/design/theme";
+import { commonStyles } from "src/design/commonStyles";
 import { authApi } from "src/api/auth";
 import { QK } from "src/utils/lib/queryKeys";
 import {
@@ -565,18 +567,15 @@ export default function RegisterScreen({ navigation, route }: Props) {
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Text style={styles.progressText}>
-            STEP {step + 1} / {totalSteps}
-          </Text>
+          <View style={styles.stepBar}>
+            {Array.from({ length: totalSteps }).map((_, index) => (
+              <View key={index} style={[styles.stepItem, index <= step && styles.stepItemActive]} />
+            ))}
+          </View>
           <Text style={styles.title}>{stepTitle}</Text>
-          <Text style={styles.description}>
-            {isKakaoRegister
-              ? "카카오 인증 정보는 받아왔어요. 남은 정보만 채우면 가입이 완료됩니다."
-              : "웹 회원가입 흐름을 RN에 맞춰 옮겼어요. 지금은 일반 회원가입 기준으로 먼저 동작하게 만들었습니다."}
-          </Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={styles.form}>
           {step === 0 && !isKakaoRegister && (
             <View style={styles.section}>
               <Text style={styles.label}>이메일</Text>
@@ -833,217 +832,217 @@ function SegmentButton({
 const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
-    backgroundColor: "#fff8f4",
+    backgroundColor: colors.bg[0],
   },
   content: {
     flexGrow: 1,
-    padding: 20,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 7,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: 18,
+    marginBottom: 20,
   },
-  progressText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#ff8b4c",
+  stepBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 4,
+    paddingTop: 7,
+    paddingBottom: 22,
+    gap: 4,
+  },
+  stepItem: {
+    flex: 1,
+    height: 3,
+    borderRadius: 50,
+    backgroundColor: colors.gray[300],
+  },
+  stepItemActive: {
+    backgroundColor: colors.primary[400],
   },
   title: {
-    marginTop: 10,
-    fontSize: 30,
-    fontWeight: "900",
-    color: "#1f1f1f",
+    ...typography.head3,
+    color: colors.gray[800],
   },
-  description: {
-    marginTop: 10,
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#666",
-  },
-  card: {
-    padding: 18,
-    borderRadius: 18,
-    backgroundColor: "#fff",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#ece0d8",
+  form: {
+    flex: 1,
   },
   section: {
     minHeight: 360,
   },
   label: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#333",
+    ...typography.body3,
+    color: colors.gray[700],
   },
   inlineTop: {
     marginTop: 18,
   },
   input: {
-    minHeight: 52,
+    ...commonStyles.input,
     marginTop: 8,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e4ddd7",
-    backgroundColor: "#fffdfc",
-    fontSize: 15,
-    color: "#222",
   },
   errorText: {
     marginTop: 6,
-    fontSize: 12,
-    color: "#d14b4b",
+    ...typography.caption2,
+    color: colors.error[100],
   },
   helperText: {
     marginTop: 6,
-    fontSize: 13,
-    color: "#777",
+    ...typography.caption2,
+    color: colors.gray[500],
   },
   kakaoInfoBox: {
     marginBottom: 16,
     marginTop: 8,
-    minHeight: 52,
+    minHeight: 48,
     paddingHorizontal: 14,
-    borderRadius: 14,
+    borderRadius: 10,
     justifyContent: "center",
-    backgroundColor: "#f6f6f6",
+    backgroundColor: colors.gray[100],
   },
   kakaoInfoText: {
-    fontSize: 14,
-    color: "#555",
+    ...typography.body4,
+    color: colors.gray[600],
   },
   profileNotice: {
     marginBottom: 16,
-    fontSize: 13,
-    lineHeight: 20,
-    color: "#7a5d4c",
-    backgroundColor: "#fff4ec",
-    borderRadius: 12,
-    padding: 12,
+    ...typography.caption1,
+    color: colors.gray[600],
   },
   profileImageSection: {
+    paddingVertical: 20,
+    alignItems: "center",
     gap: 12,
     marginBottom: 16,
   },
   profilePreview: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    backgroundColor: "#eee",
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: colors.gray[200],
+    borderWidth: 1,
+    borderColor: colors.gray[300],
   },
   profilePreviewFallback: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
+    width: 90,
+    height: 90,
+    borderRadius: 45,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffe3d0",
+    backgroundColor: colors.gray[200],
+    borderWidth: 1,
+    borderColor: colors.gray[300],
   },
   profilePreviewFallbackText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#b46c3b",
+    ...typography.caption1,
+    color: colors.gray[500],
   },
   profileButtonColumn: {
+    width: "100%",
     gap: 10,
   },
   secondaryButton: {
     marginTop: 12,
     minHeight: 48,
-    borderRadius: 14,
+    borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff4ec",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
   },
   secondaryButtonText: {
-    color: "#8b532f",
-    fontSize: 14,
-    fontWeight: "700",
+    ...typography.body1,
+    color: colors.gray[700],
   },
   segmentRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 14,
+    width: "100%",
     marginTop: 10,
+    marginBottom: 32,
   },
   segmentButton: {
     flex: 1,
-    minHeight: 48,
-    borderRadius: 14,
+    minHeight: 72,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f4f4f4",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
   },
   segmentButtonActive: {
-    backgroundColor: "#ffeddc",
-    borderWidth: 1,
-    borderColor: "#ffb585",
+    backgroundColor: colors.primary[50],
+    borderColor: colors.primary[300],
   },
   segmentButtonText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#555",
+    ...typography.body2,
+    color: colors.gray[500],
   },
   segmentButtonTextActive: {
-    color: "#b6612c",
+    ...typography.body1,
+    color: colors.primary[400],
   },
   themeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginTop: 14,
+    gap: 11,
+    marginTop: 59,
   },
   themeChip: {
-    paddingHorizontal: 14,
-    minHeight: 40,
-    borderRadius: 20,
+    width: "30.8%",
+    minHeight: 68,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f6f6f6",
+    backgroundColor: colors.bg[0],
   },
   themeChipActive: {
-    backgroundColor: "#ffeddc",
-    borderWidth: 1,
-    borderColor: "#ffb585",
+    backgroundColor: colors.primary[50],
+    borderColor: colors.primary[300],
   },
   themeChipText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#555",
+    ...typography.body3,
+    color: colors.gray[500],
+    textAlign: "center",
   },
   themeChipTextActive: {
-    color: "#b6612c",
+    color: colors.primary[400],
   },
   footerRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 15,
     marginTop: 8,
   },
   backButton: {
     flex: 1,
-    minHeight: 52,
-    borderRadius: 14,
+    minHeight: 48,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: colors.gray[100],
   },
   backButtonText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#444",
+    ...typography.body1,
+    color: colors.gray[400],
   },
   primaryButton: {
-    flex: 1.3,
-    minHeight: 52,
-    borderRadius: 14,
+    flex: 2,
+    minHeight: 48,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    backgroundColor: colors.primary[400],
   },
   primaryButtonDisabled: {
-    opacity: 0.55,
+    backgroundColor: colors.gray[100],
   },
   primaryButtonText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "800",
+    ...typography.body1,
+    color: colors.base[0],
   },
 });
