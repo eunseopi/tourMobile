@@ -19,6 +19,8 @@ import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import { useNearbySpots } from "src/features/main/useNearbySpots";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import type { Spot } from "src/reducer/types";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Main">;
 const DEFAULT_JEJU = { latitude: 33.4996, longitude: 126.5312 };
@@ -155,7 +157,7 @@ export default function MainScreen({ navigation }: Props) {
 
         {nearby.isLoading ? (
           <View style={styles.centerBox}>
-            <ActivityIndicator color="#ff8b4c" />
+            <ActivityIndicator color={colors.primary[400]} />
             <Text style={styles.centerText}>근처 스팟을 찾는 중...</Text>
           </View>
         ) : nearestItems.length > 0 ? (
@@ -243,7 +245,7 @@ export default function MainScreen({ navigation }: Props) {
 
         {community.isLoading ? (
           <View style={styles.centerBox}>
-            <ActivityIndicator color="#ff8b4c" />
+            <ActivityIndicator color={colors.primary[400]} />
             <Text style={styles.centerText}>게시글을 불러오는 중...</Text>
           </View>
         ) : latestPosts.length > 0 ? (
@@ -261,21 +263,6 @@ export default function MainScreen({ navigation }: Props) {
         )}
       </View>
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>포팅 진행 중</Text>
-          </View>
-
-          <Pressable style={styles.devItem} onPress={() => navigation.navigate("Splash")}>
-            <Text style={styles.devItemText}>스플래시 흐름 보기</Text>
-            <Text style={styles.challengeArrow}>›</Text>
-          </Pressable>
-
-          <Pressable style={styles.devItem} onPress={() => navigation.navigate("Login")}>
-            <Text style={styles.devItemText}>로그인 / 회원가입 보기</Text>
-            <Text style={styles.challengeArrow}>›</Text>
-          </Pressable>
-        </View>
       </ScrollView>
 
       <CheckInModal
@@ -353,33 +340,31 @@ function formatDistance(distanceKm?: number | null) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.bg[50],
   },
   content: {
     padding: 20,
-    paddingBottom: 36,
+    paddingBottom: 90,
   },
   heroSection: {
     padding: 20,
-    borderRadius: 20,
-    backgroundColor: "#fff4ec",
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
   },
   eyebrow: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#ff8b4c",
+    ...typography.caption1,
+    color: colors.primary[400],
   },
   title: {
+    ...typography.head2,
+    color: colors.gray[800],
     marginTop: 8,
-    fontSize: 28,
-    fontWeight: "900",
-    color: "#191919",
   },
   description: {
+    ...typography.body4,
+    color: colors.gray[600],
     marginTop: 10,
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#666",
   },
   heroStats: {
     flexDirection: "row",
@@ -389,18 +374,17 @@ const styles = StyleSheet.create({
   heroStat: {
     flex: 1,
     padding: 14,
-    borderRadius: 16,
-    backgroundColor: "#fff",
+    borderRadius: 12,
+    backgroundColor: colors.bg[50],
   },
   heroStatLabel: {
-    fontSize: 13,
-    color: "#777",
+    ...typography.caption2,
+    color: colors.gray[500],
   },
   heroStatValue: {
+    ...typography.head3,
+    color: colors.primary[400],
     marginTop: 8,
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#ff8b4c",
   },
   quickRow: {
     flexDirection: "row",
@@ -411,19 +395,24 @@ const styles = StyleSheet.create({
   quickButton: {
     minWidth: "48%",
     flexGrow: 1,
-    minHeight: 52,
-    borderRadius: 14,
+    minHeight: 48,
+    borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f4f4f4",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
   },
   quickButtonText: {
-    color: "#333",
-    fontSize: 15,
-    fontWeight: "700",
+    ...typography.body1,
+    color: colors.gray[700],
   },
   section: {
-    marginTop: 18,
+    marginTop: 20,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -431,18 +420,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "900",
-    color: "#1f1f1f",
+    ...typography.head3,
+    color: colors.gray[800],
   },
   sectionMeta: {
-    fontSize: 13,
-    color: "#777",
+    ...typography.caption2,
+    color: colors.gray[500],
   },
   sectionDescription: {
+    ...typography.body4,
+    color: colors.gray[600],
     marginTop: 8,
-    fontSize: 14,
-    color: "#666",
   },
   centerBox: {
     paddingVertical: 22,
@@ -450,8 +438,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   centerText: {
+    ...typography.body4,
+    color: colors.gray[500],
     marginTop: 10,
-    color: "#777",
   },
   listItem: {
     flexDirection: "row",
@@ -460,21 +449,20 @@ const styles = StyleSheet.create({
     minHeight: 64,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#e8e8e8",
+    borderBottomColor: colors.gray[200],
   },
   listMain: {
     flex: 1,
     paddingRight: 12,
   },
   listTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#222",
+    ...typography.body3,
+    color: colors.gray[800],
   },
   listMeta: {
+    ...typography.caption2,
+    color: colors.gray[500],
     marginTop: 4,
-    fontSize: 13,
-    color: "#777",
   },
   badge: {
     minWidth: 62,
@@ -483,46 +471,42 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff4ec",
+    backgroundColor: colors.primary[50],
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#8b532f",
+    ...typography.caption1,
+    color: colors.primary[500],
   },
   linkText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#ff8b4c",
+    ...typography.body3,
+    color: colors.primary[400],
   },
   challengeFeature: {
     marginTop: 12,
     minHeight: 104,
     padding: 18,
-    borderRadius: 18,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1f1f1f",
+    backgroundColor: colors.gray[800],
   },
   challengeTextBox: {
     flex: 1,
     paddingRight: 12,
   },
   challengeStatus: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#ffb585",
+    ...typography.caption1,
+    color: colors.primary[300],
   },
   challengeTitle: {
+    ...typography.head4,
+    color: colors.base[0],
     marginTop: 8,
-    fontSize: 19,
-    fontWeight: "900",
-    color: "#fff",
   },
   challengeMeta: {
+    ...typography.caption2,
+    color: colors.gray[200],
     marginTop: 8,
-    fontSize: 13,
-    color: "#ddd",
   },
   challengeActions: {
     flexDirection: "row",
@@ -532,34 +516,32 @@ const styles = StyleSheet.create({
   challengeActionPrimary: {
     minHeight: 38,
     paddingHorizontal: 14,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    backgroundColor: colors.primary[400],
   },
   challengeActionPrimaryText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#fff",
+    ...typography.caption1,
+    color: colors.base[0],
   },
   challengeActionGhost: {
     minHeight: 38,
     paddingHorizontal: 14,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#2d2d2d",
+    backgroundColor: colors.gray[700],
     borderWidth: 1,
-    borderColor: "#494949",
+    borderColor: colors.gray[600],
   },
   challengeActionGhostText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#f2f2f2",
+    ...typography.caption1,
+    color: colors.gray[100],
   },
   challengeArrow: {
     fontSize: 28,
-    color: "#bbb",
+    color: colors.gray[400],
   },
   postPreview: {
     flexDirection: "row",
@@ -570,49 +552,33 @@ const styles = StyleSheet.create({
   postPreviewImage: {
     width: 92,
     height: 92,
-    borderRadius: 16,
-    backgroundColor: "#eee",
+    borderRadius: 8,
+    backgroundColor: colors.gray[200],
   },
   postPreviewFallback: {
     alignItems: "center",
     justifyContent: "center",
   },
   postPreviewFallbackText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#999",
+    ...typography.caption1,
+    color: colors.gray[400],
   },
   postPreviewText: {
     flex: 1,
     justifyContent: "center",
   },
   postPreviewTitle: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#222",
+    ...typography.body3,
+    color: colors.gray[800],
   },
   postPreviewBody: {
+    ...typography.caption2,
+    color: colors.gray[600],
     marginTop: 6,
-    fontSize: 13,
-    lineHeight: 19,
-    color: "#666",
   },
   postPreviewMeta: {
+    ...typography.caption2,
+    color: colors.gray[400],
     marginTop: 8,
-    fontSize: 12,
-    color: "#888",
-  },
-  devItem: {
-    minHeight: 54,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#e8e8e8",
-  },
-  devItemText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#333",
   },
 });

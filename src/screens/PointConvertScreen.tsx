@@ -13,6 +13,8 @@ import {
 import type { RootStackParamList } from "../../App";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "PointConvert">;
 
@@ -82,7 +84,7 @@ export default function PointConvertScreen({ navigation }: Props) {
         value={value}
         onChangeText={(next) => setValue(next.replace(/\D/g, ""))}
         placeholder="1~100 입력"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={colors.gray[400]}
         keyboardType="number-pad"
         style={styles.input}
       />
@@ -96,7 +98,7 @@ export default function PointConvertScreen({ navigation }: Props) {
         onPress={handleConvert}
       >
         {convertSteps.isPending ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.base[0]} />
         ) : (
           <Text style={styles.primaryButtonText}>포인트 전환하기</Text>
         )}
@@ -106,49 +108,34 @@ export default function PointConvertScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  content: { padding: 16, paddingBottom: 36 },
-  title: { fontSize: 26, fontWeight: "900", color: "#191919" },
-  description: { marginTop: 8, fontSize: 14, lineHeight: 21, color: "#666" },
-  balanceRow: { flexDirection: "row", gap: 12, marginTop: 20 },
-  balanceCard: { flex: 1, padding: 16, borderRadius: 16, backgroundColor: "#f8f8f8" },
-  balanceLabel: { fontSize: 13, color: "#777" },
-  balanceValue: { marginTop: 8, fontSize: 22, fontWeight: "900", color: "#ff8b4c" },
+  container: { flex: 1, backgroundColor: colors.bg[0] },
+  content: { paddingHorizontal: 30, paddingTop: 20, paddingBottom: 44 },
+  title: { ...typography.head4, color: colors.gray[800], textAlign: "center", paddingVertical: 13 },
+  description: { ...typography.body4, color: colors.gray[600], textAlign: "center", marginTop: 8 },
+  balanceRow: { flexDirection: "row", gap: 10, marginTop: 20 },
+  balanceCard: { flex: 1, padding: 10, borderRadius: 100, borderWidth: 1, borderColor: colors.primary[100], backgroundColor: colors.primary[50] },
+  balanceLabel: { ...typography.caption1, color: colors.gray[600], textAlign: "center" },
+  balanceValue: { ...typography.body1, color: colors.primary[400], textAlign: "center", marginTop: 4 },
   convertBox: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 16,
+    marginTop: 13,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#fff4ec",
-  },
-  convertItem: { flex: 1, alignItems: "center" },
-  convertCaption: { fontSize: 13, color: "#855234" },
-  convertValue: { marginTop: 6, fontSize: 22, fontWeight: "900", color: "#ff8b4c" },
-  arrow: { fontSize: 24, fontWeight: "900", color: "#b6612c" },
-  label: { marginTop: 22, fontSize: 14, fontWeight: "800", color: "#333" },
-  input: {
-    minHeight: 52,
-    marginTop: 8,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#e3e3e3",
-    backgroundColor: "#fffdfc",
-    fontSize: 15,
-    color: "#222",
-  },
-  helperText: { marginTop: 8, fontSize: 13, color: "#d14b4b" },
-  helperTextPositive: { color: "#338a57" },
-  primaryButton: {
-    marginTop: 24,
-    minHeight: 54,
-    borderRadius: 16,
-    alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ff8b4c",
+    gap: 75,
+    backgroundColor: colors.gray[100],
   },
-  primaryButtonDisabled: { opacity: 0.55 },
-  primaryButtonText: { fontSize: 15, fontWeight: "800", color: "#fff" },
+  convertItem: { flex: 1, maxWidth: 100, alignItems: "center", gap: 4 },
+  convertCaption: { ...typography.head4, fontWeight: "600", color: colors.gray[700] },
+  convertValue: { ...typography.body1, color: colors.gray[500] },
+  arrow: { position: "absolute", fontSize: 24, fontWeight: "700", color: colors.gray[400] },
+  label: { ...typography.body3, color: colors.gray[700], marginTop: 20, marginBottom: 8 },
+  input: { ...commonStyles.input },
+  helperText: { ...typography.caption2, color: colors.error[100], marginTop: 8 },
+  helperTextPositive: { color: colors.primary[400] },
+  primaryButton: { ...commonStyles.primaryButton, marginTop: 24 },
+  primaryButtonDisabled: { ...commonStyles.primaryButtonDisabled },
+  primaryButtonText: { ...commonStyles.primaryButtonText },
 });

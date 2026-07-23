@@ -20,6 +20,8 @@ import { useLoadOngoingChallenges } from "src/features/challenges/useChallengeQu
 import { useNearbySpots } from "src/features/main/useNearbySpots";
 import { usePathStats } from "src/features/main/usePathStats";
 import { useSaveSteps } from "src/features/steps/useSaveSteps";
+import { commonStyles } from "src/design/commonStyles";
+import { colors, shadow, typography } from "src/design/theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Map">;
 type MapFilter = "ALL" | "SPOT" | "POST" | "CHALLENGE";
@@ -513,7 +515,7 @@ export default function MapScreen({ navigation, route }: Props) {
             value={searchText}
             onChangeText={setSearchText}
             placeholder="스팟이나 장소 이름 검색"
-            placeholderTextColor="#9a9a9a"
+            placeholderTextColor={colors.gray[400]}
             style={styles.searchInput}
           />
 
@@ -560,7 +562,7 @@ export default function MapScreen({ navigation, route }: Props) {
       <View style={styles.bottomSheet}>
         {nearby.isLoading || search.isLoading ? (
           <View style={styles.centerBox}>
-            <ActivityIndicator color="#ff8b4c" />
+            <ActivityIndicator color={colors.primary[400]} />
             <Text style={styles.centerText}>지도를 준비하는 중...</Text>
           </View>
         ) : selectedItem ? (
@@ -642,13 +644,13 @@ export default function MapScreen({ navigation, route }: Props) {
 function markerColor(type?: string) {
   switch (type) {
     case "CHALLENGE":
-      return "#ff8b4c";
+      return colors.primary[400];
     case "POST":
-      return "#5b8def";
+      return "#5B8DEF";
     case "SPOT":
-      return "#37b26c";
+      return "#37B26C";
     default:
-      return "#9c9c9c";
+      return colors.gray[400];
   }
 }
 
@@ -706,336 +708,70 @@ function formatDistance(distanceKm?: number | null) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  map: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: colors.bg[0] },
+  map: { flex: 1 },
   topOverlay: {
-    position: "absolute",
-    top: 18,
-    left: 16,
-    right: 16,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 12,
+    position: "absolute", top: 18, left: 16, right: 16,
+    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12,
   },
-  headerPanel: {
-    flex: 1,
-    gap: 10,
-  },
-  headerCard: {
-    padding: 14,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.95)",
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: "#1f1f1f",
-  },
-  headerSubtitle: {
-    marginTop: 6,
-    fontSize: 13,
-    lineHeight: 18,
-    color: "#666",
-  },
+  headerPanel: { flex: 1, gap: 10 },
+  headerCard: { padding: 14, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.96)", ...shadow.card },
+  headerTitle: { ...typography.head4, color: colors.gray[800] },
+  headerSubtitle: { ...typography.caption2, color: colors.gray[600], marginTop: 6 },
   searchInput: {
-    minHeight: 46,
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    backgroundColor: "rgba(255,255,255,0.96)",
-    color: "#222",
-    fontSize: 14,
+    minHeight: 46, borderRadius: 12, paddingHorizontal: 14,
+    backgroundColor: "rgba(255,255,255,0.96)", ...typography.body4, color: colors.gray[800],
   },
-  filterRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  filterChip: {
-    minHeight: 34,
-    paddingHorizontal: 12,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.94)",
-  },
-  filterChipActive: {
-    backgroundColor: "#1f1f1f",
-  },
-  filterChipText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#555",
-  },
-  filterChipTextActive: {
-    color: "#fff",
-  },
-  radiusRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  radiusChip: {
-    minHeight: 32,
-    paddingHorizontal: 12,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.94)",
-  },
-  radiusChipActive: {
-    backgroundColor: "#ff8b4c",
-  },
-  radiusChipText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#666",
-  },
-  radiusChipTextActive: {
-    color: "#fff",
-  },
-  recenterButton: {
-    minWidth: 82,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(31,31,31,0.92)",
-  },
-  recenterButtonText: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#fff",
-  },
-  bottomSheet: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 18,
-    minHeight: 176,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.97)",
-  },
-  previewRail: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 304,
-    flexDirection: "row",
-    gap: 8,
-  },
-  previewChip: {
-    flex: 1,
-    minHeight: 58,
-    padding: 10,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.95)",
-  },
-  previewChipType: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: "#ff8b4c",
-  },
-  previewChipTitle: {
-    marginTop: 6,
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#222",
-  },
-  markerWrap: {
-    alignItems: "center",
-  },
-  clusterWrap: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  markerBubble: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#fff",
-  },
-  markerBubbleSelected: {
-    transform: [{ scale: 1.12 }],
-  },
-  markerIcon: {
-    color: "#fff",
-    fontWeight: "900",
-    fontSize: 14,
-  },
-  markerStem: {
-    width: 4,
-    height: 10,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
-    marginTop: -2,
-  },
-  markerStemSelected: {
-    height: 12,
-  },
-  clusterBubble: {
-    minWidth: 40,
-    height: 40,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 3,
-    borderColor: "#fff",
-  },
-  clusterCount: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "900",
-  },
-  cardRail: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 198,
-  },
-  cardRailContent: {
-    paddingHorizontal: 16,
-    gap: 10,
-  },
-  railCard: {
-    width: 210,
-    minHeight: 84,
-    padding: 14,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.94)",
-  },
-  railCardActive: {
-    backgroundColor: "#fff4ec",
-    borderWidth: 1,
-    borderColor: "#ffbe96",
-  },
-  railCardEyebrow: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: "#ff8b4c",
-  },
-  railCardTitle: {
-    marginTop: 6,
-    fontSize: 15,
-    fontWeight: "900",
-    color: "#222",
-  },
-  railCardMeta: {
-    marginTop: 8,
-    fontSize: 12,
-    color: "#777",
-  },
-  centerBox: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  centerText: {
-    marginTop: 10,
-    fontSize: 13,
-    color: "#777",
-  },
-  cardEyebrow: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#ff8b4c",
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    gap: 14,
-    alignItems: "flex-start",
-  },
-  cardTextBox: {
-    flex: 1,
-  },
-  cardTitle: {
-    marginTop: 8,
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#1f1f1f",
-  },
-  cardMeta: {
-    marginTop: 8,
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#666",
-  },
-  cardThumb: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    backgroundColor: "#eee",
-  },
-  cardThumbFallback: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff4ec",
-  },
-  cardThumbFallbackText: {
-    fontSize: 24,
-    fontWeight: "900",
-    color: "#ff8b4c",
-  },
-  searchResultList: {
-    marginTop: 14,
-    gap: 8,
-  },
-  searchResultItem: {
-    minHeight: 44,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    justifyContent: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  searchResultTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#222",
-  },
-  searchResultMeta: {
-    marginTop: 2,
-    fontSize: 12,
-    color: "#777",
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 18,
-  },
-  primaryButton: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ff8b4c",
-  },
-  primaryButtonText: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: "#fff",
-  },
-  secondaryButton: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f1f1f1",
-  },
-  secondaryButtonText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#444",
-  },
+  filterRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  filterChip: { minHeight: 34, paddingHorizontal: 12, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.94)" },
+  filterChipActive: { backgroundColor: colors.primary[400] },
+  filterChipText: { ...typography.caption1, color: colors.gray[500] },
+  filterChipTextActive: { color: colors.base[0] },
+  radiusRow: { flexDirection: "row", gap: 8 },
+  radiusChip: { minHeight: 32, paddingHorizontal: 12, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.94)" },
+  radiusChipActive: { backgroundColor: colors.gray[800] },
+  radiusChipText: { ...typography.caption1, color: colors.gray[600] },
+  radiusChipTextActive: { color: colors.base[0] },
+  recenterButton: { minWidth: 82, minHeight: 48, paddingHorizontal: 14, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(34,31,31,0.92)" },
+  recenterButtonText: { ...typography.caption1, color: colors.base[0] },
+  bottomSheet: { position: "absolute", left: 16, right: 16, bottom: 18, minHeight: 176, padding: 18, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.97)", ...shadow.card },
+  previewRail: { position: "absolute", left: 16, right: 16, bottom: 304, flexDirection: "row", gap: 8 },
+  previewChip: { flex: 1, minHeight: 58, padding: 10, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.95)" },
+  previewChipType: { ...typography.caption2, color: colors.primary[400] },
+  previewChipTitle: { ...typography.caption1, color: colors.gray[800], marginTop: 6 },
+  markerWrap: { alignItems: "center" },
+  clusterWrap: { alignItems: "center", justifyContent: "center" },
+  markerBubble: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: colors.base[0] },
+  markerBubbleSelected: { transform: [{ scale: 1.12 }] },
+  markerIcon: { color: colors.base[0], fontWeight: "700", fontSize: 14 },
+  markerStem: { width: 4, height: 10, borderBottomLeftRadius: 4, borderBottomRightRadius: 4, marginTop: -2 },
+  markerStemSelected: { height: 12 },
+  clusterBubble: { minWidth: 40, height: 40, paddingHorizontal: 10, borderRadius: 20, alignItems: "center", justifyContent: "center", borderWidth: 3, borderColor: colors.base[0] },
+  clusterCount: { color: colors.base[0], fontSize: 14, fontWeight: "700" },
+  cardRail: { position: "absolute", left: 0, right: 0, bottom: 198 },
+  cardRailContent: { paddingHorizontal: 16, gap: 10 },
+  railCard: { width: 210, minHeight: 84, padding: 14, borderRadius: 12, backgroundColor: "rgba(255,255,255,0.94)", ...shadow.card },
+  railCardActive: { backgroundColor: colors.primary[50], borderWidth: 1, borderColor: colors.primary[300] },
+  railCardEyebrow: { ...typography.caption2, color: colors.primary[400] },
+  railCardTitle: { ...typography.body3, color: colors.gray[800], marginTop: 6 },
+  railCardMeta: { ...typography.caption2, color: colors.gray[500], marginTop: 8 },
+  centerBox: { flex: 1, alignItems: "center", justifyContent: "center" },
+  centerText: { ...typography.caption2, color: colors.gray[500], marginTop: 10 },
+  cardEyebrow: { ...typography.caption1, color: colors.primary[400] },
+  cardTopRow: { flexDirection: "row", gap: 14, alignItems: "flex-start" },
+  cardTextBox: { flex: 1 },
+  cardTitle: { ...typography.head3, color: colors.gray[800], marginTop: 8 },
+  cardMeta: { ...typography.body4, color: colors.gray[600], marginTop: 8 },
+  cardThumb: { width: 72, height: 72, borderRadius: 8, backgroundColor: colors.gray[200] },
+  cardThumbFallback: { alignItems: "center", justifyContent: "center", backgroundColor: colors.primary[50] },
+  cardThumbFallbackText: { ...typography.head2, color: colors.primary[400] },
+  searchResultList: { marginTop: 14, gap: 8 },
+  searchResultItem: { minHeight: 44, paddingHorizontal: 12, borderRadius: 12, justifyContent: "center", backgroundColor: colors.gray[100] },
+  searchResultTitle: { ...typography.body3, color: colors.gray[800] },
+  searchResultMeta: { ...typography.caption2, color: colors.gray[500], marginTop: 2 },
+  actionRow: { flexDirection: "row", gap: 10, marginTop: 18 },
+  primaryButton: { ...commonStyles.primaryButton, flex: 1 },
+  primaryButtonText: { ...commonStyles.primaryButtonText },
+  secondaryButton: { ...commonStyles.secondaryButton, flex: 1 },
+  secondaryButtonText: { ...commonStyles.secondaryButtonText },
 });
