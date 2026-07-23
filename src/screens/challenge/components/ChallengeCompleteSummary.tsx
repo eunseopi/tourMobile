@@ -4,9 +4,10 @@ import { colors, shadow, typography } from "src/design/theme";
 
 type Props = {
   challenge: ChallengeCardData;
+  badgeLabel?: string;
 };
 
-export function ChallengeCompleteSummary({ challenge }: Props) {
+export function ChallengeCompleteSummary({ challenge, badgeLabel = "진행중" }: Props) {
   return (
     <>
       <View style={styles.imageBox}>
@@ -17,7 +18,7 @@ export function ChallengeCompleteSummary({ challenge }: Props) {
         )}
       </View>
 
-      <Text style={styles.badge}>진행중</Text>
+      <Text style={styles.badge}>{badgeLabel}</Text>
       <Text style={styles.title}>{challenge.title}</Text>
       {challenge.dateText ? <Text style={styles.date}>{challenge.dateText}</Text> : null}
     </>
