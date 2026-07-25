@@ -12,15 +12,6 @@ export type OwnedProduct = {
     accepted: boolean; // 내 상품권 응답에 존재
 }
 
-export type ConvertRes = {
-  convertedPoints: number;        // 실제 전환된 포인트
-  totalHallabong: number;         // 전환 후 보유 포인트
-  currentGrade: string;           // 서버의 MoodGrade enum 문자열
-  remainingToday: number;         // 오늘 남은 전환 가능 포인트
-  remainingExchangeCount: number; // 남은 교환 횟수
-  todayExchangeCount: number;     // 오늘 교환 횟수
-};
-
 type ApiRes<T> = { success: boolean; data: T };
 
 export const productApi = {
@@ -44,9 +35,4 @@ export const productApi = {
     // 상품 수령
     acceptToggle: (exchangeId: string | number, signal?: AbortSignal) =>
         api.post<ApiRes<string>>(`v1/products/${exchangeId}/accept-toggle`, undefined, { signal })
-};
-
-export const stepsApi = {
-  convert: (requestedPoints: number, signal?: AbortSignal) =>
-    api.post<ApiRes<ConvertRes>>("/v1/steps/convert", { requestedPoints }, { signal }),
 };

@@ -15,9 +15,17 @@ export function useChallengeCompleteFlow({
   onComplete,
 }: UseChallengeCompleteFlowOptions) {
   const completeChallenge = useCompleteChallenge();
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ uri: string; proofUrl: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const isSubmitting = submitting || completeChallenge.isPending;
+
+  const toProofPhoto = (asset: ImagePicker.ImagePickerAsset) => {
+    const mimeType = asset.mimeType ?? "image/jpeg";
+    return {
+      uri: asset.uri,
+      proofUrl: asset.base64 ? `data:${mimeType};base64,${asset.base64}` : asset.uri,
+    };
+  };
 
   const handlePickPhoto = async () => {
     try {
@@ -31,12 +39,13 @@ export function useChallengeCompleteFlow({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: false,
         quality: 0.8,
+        base64: true,
       });
 
       if (result.canceled) return;
       const asset = result.assets[0];
       if (!asset) return;
-      setSelectedPhoto(asset.uri);
+      setSelectedPhoto(toProofPhoto(asset));
     } catch {
       Alert.alert("선택 실패", "사진을 가져오지 못했어요.");
     }
@@ -53,12 +62,13 @@ export function useChallengeCompleteFlow({
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,
+        base64: true,
       });
 
       if (result.canceled) return;
       const asset = result.assets[0];
       if (!asset) return;
-      setSelectedPhoto(asset.uri);
+      setSelectedPhoto(toProofPhoto(asset));
     } catch {
       Alert.alert("촬영 실패", "사진을 촬영하지 못했어요.");
     }
@@ -86,7 +96,7 @@ export function useChallengeCompleteFlow({
         id: challenge.id,
         latitude,
         longitude,
-        proofUrl: selectedPhoto,
+        proofUrl: selectedPhoto.proofUrl,
         dateText: new Date().toISOString(),
       });
 
@@ -107,7 +117,7 @@ export function useChallengeCompleteFlow({
   };
 
   return {
-    selectedPhoto,
+    selectedPhoto: selectedPhoto?.uri ?? null,
     isSubmitting,
     handlePickPhoto,
     handleTakePhoto,

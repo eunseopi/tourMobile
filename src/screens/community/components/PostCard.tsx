@@ -51,7 +51,13 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
       </View>
 
       <View style={styles.actionSection}>
-        <Pressable style={styles.actionButton} onPress={onToggleLike}>
+        <Pressable
+          style={styles.actionButton}
+          onPress={(event) => {
+            event.stopPropagation();
+            onToggleLike();
+          }}
+        >
           <Text style={[styles.actionText, post.likedByMe && styles.likedText]}>
             {post.likedByMe ? "♥" : "♡"} 좋아요 {post.likeCount || 0}
           </Text>

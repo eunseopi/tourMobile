@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { stepsApi } from "src/api/product";
+import { stepsApi } from "src/api/stepsApi";
 import { QK } from "src/utils/lib/queryKeys";
 
 export function useConvertSteps() {
