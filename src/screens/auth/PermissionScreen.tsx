@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Camera } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
@@ -50,6 +51,12 @@ export default function PermissionScreen({ navigation }: Props) {
       const cameraPermission = await Camera.requestCameraPermissionsAsync();
       if (!cameraPermission.granted) {
         showError("카메라 권한을 허용해주세요.");
+        return;
+      }
+
+      const mediaPermission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!mediaPermission.granted) {
+        showError("사진 권한을 허용해주세요.");
         return;
       }
 

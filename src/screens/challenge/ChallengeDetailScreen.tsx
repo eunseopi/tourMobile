@@ -13,7 +13,18 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
   const { challenge } = route.params;
   const challengeStart = useChallengeStartFlow({
     challenge,
-    onStarted: () => navigation.navigate("Challenge"),
+    onStarted: () =>
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: "Challenge",
+            params: {
+              initialTab: "doing",
+            },
+          },
+        ],
+      }),
   });
 
   return (

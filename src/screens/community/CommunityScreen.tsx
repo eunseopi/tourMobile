@@ -82,6 +82,11 @@ export default function CommunityScreen({ navigation }: Props) {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["GET /api/spots"] });
+      void queryClient.invalidateQueries({
+        predicate: (query) =>
+          Array.isArray(query.queryKey) &&
+          (query.queryKey[0] === "nearbySpots" || query.queryKey[0] === "mapSearch"),
+      });
     },
   });
 

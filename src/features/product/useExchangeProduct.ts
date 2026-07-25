@@ -20,6 +20,9 @@ export const useExchangeProduct = () => {
             await qc.invalidateQueries({
                 queryKey: QK.mMyGoods(vars.userId),
             });
+            await qc.invalidateQueries({
+                queryKey: QK.myProducts(vars.userId),
+            });
 
             // 내 포인트(한라봉) 최신화
             await qc.invalidateQueries({
