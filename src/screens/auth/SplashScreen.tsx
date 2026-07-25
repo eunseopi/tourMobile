@@ -1,21 +1,36 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { HallabongLogo } from "src/components/brand/HallabongLogo";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import { useSessionMe } from "src/features/my-page/useSessionMe";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 
 export default function SplashScreen({ navigation }: Props) {
+  const [canLeaveSplash, setCanLeaveSplash] = useState(false);
+  const { data: session, isFetching } = useSessionMe();
+  const nextRoute = useMemo(() => (session ? "Main" : "LanguageSetting"), [session]);
+  const isCheckingSession = !session && isFetching;
+
+  const goNext = useCallback(() => {
+    navigation.replace(nextRoute);
+  }, [navigation, nextRoute]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.replace("LanguageSetting");
+      setCanLeaveSplash(true);
     }, 1200);
 
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, []);
+
+  useEffect(() => {
+    if (!canLeaveSplash || isCheckingSession) return;
+    goNext();
+  }, [canLeaveSplash, goNext, isCheckingSession]);
 
   return (
     <View style={styles.container}>
@@ -29,7 +44,11 @@ export default function SplashScreen({ navigation }: Props) {
       </View>
 
       <View style={commonStyles.bottomAction}>
-        <Pressable style={commonStyles.primaryButton} onPress={() => navigation.replace("LanguageSetting")}>
+        <Pressable
+          style={[commonStyles.primaryButton, isCheckingSession && styles.disabledButton]}
+          disabled={isCheckingSession}
+          onPress={goNext}
+        >
           <Text style={commonStyles.primaryButtonText}>시작하기</Text>
         </Pressable>
       </View>
@@ -61,5 +80,8 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body4,
     color: colors.gray[700],
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });
