@@ -18,7 +18,7 @@ export const useExchangeProduct = () => {
         onSuccess: async (_data, vars) => {
             // 성공 시 내 상품권 갱신
             await qc.invalidateQueries({
-                queryKey: QK.mMyGoods,
+                queryKey: QK.mMyGoods(vars.userId),
             });
 
             // 내 포인트(한라봉) 최신화

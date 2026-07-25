@@ -71,7 +71,7 @@ export function MapBottomSheet({
         <>
           <Text style={styles.cardTitle}>마커를 눌러보세요</Text>
           <Text style={styles.cardMeta}>
-            커뮤니티 글, 스팟, 챌린지를 지도에서 한 번에 볼 수 있게 첫 버전을 붙여뒀어요.
+            커뮤니티 글, 스팟, 챌린지를 지도에서 한 번에 확인할 수 있어요.
           </Text>
 
           <View style={styles.actionRow}>

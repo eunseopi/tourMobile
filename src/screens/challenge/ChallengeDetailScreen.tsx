@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { colors } from "src/design/theme";
@@ -19,14 +19,29 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <ChallengeCompleteSummary challenge={challenge} badgeLabel={challenge.categoryLabel} />
-      <ChallengeStartInfo />
-      <PrimaryActionButton
-        label="시작하기"
-        loadingLabel="시작 중..."
-        isLoading={challengeStart.isStarting}
-        style={styles.primaryButton}
-        onPress={challengeStart.handleStart}
+      <ChallengeStartInfo
+        challenge={challenge}
+        onOpenMap={
+          challenge.latitude != null && challenge.longitude != null
+            ? () =>
+                navigation.navigate("Map", {
+                  focusId: challenge.id,
+                  latitude: challenge.latitude ?? undefined,
+                  longitude: challenge.longitude ?? undefined,
+                  type: "CHALLENGE",
+                  filter: "CHALLENGE",
+                })
+            : undefined
+        }
       />
+      <View style={styles.bottomAction}>
+        <PrimaryActionButton
+          label="시작하기"
+          loadingLabel="시작 중..."
+          isLoading={challengeStart.isStarting}
+          onPress={challengeStart.handleStart}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -39,11 +54,9 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 36,
+    paddingBottom: 120,
   },
-  primaryButton: {
-    flexDirection: "row",
-    gap: 8,
+  bottomAction: {
     marginTop: 24,
   },
 });

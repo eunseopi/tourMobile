@@ -7,6 +7,9 @@ export interface ChallengeCardData {
   statusLabel: StatusLabel;
   dateText: string;
   imageUrl: string;
+  description?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   categoryTone?: "primary" | "neutral";
 }
 

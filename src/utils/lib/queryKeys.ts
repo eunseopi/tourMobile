@@ -34,7 +34,8 @@ export const QK = {
         ['GET /api/challenges/completed', { size }] as const,
     
     // mutation
-    mMyGoods: ['GET /v1/products/my/goods'] as const,
+    mMyGoods: (userId?: string | number) =>
+        ['GET /v1/products/my/goods', String(userId ?? '')] as const,
     mResetPassword: ['POST /v1/users/auth/find/password/reset'] as const,
     mChangeThemes: ['POST /v1/users/account/themes'] as const,
     mChangeNickname: ['POST /v1/users/account/nickname'] as const,

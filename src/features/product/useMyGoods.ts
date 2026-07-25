@@ -10,13 +10,13 @@ export const useMyGoods = (
   enabled = false
 ) => {
   return useQuery<OwnedProduct[], ApiError>({
-    queryKey: QK.mMyGoods,                 // ✅ 단일 키
+    queryKey: QK.mMyGoods(userIdMaybe),
     enabled: enabled && userIdMaybe != null,
     queryFn: async ({ signal }) => {
       if (userIdMaybe == null) return []; // 안전 가드
       const userId = userIdMaybe as string | number; // TS 축소
       const res = await productApi.getMyGoods(userId, signal);
-      if (!res.data?.success) throw new Error();
+      if (!res.data?.success) throw new Error("보유 상품권 조회에 실패했습니다.");
       return res.data.data ?? [];
     },
     staleTime: 60_000,

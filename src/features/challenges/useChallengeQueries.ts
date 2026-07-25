@@ -13,6 +13,16 @@ const fmt = (value?: string | number | Date) => {
   return `${y}.${m}.${d}`;
 };
 
+const numOrNull = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const challengeCoords = (row: any) => ({
+  latitude: numOrNull(row?.latitude ?? row?.lat ?? row?.spotLatitude ?? row?.challengeLatitude),
+  longitude: numOrNull(row?.longitude ?? row?.lng ?? row?.lon ?? row?.spotLongitude ?? row?.challengeLongitude),
+});
+
 const toUpcomingCard = (row: any): ChallengeCardData => ({
   id: String(row?.id),
   title: row?.name ?? row?.title ?? "제목 없음",
@@ -20,6 +30,8 @@ const toUpcomingCard = (row: any): ChallengeCardData => ({
   statusLabel: "진행전",
   dateText: fmt(),
   imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  description: row?.description ?? "",
+  ...challengeCoords(row),
   categoryTone: row?.themeName ? "primary" : "neutral",
 });
 
@@ -34,6 +46,8 @@ const toOngoingCard = (row: any): ChallengeCardData => {
     statusLabel: "진행중",
     dateText: start && end ? `${start} ~ ${end}` : start || end || "",
     imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+    description: row?.description ?? "",
+    ...challengeCoords(row),
     categoryTone: row?.themeName ? "primary" : "neutral",
   };
 };
@@ -49,6 +63,8 @@ const toCompletedCard = (row: any): ChallengeCardData => ({
       ? fmt(row.endDate)
       : "",
   imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  description: row?.description ?? "",
+  ...challengeCoords(row),
   categoryTone: row?.themeName ? "primary" : "neutral",
 });
 
