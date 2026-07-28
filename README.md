@@ -119,10 +119,10 @@ npm install
 
 ### 2. 환경 변수 설정
 
-기본 API 주소는 `src/api/instance.ts`에 fallback으로 설정되어 있습니다. 로컬/개발 서버 주소를 바꾸려면 Expo public env를 사용합니다.
+기본 API 주소는 `src/api/instance.ts`에 fallback으로 설정되어 있으며, 현재 운영/개발 서버 기본값은 `https://jejuday.duckdns.org`입니다. 로컬/개발 서버 주소를 바꾸려면 Expo public env를 사용합니다.
 
 ```bash
-EXPO_PUBLIC_API_BASE_URL=http://localhost:8080
+EXPO_PUBLIC_API_BASE_URL=https://jejuday.duckdns.org
 ```
 
 ### 3. 앱 실행
