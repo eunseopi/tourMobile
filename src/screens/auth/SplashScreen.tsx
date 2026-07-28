@@ -11,6 +11,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 
 export default function SplashScreen({ navigation }: Props) {
   const [canLeaveSplash, setCanLeaveSplash] = useState(false);
+  const [canContinueWithoutSession, setCanContinueWithoutSession] = useState(false);
   const { data: session, isFetching } = useSessionMe();
   const nextRoute = useMemo(() => (session ? "Main" : "LanguageSetting"), [session]);
   const isCheckingSession = !session && isFetching;
@@ -23,14 +24,20 @@ export default function SplashScreen({ navigation }: Props) {
     const timer = setTimeout(() => {
       setCanLeaveSplash(true);
     }, 1200);
+    const fallbackTimer = setTimeout(() => {
+      setCanContinueWithoutSession(true);
+    }, 2200);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(fallbackTimer);
+    };
   }, []);
 
   useEffect(() => {
-    if (!canLeaveSplash || isCheckingSession) return;
+    if (!canLeaveSplash || (isCheckingSession && !canContinueWithoutSession)) return;
     goNext();
-  }, [canLeaveSplash, goNext, isCheckingSession]);
+  }, [canContinueWithoutSession, canLeaveSplash, goNext, isCheckingSession]);
 
   return (
     <View style={styles.container}>
@@ -44,11 +51,7 @@ export default function SplashScreen({ navigation }: Props) {
       </View>
 
       <View style={commonStyles.bottomAction}>
-        <Pressable
-          style={[commonStyles.primaryButton, isCheckingSession && styles.disabledButton]}
-          disabled={isCheckingSession}
-          onPress={goNext}
-        >
+        <Pressable style={commonStyles.primaryButton} onPress={goNext}>
           <Text style={commonStyles.primaryButtonText}>시작하기</Text>
         </Pressable>
       </View>
@@ -80,8 +83,5 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body4,
     color: colors.gray[700],
-  },
-  disabledButton: {
-    opacity: 0.5,
   },
 });
