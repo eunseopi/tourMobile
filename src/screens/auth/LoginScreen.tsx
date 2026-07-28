@@ -64,7 +64,11 @@ export default function LoginScreen({ navigation }: Props) {
       Alert.alert("로그인 완료", "로그인되었습니다.", [
         {
           text: "확인",
-          onPress: () => navigation.replace("Main"),
+          onPress: () =>
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Main" }],
+            }),
         },
       ]);
     } catch (error) {

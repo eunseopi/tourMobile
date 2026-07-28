@@ -24,7 +24,11 @@ export default function RegisterScreen({ navigation, route }: Props) {
       }
       navigation.replace("RegisterChoice");
     },
-    onComplete: () => navigation.replace("Main"),
+    onComplete: () =>
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Main" }],
+      }),
   });
 
   return (

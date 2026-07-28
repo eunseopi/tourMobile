@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Pressable, StyleSheet, Text } from "react-native";
 import SplashScreen from "src/screens/auth/SplashScreen";
 import PermissionScreen from "src/screens/auth/PermissionScreen";
 import LanguageSettingScreen from "src/screens/auth/LanguageSettingScreen";
@@ -24,17 +25,35 @@ import CouponDetailScreen from "src/screens/my-page/CouponDetailScreen";
 import ProfileEditScreen from "src/screens/my-page/ProfileEditScreen";
 import ThemeEditScreen from "src/screens/my-page/ThemeEditScreen";
 import type { RootStackParamList } from "./types";
+import { colors, typography } from "src/design/theme";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   return (
-    <Stack.Navigator initialRouteName="Splash">
+    <Stack.Navigator
+      initialRouteName="Splash"
+      screenOptions={({ navigation }) => ({
+        headerBackVisible: false,
+        headerTintColor: colors.gray[800],
+        headerLeft: ({ canGoBack }) =>
+          canGoBack ? (
+            <Pressable
+              accessibilityLabel="뒤로가기"
+              hitSlop={12}
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}
+            >
+              <Text style={styles.backButtonText}>{"<"}</Text>
+            </Pressable>
+          ) : null,
+      })}
+    >
       <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Permission" component={PermissionScreen} options={{ title: "권한 안내" }} />
       <Stack.Screen name="LanguageSetting" component={LanguageSettingScreen} options={{ title: "언어 설정" }} />
       <Stack.Screen name="RegisterChoice" component={RegisterChoiceScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Main" component={MainScreen} options={{ title: "제주데이" }} />
+      <Stack.Screen name="Main" component={MainScreen} options={{ title: "제주데이", headerLeft: () => null }} />
       <Stack.Screen name="Map" component={MapScreen} options={{ title: "지도 탐색" }} />
       <Stack.Screen
         name="Login"
@@ -61,3 +80,15 @@ export function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  backButton: {
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: "center",
+  },
+  backButtonText: {
+    ...typography.head3,
+    color: colors.gray[800],
+  },
+});
