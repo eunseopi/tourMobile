@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { authApi } from "src/api/auth";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import { useNotification } from "src/features/my-page/useNotification";
@@ -64,26 +65,34 @@ export default function MyPageScreen({ navigation }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary[400]} />
-        <Text style={styles.mutedText}>내 정보를 불러오는 중...</Text>
+      <View style={styles.screen}>
+        <ScreenHeader title="마이페이지" />
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary[400]} />
+          <Text style={styles.mutedText}>내 정보를 불러오는 중...</Text>
+        </View>
       </View>
     );
   }
 
   if (isError || !me) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
-        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
-          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-        </Pressable>
+      <View style={styles.screen}>
+        <ScreenHeader title="마이페이지" />
+        <View style={styles.center}>
+          <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
+          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+            <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={styles.screen}>
+      <ScreenHeader title="마이페이지" />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <MyProfileSummary
         profile={me.profile}
         nickname={me.nickname}
@@ -119,11 +128,13 @@ export default function MyPageScreen({ navigation }: Props) {
           </Text>
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.bg[0] },
   container: { flex: 1, backgroundColor: colors.bg[0] },
   content: { paddingBottom: 90 },
   menuArea: { padding: 20, backgroundColor: colors.bg[50] },

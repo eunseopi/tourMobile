@@ -46,6 +46,7 @@ export default function MapScreen({ navigation, route }: Props) {
       />
 
       <MapHud
+        onBack={navigation.canGoBack() ? () => navigation.goBack() : undefined}
         isLocating={map.isLocating}
         markerCount={map.filteredMarkers.length}
         stepsText={map.pathStats.formatSteps()}

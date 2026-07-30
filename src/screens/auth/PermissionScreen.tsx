@@ -6,6 +6,7 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
@@ -84,6 +85,7 @@ export default function PermissionScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="권한 안내" />
       <View style={styles.wrapper}>
         <Text style={styles.guide}>앱 사용 권한을 위해{"\n"}접근 권한을 허용해주세요.</Text>
         <View style={styles.listBox}>

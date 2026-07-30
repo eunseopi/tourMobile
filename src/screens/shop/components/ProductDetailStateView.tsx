@@ -10,6 +10,7 @@ export function ProductDetailStateView({ type, onRetry }: Props) {
   return (
     <ScreenStateView
       type={type}
+      title="상품소개"
       loadingText="상품 정보를 불러오는 중..."
       errorText="상품 정보를 찾을 수 없어요."
       backgroundColor={colors.bg[50]}

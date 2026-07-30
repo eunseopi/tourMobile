@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors, layout } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useProducts } from "src/features/product/useProducts";
@@ -22,25 +23,29 @@ export default function ShopScreen({ navigation }: Props) {
   );
 
   return (
-    <View style={styles.container}>
-      <ShopHeader
-        hallabong={me?.hallabong}
-        category={category}
-        onChangeCategory={setCategory}
-        onPressCharge={() => navigation.navigate("PointConvert")}
-      />
-      <ProductGrid
-        products={products ?? []}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        onRefresh={() => void refetch()}
-        onPressProduct={handlePressProduct}
-      />
+    <View style={styles.screen}>
+      <ScreenHeader title="구매하기" />
+      <View style={styles.container}>
+        <ShopHeader
+          hallabong={me?.hallabong}
+          category={category}
+          onChangeCategory={setCategory}
+          onPressCharge={() => navigation.navigate("PointConvert")}
+        />
+        <ProductGrid
+          products={products ?? []}
+          isLoading={isLoading}
+          isError={isError}
+          error={error}
+          onRefresh={() => void refetch()}
+          onPressProduct={handlePressProduct}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.bg[50] },
   container: { flex: 1, paddingHorizontal: layout.screenPadding, backgroundColor: colors.bg[50] },
 });

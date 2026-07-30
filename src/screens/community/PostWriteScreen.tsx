@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import { usePostWriteFlow } from "src/features/community/usePostWriteFlow";
@@ -37,6 +38,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="스팟추가" />
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
         <PostWriteImageSection
           images={postWrite.spot.images}

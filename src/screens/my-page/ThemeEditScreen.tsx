@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { ScreenStateView } from "src/components/ui/ScreenStateView";
 import { commonStyles } from "src/design/commonStyles";
@@ -25,6 +26,7 @@ export default function ThemeEditScreen({ navigation }: Props) {
     return (
       <ScreenStateView
         type="loading"
+        title="테마 수정하기"
         loadingText="관심 테마를 불러오는 중..."
         errorText="관심 테마를 불러오지 못했어요."
       />
@@ -35,6 +37,7 @@ export default function ThemeEditScreen({ navigation }: Props) {
     return (
       <ScreenStateView
         type="error"
+        title="테마 수정하기"
         loadingText="관심 테마를 불러오는 중..."
         errorText="관심 테마를 불러오지 못했어요."
         onRetry={() => themeEdit.refetch()}
@@ -44,6 +47,7 @@ export default function ThemeEditScreen({ navigation }: Props) {
 
   return (
     <View style={commonStyles.screen}>
+      <ScreenHeader title="테마 수정하기" />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <ThemeSelectionGrid selected={themeEdit.selected} onToggleTheme={themeEdit.toggleTheme} />
       </ScrollView>

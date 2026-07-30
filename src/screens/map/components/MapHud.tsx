@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ChevronLeftIcon from "src/assets/ChevronLeft.svg";
 import ClearIcon from "src/assets/Clear.svg";
 import { colors, shadow, typography } from "src/design/theme";
 import type { MapFilter } from "../types";
@@ -23,6 +25,7 @@ type Props = {
   onChangeFilter: (filter: MapFilter) => void;
   onChangeRadius: (radius: (typeof RADIUS_OPTIONS)[number]) => void;
   onRecenter: () => void;
+  onBack?: () => void;
 };
 
 export function MapHud({
@@ -36,9 +39,23 @@ export function MapHud({
   onChangeFilter,
   onChangeRadius,
   onRecenter,
+  onBack,
 }: Props) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.topOverlay}>
+    <View style={[styles.topOverlay, { top: insets.top + 18 }]}>
+      {onBack ? (
+        <Pressable
+          style={styles.backButton}
+          onPress={onBack}
+          hitSlop={8}
+          accessibilityLabel="뒤로가기"
+        >
+          <ChevronLeftIcon width={10} height={16} />
+        </Pressable>
+      ) : null}
+
       <View style={styles.headerPanel}>
         <View style={styles.headerCard}>
           <Text style={styles.headerTitle}>지도 탐색</Text>
@@ -112,13 +129,21 @@ export function MapHud({
 const styles = StyleSheet.create({
   topOverlay: {
     position: "absolute",
-    top: 18,
     left: 16,
     right: 16,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-between",
     gap: 12,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.96)",
+    ...shadow.card,
   },
   headerPanel: { flex: 1, gap: 10 },
   headerCard: {

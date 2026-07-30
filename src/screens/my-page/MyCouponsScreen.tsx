@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import EmptyBuddy from "src/assets/emptyBuddy.svg";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
@@ -30,26 +31,34 @@ export default function MyCouponsScreen({ navigation }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary[400]} />
-        <Text style={styles.mutedText}>쿠폰을 불러오는 중...</Text>
+      <View style={styles.screen}>
+        <ScreenHeader title="내 상품권" />
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary[400]} />
+          <Text style={styles.mutedText}>쿠폰을 불러오는 중...</Text>
+        </View>
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>쿠폰 목록을 불러오지 못했어요.</Text>
-        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
-          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-        </Pressable>
+      <View style={styles.screen}>
+        <ScreenHeader title="내 상품권" />
+        <View style={styles.center}>
+          <Text style={styles.errorText}>쿠폰 목록을 불러오지 못했어요.</Text>
+          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+            <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
   return (
-    <FlatList
+    <View style={styles.screen}>
+      <ScreenHeader title="내 상품권" />
+      <FlatList
       style={styles.container}
       data={coupons}
       keyExtractor={(item) => String(item.exchangeId)}
@@ -85,11 +94,16 @@ export default function MyCouponsScreen({ navigation }: Props) {
           </Text>
         </Pressable>
       )}
-    />
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg[50],
+  },
   container: {
     flex: 1,
     backgroundColor: colors.bg[50],

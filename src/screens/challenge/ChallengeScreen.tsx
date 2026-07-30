@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import TrophyColor from "src/assets/trophyColor.svg";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors, typography } from "src/design/theme";
 import {
   useLoadCompletedChallenges,
@@ -62,15 +63,19 @@ export default function ChallengeScreen({ navigation, route }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary[400]} />
-        <Text style={styles.mutedText}>챌린지를 불러오는 중...</Text>
+      <View style={styles.container}>
+        <ScreenHeader title="챌린지" />
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary[400]} />
+          <Text style={styles.mutedText}>챌린지를 불러오는 중...</Text>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="챌린지" />
       <View style={styles.header}>
         <ChallengeTabs value={tab} onChange={setTab} />
       </View>

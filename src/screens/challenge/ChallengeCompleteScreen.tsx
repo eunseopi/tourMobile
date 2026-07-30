@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
 import { colors } from "src/design/theme";
 import { useChallengeCompleteFlow } from "src/features/challenges/useChallengeCompleteFlow";
@@ -23,6 +24,7 @@ export default function ChallengeCompleteScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.screen}>
+      <ScreenHeader title="챌린지 인증" />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <ChallengeCompleteSummary challenge={challenge} />
 

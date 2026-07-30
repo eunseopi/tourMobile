@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { useAppPreferenceStore } from "src/stores/appPreferenceStore";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
@@ -22,6 +23,7 @@ export default function LanguageSettingScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader title="언어 설정" />
       <View style={styles.logoHeader}>
         <Logo width={40} height={40} />
       </View>

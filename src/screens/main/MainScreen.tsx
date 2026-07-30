@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as Location from "expo-location";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "src/app/navigation/types";
 import CheckInModal from "src/components/main/CheckInModal";
 import { colors } from "src/design/theme";
@@ -83,7 +84,7 @@ export default function MainScreen({ navigation }: Props) {
   const latestPosts = community.data?.content?.slice(0, 3) ?? [];
 
   return (
-    <>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -161,11 +162,12 @@ export default function MainScreen({ navigation }: Props) {
           setCheckInOpen(false);
         }}
       />
-    </>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: colors.bg[50] },
   container: { flex: 1, backgroundColor: colors.bg[50] },
   content: { padding: 20, paddingBottom: 90 },
 });

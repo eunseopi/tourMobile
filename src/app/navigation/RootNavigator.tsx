@@ -1,5 +1,4 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text } from "react-native";
 import SplashScreen from "src/screens/auth/SplashScreen";
 import PermissionScreen from "src/screens/auth/PermissionScreen";
 import LanguageSettingScreen from "src/screens/auth/LanguageSettingScreen";
@@ -25,167 +24,36 @@ import CouponDetailScreen from "src/screens/my-page/CouponDetailScreen";
 import ProfileEditScreen from "src/screens/my-page/ProfileEditScreen";
 import ThemeEditScreen from "src/screens/my-page/ThemeEditScreen";
 import type { RootStackParamList } from "./types";
-import { colors, typography } from "src/design/theme";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   return (
-    <Stack.Navigator
-      initialRouteName="Splash"
-      screenOptions={({ navigation }) => ({
-        headerBackVisible: false,
-        headerTintColor: colors.gray[800],
-        headerLeft: ({ canGoBack }) =>
-          canGoBack ? (
-            <Pressable
-              accessibilityLabel="뒤로가기"
-              hitSlop={12}
-              android_ripple={null}
-              onPress={() => navigation.goBack()}
-            >
-              <Text>{"<"}</Text>
-            </Pressable>
-          ) : null,
-      })}
-    >
-      <Stack.Screen
-        name="Splash"
-        component={SplashScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Permission"
-        component={PermissionScreen}
-        options={{ title: "권한 안내" }}
-      />
-      <Stack.Screen
-        name="LanguageSetting"
-        component={LanguageSettingScreen}
-        options={{ title: "언어 설정" }}
-      />
-      <Stack.Screen
-        name="RegisterChoice"
-        component={RegisterChoiceScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Main"
-        component={MainScreen}
-        options={{ title: "제주데이", headerLeft: () => null }}
-      />
-      <Stack.Screen
-        name="Map"
-        component={MapScreen}
-        options={{ title: "지도 탐색" }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Register"
-        component={RegisterScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Shop"
-        component={ShopScreen}
-        options={{ title: "구매하기" }}
-      />
-      <Stack.Screen
-        name="MyPage"
-        component={MyPageScreen}
-        options={{ title: "마이페이지" }}
-      />
-      <Stack.Screen
-        name="MyCoupons"
-        component={MyCouponsScreen}
-        options={{ title: "내 상품권" }}
-      />
-      <Stack.Screen
-        name="PointConvert"
-        component={PointConvertScreen}
-        options={{ title: "포인트 전환" }}
-      />
-      <Stack.Screen
-        name="ProfileEdit"
-        component={ProfileEditScreen}
-        options={{ title: "프로필 수정" }}
-      />
-      <Stack.Screen
-        name="ThemeEdit"
-        component={ThemeEditScreen}
-        options={{ title: "테마 수정하기" }}
-      />
-      <Stack.Screen
-        name="PasswordReset"
-        component={PasswordResetScreen}
-        options={{ title: "비밀번호 수정하기" }}
-      />
-      <Stack.Screen
-        name="CouponDetail"
-        component={CouponDetailScreen}
-        options={{ title: "사용하기" }}
-      />
-      <Stack.Screen
-        name="Community"
-        component={CommunityScreen}
-        options={{ title: "커뮤니티" }}
-      />
-      <Stack.Screen
-        name="Challenge"
-        component={ChallengeScreen}
-        options={{ title: "챌린지" }}
-      />
-      <Stack.Screen
-        name="ChallengeDetail"
-        component={ChallengeDetailScreen}
-        options={{ title: "진행 전" }}
-      />
-      <Stack.Screen
-        name="ChallengeComplete"
-        component={ChallengeCompleteScreen}
-        options={{ title: "챌린지 인증" }}
-      />
-      <Stack.Screen
-        name="PostDetail"
-        component={PostDetailScreen}
-        options={{ title: "게시글" }}
-      />
-      <Stack.Screen
-        name="SpotDetail"
-        component={SpotDetailScreen}
-        options={{ title: "스팟 상세" }}
-      />
-      <Stack.Screen
-        name="PostWrite"
-        component={PostWriteScreen}
-        options={{ title: "스팟추가" }}
-      />
-      <Stack.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-        options={{ title: "상품소개" }}
-      />
+    <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="Permission" component={PermissionScreen} />
+      <Stack.Screen name="LanguageSetting" component={LanguageSettingScreen} />
+      <Stack.Screen name="RegisterChoice" component={RegisterChoiceScreen} />
+      <Stack.Screen name="Main" component={MainScreen} />
+      <Stack.Screen name="Map" component={MapScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="Shop" component={ShopScreen} />
+      <Stack.Screen name="MyPage" component={MyPageScreen} />
+      <Stack.Screen name="MyCoupons" component={MyCouponsScreen} />
+      <Stack.Screen name="PointConvert" component={PointConvertScreen} />
+      <Stack.Screen name="ProfileEdit" component={ProfileEditScreen} />
+      <Stack.Screen name="ThemeEdit" component={ThemeEditScreen} />
+      <Stack.Screen name="PasswordReset" component={PasswordResetScreen} />
+      <Stack.Screen name="CouponDetail" component={CouponDetailScreen} />
+      <Stack.Screen name="Community" component={CommunityScreen} />
+      <Stack.Screen name="Challenge" component={ChallengeScreen} />
+      <Stack.Screen name="ChallengeDetail" component={ChallengeDetailScreen} />
+      <Stack.Screen name="ChallengeComplete" component={ChallengeCompleteScreen} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} />
+      <Stack.Screen name="SpotDetail" component={SpotDetailScreen} />
+      <Stack.Screen name="PostWrite" component={PostWriteScreen} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 2,
-    backgroundColor: "transparent",
-  },
-  backButtonText: {
-    ...typography.head3,
-    color: colors.gray[800],
-  },
-  backButtonLabel: {
-    ...typography.body3,
-    color: colors.gray[800],
-  },
-});

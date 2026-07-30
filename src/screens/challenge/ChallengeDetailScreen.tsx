@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
@@ -19,6 +20,7 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.screen}>
+      <ScreenHeader title="진행 전" />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.titleBlock}>
           <Text style={styles.title}>{challenge.title}</Text>

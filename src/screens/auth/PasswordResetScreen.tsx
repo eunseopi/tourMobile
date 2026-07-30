@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { FormTextField } from "src/components/form/FormTextField";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { ScreenStateView } from "src/components/ui/ScreenStateView";
 import { commonStyles } from "src/design/commonStyles";
@@ -67,6 +68,7 @@ export default function PasswordResetScreen({ navigation }: Props) {
     return (
       <ScreenStateView
         type="loading"
+        title="비밀번호 수정하기"
         loadingText="계정 정보를 불러오는 중..."
         errorText="계정 정보를 불러오지 못했어요."
       />
@@ -77,6 +79,7 @@ export default function PasswordResetScreen({ navigation }: Props) {
     return (
       <ScreenStateView
         type="error"
+        title="비밀번호 수정하기"
         loadingText="계정 정보를 불러오는 중..."
         errorText="계정 정보를 불러오지 못했어요."
         onRetry={() => refetch()}
@@ -86,6 +89,7 @@ export default function PasswordResetScreen({ navigation }: Props) {
 
   return (
     <View style={commonStyles.screen}>
+      <ScreenHeader title="비밀번호 수정하기" />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         style={styles.container}

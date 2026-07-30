@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, layout } from "src/design/theme";
 import { useProductDetailFlow } from "src/features/product/useProductDetailFlow";
@@ -32,6 +33,7 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.screen}>
+      <ScreenHeader title="상품소개" />
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <ProductBalancePill
           hallabong={productDetail.me?.hallabong}

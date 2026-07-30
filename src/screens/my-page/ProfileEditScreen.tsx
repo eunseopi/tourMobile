@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
 import { layout } from "src/design/theme";
 import { useProfileEditFlow } from "src/features/user/useProfileEditFlow";
@@ -32,6 +33,7 @@ export default function ProfileEditScreen({ navigation }: Props) {
 
   return (
     <View style={commonStyles.screen}>
+      <ScreenHeader title="프로필 수정" />
       <ScrollView
         keyboardShouldPersistTaps="handled"
         style={styles.container}

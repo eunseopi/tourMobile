@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
 import { commonStyles } from "src/design/commonStyles";
@@ -67,8 +68,9 @@ export default function PointConvertScreen({ navigation }: Props) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>포인트 전환</Text>
+    <View style={styles.screen}>
+      <ScreenHeader title="포인트 전환" />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.description}>걸음수 포인트를 한라봉으로 바꿔 상품 구매에 사용할 수 있어요.</Text>
 
       <View style={styles.balanceRow}>
@@ -132,15 +134,16 @@ export default function PointConvertScreen({ navigation }: Props) {
           <Text style={styles.primaryButtonText}>포인트 전환하기</Text>
         )}
       </Pressable>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.bg[0] },
   container: { flex: 1, backgroundColor: colors.bg[0] },
   content: { paddingHorizontal: 30, paddingTop: 20, paddingBottom: 44 },
-  title: { ...typography.head4, color: colors.gray[800], textAlign: "center", paddingVertical: 13 },
-  description: { ...typography.body4, color: colors.gray[600], textAlign: "center", marginTop: 8 },
+  description: { ...typography.body4, color: colors.gray[600], textAlign: "center", marginTop: 20 },
   balanceRow: { flexDirection: "row", gap: 10, marginTop: 20 },
   balanceCard: { flex: 1, padding: 10, borderRadius: 100, borderWidth: 1, borderColor: colors.primary[100], backgroundColor: colors.primary[50] },
   balanceLabel: { ...typography.caption1, color: colors.gray[600], textAlign: "center" },

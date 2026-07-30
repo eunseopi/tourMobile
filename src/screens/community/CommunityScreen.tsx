@@ -14,6 +14,7 @@ import type { RootStackParamList } from "src/app/navigation/types";
 import { communityApi } from "src/api/community";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
+import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { useCommunityBanners } from "src/features/community/useCommunityBanners";
 import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import type { SpotPage } from "src/reducer/types";
@@ -93,26 +94,33 @@ export default function CommunityScreen({ navigation }: Props) {
 
   if (isLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.primary[400]} />
-        <Text style={styles.mutedText}>게시글을 불러오는 중...</Text>
+      <View style={styles.screen}>
+        <ScreenHeader title="커뮤니티" />
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.primary[400]} />
+          <Text style={styles.mutedText}>게시글을 불러오는 중...</Text>
+        </View>
       </View>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
-        <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
-          <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-        </Pressable>
+      <View style={styles.screen}>
+        <ScreenHeader title="커뮤니티" />
+        <View style={styles.center}>
+          <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
+          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+            <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.screen}>
+      <ScreenHeader title="커뮤니티" />
       <FlatList
         style={styles.container}
         data={posts}
