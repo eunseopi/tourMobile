@@ -23,7 +23,7 @@ export function MyProfileSummary({ profile, nickname, name, level, onPressProfil
           {profile ? (
             <Image source={{ uri: profile }} style={styles.profileImage} />
           ) : (
-            <DefaultProfile width={100} height={100} />
+            <DefaultProfile width={72} height={72} />
           )}
         </View>
 

@@ -1,4 +1,8 @@
 import axios, { AxiosHeaders } from "axios";
+import { queryClient } from "src/app/queryClient";
+import { resetToLogin } from "src/app/navigation/navigationRef";
+import { authStorage } from "src/utils/lib/authStorage";
+import { QK } from "src/utils/lib/queryKeys";
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? "https://jejuday.duckdns.org";
@@ -10,6 +14,22 @@ const api = axios.create({
   //     'Content-Type': 'application/json'
   // },
   timeout: 0, // 요청 제한시간
+});
+
+function handleSessionExpired() {
+  void authStorage.clearLoginAt();
+  queryClient.removeQueries({ queryKey: QK.sessionMe });
+  resetToLogin();
+}
+
+// 로그인 후 1시간이 지나면 요청을 보내기 전에 강제로 로그아웃 처리
+api.interceptors.request.use(async (config) => {
+  const isExpired = await authStorage.isSessionExpired();
+  if (isExpired) {
+    handleSessionExpired();
+    return Promise.reject(new Error("세션이 만료되었습니다."));
+  }
+  return config;
 });
 
 // 요청 인터셉터
@@ -46,7 +66,7 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status == 401) {
-      // 로그인 만료
+      handleSessionExpired();
     }
     return Promise.reject(error);
   }

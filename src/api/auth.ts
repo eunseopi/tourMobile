@@ -4,8 +4,10 @@ import type { UploadableImage } from "src/types/SpotTypes";
 export const authApi = {
     login: (data: { email: string, password: string }) =>
         api.post('/v1/users/auth/login', data),
-    kakaoLogin: (code: string) => 
+    kakaoLogin: (code: string) =>
         api.post('/v1/users/kakao/login', null, { params: { code } }),
+    logout: () =>
+        api.post('/v1/users/auth/logout'),
 
     // register
     checkEmailDuplicate: (email: string) => 

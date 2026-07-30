@@ -8,6 +8,7 @@ import type { RootStackParamList } from "src/app/navigation/types";
 import type { Gender, RegisterAction, RegisterState } from "src/types/RegisterTypes";
 import type { UploadableImage } from "src/types/SpotTypes";
 import { QK } from "src/utils/lib/queryKeys";
+import { authStorage } from "src/utils/lib/authStorage";
 import {
   validateEmail,
   validatePassword,
@@ -512,6 +513,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
 
       await queryClient.invalidateQueries({ queryKey: QK.sessionMe });
       void queryClient.refetchQueries({ queryKey: QK.sessionMe });
+      await authStorage.markLoginNow();
       dispatch({ type: "RESET" });
 
       Alert.alert("회원가입 완료", "이제 바로 제주데이를 둘러볼 수 있어요.", [

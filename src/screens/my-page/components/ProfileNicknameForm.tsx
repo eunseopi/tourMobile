@@ -51,10 +51,11 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.primary[100],
   },
   checkButtonText: {
     ...typography.body1,
-    color: colors.gray[500],
+    color: colors.primary[500],
+    fontWeight: "600",
   },
 });

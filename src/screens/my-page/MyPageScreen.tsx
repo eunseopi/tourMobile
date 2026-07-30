@@ -1,13 +1,17 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { authApi } from "src/api/auth";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import { useNotification } from "src/features/my-page/useNotification";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
 import { useDeviceNotificationStore } from "src/stores/deviceNotificationStore";
+import { authStorage } from "src/utils/lib/authStorage";
+import { QK } from "src/utils/lib/queryKeys";
 import { MyPageMenuList } from "./components/MyPageMenuList";
 import { MyProfileSummary } from "./components/MyProfileSummary";
 import { PushStatusCard } from "./components/PushStatusCard";
@@ -24,14 +28,39 @@ const gradeNameOf = (code?: string) => {
 type Props = NativeStackScreenProps<RootStackParamList, "MyPage">;
 
 export default function MyPageScreen({ navigation }: Props) {
+  const queryClient = useQueryClient();
   const { data: me, isLoading, isError, refetch } = useSessionMe();
   const { notiEnabled, toggleNoti } = useNotification();
   const expoPushToken = useDeviceNotificationStore((state) => state.expoPushToken);
   const permissionGranted = useDeviceNotificationStore((state) => state.permissionGranted);
   const isRegisteringToken = useDeviceNotificationStore((state) => state.isRegistering);
   const lastNotificationTitle = useDeviceNotificationStore((state) => state.lastNotificationTitle);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const gradeName = useMemo(() => gradeNameOf(me?.moodGrade), [me?.moodGrade]);
+
+  const handleLogout = () => {
+    Alert.alert("로그아웃", "로그아웃 하시겠어요?", [
+      { text: "취소", style: "cancel" },
+      {
+        text: "로그아웃",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            setIsLoggingOut(true);
+            await authApi.logout();
+          } catch {
+            // 서버 로그아웃이 실패해도 로컬 세션은 정리한다
+          } finally {
+            await authStorage.clearLoginAt();
+            queryClient.removeQueries({ queryKey: QK.sessionMe });
+            setIsLoggingOut(false);
+            navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+          }
+        },
+      },
+    ]);
+  };
 
   if (isLoading) {
     return (
@@ -83,6 +112,12 @@ export default function MyPageScreen({ navigation }: Props) {
           isRegisteringToken={isRegisteringToken}
           onPressReconnect={() => void registerForPushNotificationsAsync({ requestPermission: true })}
         />
+
+        <Pressable style={styles.logoutButton} onPress={handleLogout} disabled={isLoggingOut}>
+          <Text style={styles.logoutButtonText}>
+            {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -95,4 +130,6 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: colors.bg[0] },
   mutedText: { ...typography.body4, color: colors.gray[500] },
   errorText: { ...typography.body3, color: colors.error[100] },
+  logoutButton: { marginTop: 20, alignItems: "center", justifyContent: "center", paddingVertical: 12 },
+  logoutButtonText: { ...typography.body3, color: colors.gray[500] },
 });

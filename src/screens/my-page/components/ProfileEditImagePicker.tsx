@@ -33,7 +33,7 @@ export function ProfileEditImagePicker({
             <Image source={{ uri: profileUri }} style={styles.profileImage} />
           ) : (
             <View style={styles.profileFallback}>
-              <DefaultProfile width={76} height={76} />
+              <DefaultProfile width={66} height={66} />
             </View>
           )}
           <View style={styles.cameraIcon}>
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     alignSelf: "center",
+    overflow: "hidden",
   },
   profileImage: {
     width: 90,
@@ -87,6 +88,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.gray[200],
+    overflow: "hidden",
   },
   cameraIcon: {
     position: "absolute",

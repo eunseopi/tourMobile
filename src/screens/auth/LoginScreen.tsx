@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
@@ -20,6 +20,7 @@ import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import { authApi } from "src/api/auth";
 import { QK } from "src/utils/lib/queryKeys";
+import { authStorage } from "src/utils/lib/authStorage";
 import { validateLoginForm } from "src/utils/validation/authValidation";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
@@ -36,6 +37,16 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [rememberId, setRememberId] = useState(false);
+
+  useEffect(() => {
+    authStorage.getRememberedEmail().then((saved) => {
+      if (saved) {
+        setEmail(saved);
+        setRememberId(true);
+      }
+    });
+  }, []);
 
   const validation = useMemo(() => validateLoginForm(email, password), [email, password]);
   const emailError = touched.email ? validation.errors.email : undefined;
@@ -61,6 +72,12 @@ export default function LoginScreen({ navigation }: Props) {
 
       await queryClient.invalidateQueries({ queryKey: QK.sessionMe });
       await queryClient.refetchQueries({ queryKey: QK.sessionMe });
+      await authStorage.markLoginNow();
+      if (rememberId) {
+        await authStorage.setRememberedEmail(email.trim());
+      } else {
+        await authStorage.clearRememberedEmail();
+      }
 
       Alert.alert("로그인 완료", "로그인되었습니다.", [
         {
@@ -134,6 +151,17 @@ export default function LoginScreen({ navigation }: Props) {
               secureTextEntry
               error={passwordError}
             />
+
+            <Pressable
+              style={styles.rememberRow}
+              onPress={() => setRememberId((prev) => !prev)}
+              hitSlop={8}
+            >
+              <View style={[styles.checkbox, rememberId && styles.checkboxChecked]}>
+                {rememberId ? <Text style={styles.checkboxMark}>✓</Text> : null}
+              </View>
+              <Text style={styles.rememberText}>아이디 기억하기</Text>
+            </Pressable>
           </View>
         </ScrollView>
 
@@ -186,5 +214,37 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 10,
+  },
+  rememberRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+    paddingVertical: 4,
+    alignSelf: "flex-start",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.gray[400],
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.bg[0],
+  },
+  checkboxChecked: {
+    borderColor: colors.primary[400],
+    backgroundColor: colors.primary[400],
+  },
+  checkboxMark: {
+    fontSize: 13,
+    lineHeight: 13,
+    fontWeight: "700",
+    color: colors.base[0],
+  },
+  rememberText: {
+    ...typography.body4,
+    color: colors.gray[600],
   },
 });

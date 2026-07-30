@@ -6,6 +6,7 @@ import type { NavigationProp } from "@react-navigation/native";
 import { authApi } from "src/api/auth";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { QK } from "src/utils/lib/queryKeys";
+import { authStorage } from "src/utils/lib/authStorage";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -90,6 +91,7 @@ export function useKakaoLogin(navigation: NavigationProp<RootStackParamList>) {
 
       await queryClient.invalidateQueries({ queryKey: QK.sessionMe });
       await queryClient.refetchQueries({ queryKey: QK.sessionMe });
+      await authStorage.markLoginNow();
       navigation.reset({
         index: 0,
         routes: [{ name: "Main" }],
