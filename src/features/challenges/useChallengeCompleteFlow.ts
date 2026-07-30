@@ -36,7 +36,7 @@ export function useChallengeCompleteFlow({
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsMultipleSelection: false,
         quality: 0.8,
         base64: true,
@@ -60,7 +60,7 @@ export function useChallengeCompleteFlow({
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.8,
         base64: true,
       });

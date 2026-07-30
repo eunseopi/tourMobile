@@ -386,7 +386,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsMultipleSelection: false,
         quality: 0.8,
         aspect: [1, 1],
@@ -416,7 +416,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.8,
         aspect: [1, 1],
       });

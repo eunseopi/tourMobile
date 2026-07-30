@@ -138,7 +138,7 @@ export function usePostWriteFlow({
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         allowsMultipleSelection: true,
         quality: 0.8,
         selectionLimit: Math.max(1, 5 - spot.images.length),
@@ -168,7 +168,7 @@ export function usePostWriteFlow({
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.8,
       });
 

@@ -45,7 +45,6 @@ export function RootNavigator() {
               onPress={() => navigation.goBack()}
             >
               <Text>{"<"}</Text>
-              <Text>뒤로</Text>
             </Pressable>
           ) : null,
       })}
