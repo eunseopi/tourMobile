@@ -142,7 +142,15 @@ export default function MainScreen({ navigation }: Props) {
           <FeaturedChallenge
             challenge={heroChallenge}
             onPressDetail={(challenge) => navigation.navigate("ChallengeDetail", { challenge })}
-            onPressMap={() => navigation.navigate("Map", { filter: "CHALLENGE" })}
+            onPressMap={(challenge) =>
+              navigation.navigate("Map", {
+                filter: "CHALLENGE",
+                type: "CHALLENGE",
+                focusId: challenge.latitude != null && challenge.longitude != null ? challenge.id : undefined,
+                latitude: challenge.latitude ?? undefined,
+                longitude: challenge.longitude ?? undefined,
+              })
+            }
           />
         </HomeSection>
 

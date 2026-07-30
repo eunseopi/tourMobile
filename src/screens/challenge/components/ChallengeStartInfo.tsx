@@ -23,15 +23,14 @@ export function ChallengeStartInfo({ challenge, onOpenMap }: Props) {
         <Pressable style={styles.mapPreview} onPress={onOpenMap}>
           <LocationPin width={40} height={40} />
           <Text style={styles.mapPreviewTitle}>지도에서 위치 확인하기</Text>
-          <Text style={styles.mapPreviewMeta}>
-            {Number(challenge.latitude).toFixed(5)}, {Number(challenge.longitude).toFixed(5)}
-          </Text>
         </Pressable>
       ) : (
         <View style={styles.mapPreview}>
           <LocationPin width={40} height={40} />
           <Text style={styles.mapPreviewTitle}>위치 정보 확인 중</Text>
-          <Text style={styles.mapPreviewMeta}>챌린지를 시작하면 현재 위치를 기준으로 진행돼요.</Text>
+          <Text style={styles.mapPreviewMeta}>
+            챌린지를 시작하면 현재 위치를 기준으로 진행돼요.
+          </Text>
         </View>
       )}
     </View>

@@ -8,7 +8,7 @@ import { SectionState } from "./HomeSection";
 type Props = {
   challenge: ChallengeCardData | null;
   onPressDetail: (challenge: ChallengeCardData) => void;
-  onPressMap: () => void;
+  onPressMap: (challenge: ChallengeCardData) => void;
 };
 
 export function FeaturedChallenge({ challenge, onPressDetail, onPressMap }: Props) {
@@ -53,7 +53,7 @@ export function FeaturedChallenge({ challenge, onPressDetail, onPressMap }: Prop
         <Pressable style={styles.actionPrimary} onPress={() => onPressDetail(challenge)}>
           <Text style={styles.actionPrimaryText}>상세 보기</Text>
         </Pressable>
-        <Pressable style={styles.actionGhost} onPress={onPressMap}>
+        <Pressable style={styles.actionGhost} onPress={() => onPressMap(challenge)}>
           <Text style={styles.actionGhostText}>지도에서 보기</Text>
         </Pressable>
       </View>

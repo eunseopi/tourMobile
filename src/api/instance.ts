@@ -13,7 +13,7 @@ const api = axios.create({
   // headers: {
   //     'Content-Type': 'application/json'
   // },
-  timeout: 0, // 요청 제한시간
+  timeout: 15_000, // 요청 제한시간: 네트워크가 끊긴 채로 무한 대기하며 로딩이 멈추는 것을 방지
 });
 
 function handleSessionExpired() {
