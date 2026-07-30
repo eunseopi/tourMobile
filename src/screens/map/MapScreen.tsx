@@ -5,7 +5,7 @@ import type { RootStackParamList } from "src/app/navigation/types";
 import { MapBottomSheet } from "./components/MapBottomSheet";
 import { MapHud } from "./components/MapHud";
 import { MarkerLayer } from "./components/MarkerLayer";
-import { MapCardRail, MapPreviewRail } from "./components/MapRails";
+import { MapPreviewRail } from "./components/MapRails";
 import { UserLocationMarker } from "./components/UserLocationMarker";
 import { useMapScreenFlow } from "./useMapScreenFlow";
 
@@ -42,13 +42,6 @@ export default function MapScreen({ navigation, route }: Props) {
       <MapPreviewRail
         items={map.filteredMarkers}
         selectedItem={map.selectedItem}
-        onFocusItem={map.handleFocusItem}
-      />
-
-      <MapCardRail
-        items={map.filteredMarkers}
-        selectedId={map.selectedId}
-        listRef={map.cardListRef}
         onFocusItem={map.handleFocusItem}
       />
 

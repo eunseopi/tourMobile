@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, FlatList } from "react-native";
+import { Alert } from "react-native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
@@ -26,7 +26,6 @@ export const DEFAULT_REGION: Region = {
 
 export function useMapScreenFlow(navigation: Navigation, params: Params) {
   const mapRef = useRef<MapView | null>(null);
-  const cardListRef = useRef<FlatList<MapMarkerItem> | null>(null);
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [isLocating, setIsLocating] = useState(true);
@@ -229,14 +228,6 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     }
   }, [params]);
 
-  useEffect(() => {
-    if (!selectedItem) return;
-    const index = filteredMarkers.findIndex((item) => String(item.id) === String(selectedItem.id));
-    if (index >= 0) {
-      cardListRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
-    }
-  }, [filteredMarkers, selectedItem]);
-
   const recenter = async () => {
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
@@ -337,7 +328,6 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
 
   return {
     mapRef,
-    cardListRef,
     region,
     selectedId,
     selectedItem,

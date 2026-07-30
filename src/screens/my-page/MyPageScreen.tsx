@@ -126,7 +126,7 @@ export default function MyPageScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg[0] },
   content: { paddingBottom: 90 },
-  menuArea: { flex: 1, padding: 20, paddingBottom: 90, backgroundColor: colors.bg[50] },
+  menuArea: { padding: 20, backgroundColor: colors.bg[50] },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: colors.bg[0] },
   mutedText: { ...typography.body4, color: colors.gray[500] },
   errorText: { ...typography.body3, color: colors.error[100] },
