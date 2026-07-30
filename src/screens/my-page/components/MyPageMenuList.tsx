@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import ChallengeIcon from "src/assets/Challenge_ic.svg";
+import LockIcon from "src/assets/Lock.svg";
 import NotiIcon from "src/assets/Noti.svg";
 import PenIcon from "src/assets/pen.svg";
-import SettingIcon from "src/assets/Setting.svg";
 import SocialIcon from "src/assets/Social.svg";
+import ThemeSettingsIcon from "src/assets/ThemeSettings.svg";
 import { colors, shadow, typography } from "src/design/theme";
 
 type Props = {
@@ -44,8 +45,8 @@ export function MyPageMenuList({
         />
       </View>
       <MenuItem icon={<PenIcon width={24} height={24} />} label="프로필 수정" onPress={onPressProfile} />
-      <MenuItem icon={<SettingIcon width={24} height={24} />} label="테마 수정" onPress={onPressTheme} />
-      <MenuItem icon={<SettingIcon width={24} height={24} />} label="비밀번호 수정" onPress={onPressPassword} />
+      <MenuItem icon={<ThemeSettingsIcon width={24} height={24} />} label="테마 수정" onPress={onPressTheme} />
+      <MenuItem icon={<LockIcon width={24} height={24} />} label="비밀번호 수정" onPress={onPressPassword} />
     </View>
   );
 }

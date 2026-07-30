@@ -6,15 +6,28 @@ import { HallabongLogo } from "src/components/brand/HallabongLogo";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
+import { onboardingStorage } from "src/utils/lib/onboardingStorage";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 
 export default function SplashScreen({ navigation }: Props) {
   const [canLeaveSplash, setCanLeaveSplash] = useState(false);
   const [canContinueWithoutSession, setCanContinueWithoutSession] = useState(false);
+  const [hasOnboarded, setHasOnboarded] = useState(false);
+  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
   const { data: session, isFetching } = useSessionMe();
-  const nextRoute = useMemo(() => (session ? "Main" : "LanguageSetting"), [session]);
+  const nextRoute = useMemo(
+    () => (session ? "Main" : hasOnboarded ? "RegisterChoice" : "LanguageSetting"),
+    [session, hasOnboarded]
+  );
   const isCheckingSession = !session && isFetching;
+
+  useEffect(() => {
+    onboardingStorage.getHasOnboarded().then((value) => {
+      setHasOnboarded(value);
+      setHasCheckedOnboarding(true);
+    });
+  }, []);
 
   const goNext = useCallback(() => {
     navigation.replace(nextRoute);
@@ -35,9 +48,9 @@ export default function SplashScreen({ navigation }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!canLeaveSplash || (isCheckingSession && !canContinueWithoutSession)) return;
+    if (!canLeaveSplash || !hasCheckedOnboarding || (isCheckingSession && !canContinueWithoutSession)) return;
     goNext();
-  }, [canContinueWithoutSession, canLeaveSplash, goNext, isCheckingSession]);
+  }, [canContinueWithoutSession, canLeaveSplash, goNext, hasCheckedOnboarding, isCheckingSession]);
 
   return (
     <View style={styles.container}>

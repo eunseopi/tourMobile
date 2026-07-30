@@ -8,6 +8,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-nati
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
+import { onboardingStorage } from "src/utils/lib/onboardingStorage";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import { ErrorToast } from "src/components/ui/ErrorToast";
@@ -75,6 +76,7 @@ export default function PermissionScreen({ navigation }: Props) {
         return;
       }
 
+      await onboardingStorage.setHasOnboarded();
       navigation.replace("RegisterChoice");
     } catch {
       showError("권한 요청 중 오류가 발생했습니다.");

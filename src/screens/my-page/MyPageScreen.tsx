@@ -9,13 +9,10 @@ import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import { useNotification } from "src/features/my-page/useNotification";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
-import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
-import { useDeviceNotificationStore } from "src/stores/deviceNotificationStore";
 import { authStorage } from "src/utils/lib/authStorage";
 import { QK } from "src/utils/lib/queryKeys";
 import { MyPageMenuList } from "./components/MyPageMenuList";
 import { MyProfileSummary } from "./components/MyProfileSummary";
-import { PushStatusCard } from "./components/PushStatusCard";
 
 const gradeNameOf = (code?: string) => {
   switch (code) {
@@ -32,10 +29,6 @@ export default function MyPageScreen({ navigation }: Props) {
   const queryClient = useQueryClient();
   const { data: me, isLoading, isError, refetch } = useSessionMe();
   const { notiEnabled, toggleNoti } = useNotification();
-  const expoPushToken = useDeviceNotificationStore((state) => state.expoPushToken);
-  const permissionGranted = useDeviceNotificationStore((state) => state.permissionGranted);
-  const isRegisteringToken = useDeviceNotificationStore((state) => state.isRegistering);
-  const lastNotificationTitle = useDeviceNotificationStore((state) => state.lastNotificationTitle);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const gradeName = useMemo(() => gradeNameOf(me?.moodGrade), [me?.moodGrade]);
@@ -114,14 +107,6 @@ export default function MyPageScreen({ navigation }: Props) {
           onPressPassword={() => navigation.navigate("PasswordReset")}
         />
 
-        <PushStatusCard
-          permissionGranted={permissionGranted}
-          expoPushToken={expoPushToken}
-          lastNotificationTitle={lastNotificationTitle}
-          isRegisteringToken={isRegisteringToken}
-          onPressReconnect={() => void registerForPushNotificationsAsync({ requestPermission: true })}
-        />
-
         <Pressable style={styles.logoutButton} onPress={handleLogout} disabled={isLoggingOut}>
           <Text style={styles.logoutButtonText}>
             {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
@@ -136,7 +121,7 @@ export default function MyPageScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg[0] },
   container: { flex: 1, backgroundColor: colors.bg[0] },
-  content: { paddingBottom: 90 },
+  content: { paddingBottom: 24 },
   menuArea: { padding: 20, backgroundColor: colors.bg[50] },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: colors.bg[0] },
   mutedText: { ...typography.body4, color: colors.gray[500] },
