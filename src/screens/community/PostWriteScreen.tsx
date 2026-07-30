@@ -22,7 +22,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
         navigation.goBack();
         return;
       }
-      navigation.navigate("Community");
+      navigation.navigate("Main", { screen: "Community" });
     },
     onOpenCreatedPost: (postId) => navigation.replace("PostDetail", { postId }),
     onOpenCreatedSpotOnMap: ({ spotId, latitude, longitude }) => {

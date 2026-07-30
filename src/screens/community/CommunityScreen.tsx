@@ -1,5 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { CompositeScreenProps } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import {
   ActivityIndicator,
   Alert,
@@ -10,7 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "src/app/navigation/types";
+import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
 import { communityApi } from "src/api/community";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
@@ -23,9 +26,13 @@ import WriteIcon from "src/assets/Icons.svg";
 import { CommunityHeader } from "./components/CommunityHeader";
 import { PostCard } from "./components/PostCard";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Community">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, "Community">,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export default function CommunityScreen({ navigation }: Props) {
+  const tabBarHeight = useBottomTabBarHeight();
   const queryClient = useQueryClient();
   const activeTab = useCommunityStore((state) => state.activeTab);
   const currentPage = useCommunityStore((state) => state.currentPage);
@@ -95,7 +102,7 @@ export default function CommunityScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader title="커뮤니티" />
+        <ScreenHeader title="커뮤니티" showBack={false} />
         <View style={styles.center}>
           <ActivityIndicator color={colors.primary[400]} />
           <Text style={styles.mutedText}>게시글을 불러오는 중...</Text>
@@ -107,7 +114,7 @@ export default function CommunityScreen({ navigation }: Props) {
   if (isError) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader title="커뮤니티" />
+        <ScreenHeader title="커뮤니티" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
           <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
@@ -120,7 +127,7 @@ export default function CommunityScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="커뮤니티" />
+      <ScreenHeader title="커뮤니티" showBack={false} />
       <FlatList
         style={styles.container}
         data={posts}
@@ -132,7 +139,7 @@ export default function CommunityScreen({ navigation }: Props) {
             onChangeTab={setActiveTab}
           />
         }
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 24 + tabBarHeight }]}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
         }
@@ -152,7 +159,7 @@ export default function CommunityScreen({ navigation }: Props) {
         )}
       />
 
-      <Pressable style={styles.fab} onPress={() => navigation.navigate("PostWrite")}>
+      <Pressable style={[styles.fab, { bottom: 17 + tabBarHeight }]} onPress={() => navigation.navigate("PostWrite")}>
         <WriteIcon width={26} height={26} />
       </Pressable>
     </View>

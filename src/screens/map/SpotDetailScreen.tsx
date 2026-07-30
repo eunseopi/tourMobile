@@ -40,7 +40,7 @@ export default function SpotDetailScreen({ route, navigation }: Props) {
               type: "SPOT",
             })
           }
-          onOpenCommunity={() => navigation.navigate("Community")}
+          onOpenCommunity={() => navigation.navigate("Main", { screen: "Community" })}
         />
       </ScrollView>
     </View>

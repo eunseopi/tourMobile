@@ -19,7 +19,7 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
     productId,
     category,
     onGoPointConvert: () => navigation.navigate("PointConvert"),
-    onGoChallenge: () => navigation.navigate("Challenge"),
+    onGoChallenge: () => navigation.navigate("Main", { screen: "Challenge" }),
     onGoPostWrite: () => navigation.navigate("PostWrite"),
   });
 

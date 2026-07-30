@@ -14,8 +14,10 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
   const { challenge } = route.params;
   const challengeStart = useChallengeStartFlow({
     challenge,
-    onStarted: () =>
-      navigation.replace("Challenge", { initialTab: "doing" }),
+    onStarted: () => {
+      navigation.goBack();
+      navigation.navigate("Main", { screen: "Challenge", params: { initialTab: "doing" } });
+    },
   });
 
   return (

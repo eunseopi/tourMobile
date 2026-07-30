@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import type { CompositeScreenProps } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import * as Location from "expo-location";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import type { RootStackParamList } from "src/app/navigation/types";
+import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
 import CheckInModal from "src/components/main/CheckInModal";
 import { colors } from "src/design/theme";
 import { useLoadOngoingChallenges, useLoadUpcomingChallenges } from "src/features/challenges/useChallengeQueries";
@@ -18,7 +21,10 @@ import { MainHero } from "./components/MainHero";
 import { NearbySpotList, normalizeMapType } from "./components/NearbySpotList";
 import { QuickActions } from "./components/QuickActions";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Main">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, "Home">,
+  NativeStackScreenProps<RootStackParamList>
+>;
 const DEFAULT_JEJU = { latitude: 33.4996, longitude: 126.5312 };
 
 export default function MainScreen({ navigation }: Props) {
@@ -82,12 +88,13 @@ export default function MainScreen({ navigation }: Props) {
 
   const heroChallenge = ongoing.data?.[0] ?? upcoming.data?.[0] ?? null;
   const latestPosts = community.data?.content?.slice(0, 3) ?? [];
+  const tabBarHeight = useBottomTabBarHeight();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 20 + tabBarHeight }]}
         refreshControl={
           <RefreshControl
             refreshing={nearby.isRefetching || community.isRefetching || upcoming.isRefetching || ongoing.isRefetching}
@@ -108,9 +115,6 @@ export default function MainScreen({ navigation }: Props) {
           actions={[
             { label: "지도", onPress: () => navigation.navigate("Map") },
             { label: "상점", onPress: () => navigation.navigate("Shop") },
-            { label: "주간제주", onPress: () => navigation.navigate("Community") },
-            { label: "챌린지", onPress: () => navigation.navigate("Challenge") },
-            { label: "마이페이지", onPress: () => navigation.navigate("MyPage") },
           ]}
         />
 

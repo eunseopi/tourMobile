@@ -67,8 +67,8 @@ export default function MapScreen({ navigation, route }: Props) {
         onOpenSelected={map.handleOpenSelected}
         onWriteSpot={map.handleWriteSpot}
         onGoHome={() => navigation.navigate("Main")}
-        onGoCommunity={() => navigation.navigate("Community")}
-        onGoChallenge={() => navigation.navigate("Challenge")}
+        onGoCommunity={() => navigation.navigate("Main", { screen: "Community" })}
+        onGoChallenge={() => navigation.navigate("Main", { screen: "Challenge" })}
         onFocusItem={map.handleFocusItem}
       />
     </View>

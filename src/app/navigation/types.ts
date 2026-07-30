@@ -1,12 +1,25 @@
+import type { NavigatorScreenParams } from "@react-navigation/native";
 import type { ProductCategory } from "src/types/ProductTypes";
 import type { ChallengeCardData } from "src/reducer/types";
+
+export type MainTabParamList = {
+  Home: undefined;
+  Community: undefined;
+  Challenge:
+    | {
+        initialTab?: "pre" | "doing" | "done";
+        highlightId?: string;
+      }
+    | undefined;
+  MyPage: undefined;
+};
 
 export type RootStackParamList = {
   Splash: undefined;
   Permission: undefined;
   LanguageSetting: undefined;
   RegisterChoice: undefined;
-  Main: undefined;
+  Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Map:
     | {
         focusId?: string | number;
@@ -25,7 +38,6 @@ export type RootStackParamList = {
       }
     | undefined;
   Shop: undefined;
-  MyPage: undefined;
   MyCoupons: undefined;
   PointConvert: undefined;
   ProfileEdit: undefined;
@@ -34,13 +46,6 @@ export type RootStackParamList = {
   CouponDetail: {
     exchangeId: string | number;
   };
-  Community: undefined;
-  Challenge:
-    | {
-        initialTab?: "pre" | "doing" | "done";
-        highlightId?: string;
-      }
-    | undefined;
   ChallengeDetail: {
     challenge: ChallengeCardData;
   };

@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import type { CompositeScreenProps } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import {
   ActivityIndicator,
   FlatList,
@@ -8,7 +11,7 @@ import {
   Text,
   View,
 } from "react-native";
-import type { RootStackParamList } from "src/app/navigation/types";
+import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
 import TrophyColor from "src/assets/trophyColor.svg";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors, typography } from "src/design/theme";
@@ -21,9 +24,13 @@ import { useChallengeStore } from "src/stores/challengeStore";
 import { ChallengeCard } from "./components/ChallengeCard";
 import { ChallengeTabs, type ChallengeTab } from "./components/ChallengeTabs";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Challenge">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, "Challenge">,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export default function ChallengeScreen({ navigation, route }: Props) {
+  const tabBarHeight = useBottomTabBarHeight();
   const [tab, setTab] = useState<ChallengeTab>(route.params?.initialTab ?? "pre");
   const upcomingQuery = useLoadUpcomingChallenges();
   const ongoingQuery = useLoadOngoingChallenges();
@@ -64,7 +71,7 @@ export default function ChallengeScreen({ navigation, route }: Props) {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ScreenHeader title="챌린지" />
+        <ScreenHeader title="챌린지" showBack={false} />
         <View style={styles.center}>
           <ActivityIndicator color={colors.primary[400]} />
           <Text style={styles.mutedText}>챌린지를 불러오는 중...</Text>
@@ -75,7 +82,7 @@ export default function ChallengeScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="챌린지" />
+      <ScreenHeader title="챌린지" showBack={false} />
       <View style={styles.header}>
         <ChallengeTabs value={tab} onChange={setTab} />
       </View>
@@ -83,7 +90,7 @@ export default function ChallengeScreen({ navigation, route }: Props) {
       <FlatList
         data={visible}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: 24 + tabBarHeight }]}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }

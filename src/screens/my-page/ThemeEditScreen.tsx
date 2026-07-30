@@ -18,7 +18,7 @@ export default function ThemeEditScreen({ navigation }: Props) {
         navigation.goBack();
         return;
       }
-      navigation.navigate("MyPage");
+      navigation.navigate("Main", { screen: "MyPage" });
     },
   });
 

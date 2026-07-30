@@ -1,8 +1,11 @@
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { CompositeScreenProps } from "@react-navigation/native";
+import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import type { RootStackParamList } from "src/app/navigation/types";
+import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
 import { authApi } from "src/api/auth";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { commonStyles } from "src/design/commonStyles";
@@ -23,9 +26,13 @@ const gradeNameOf = (code?: string) => {
   }
 };
 
-type Props = NativeStackScreenProps<RootStackParamList, "MyPage">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, "MyPage">,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export default function MyPageScreen({ navigation }: Props) {
+  const tabBarHeight = useBottomTabBarHeight();
   const queryClient = useQueryClient();
   const { data: me, isLoading, isError, refetch } = useSessionMe();
   const { notiEnabled, toggleNoti } = useNotification();
@@ -49,7 +56,9 @@ export default function MyPageScreen({ navigation }: Props) {
             await authStorage.clearLoginAt();
             queryClient.removeQueries({ queryKey: QK.sessionMe });
             setIsLoggingOut(false);
-            navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+            const rootNavigation =
+              navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
+            rootNavigation.reset({ index: 0, routes: [{ name: "Login" }] });
           }
         },
       },
@@ -59,7 +68,7 @@ export default function MyPageScreen({ navigation }: Props) {
   if (isLoading) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader title="마이페이지" />
+        <ScreenHeader title="마이페이지" showBack={false} />
         <View style={styles.center}>
           <ActivityIndicator color={colors.primary[400]} />
           <Text style={styles.mutedText}>내 정보를 불러오는 중...</Text>
@@ -71,7 +80,7 @@ export default function MyPageScreen({ navigation }: Props) {
   if (isError || !me) {
     return (
       <View style={styles.screen}>
-        <ScreenHeader title="마이페이지" />
+        <ScreenHeader title="마이페이지" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
           <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
@@ -84,8 +93,11 @@ export default function MyPageScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="마이페이지" />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <ScreenHeader title="마이페이지" showBack={false} />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[styles.content, { paddingBottom: 24 + tabBarHeight }]}
+      >
       <MyProfileSummary
         profile={me.profile}
         nickname={me.nickname}

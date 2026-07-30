@@ -15,11 +15,13 @@ export default function ChallengeCompleteScreen({ navigation, route }: Props) {
   const { challenge } = route.params;
   const challengeComplete = useChallengeCompleteFlow({
     challenge,
-    onComplete: () =>
-      navigation.replace("Challenge", {
-        initialTab: "done",
-        highlightId: challenge.id,
-      }),
+    onComplete: () => {
+      navigation.goBack();
+      navigation.navigate("Main", {
+        screen: "Challenge",
+        params: { initialTab: "done", highlightId: challenge.id },
+      });
+    },
   });
 
   return (

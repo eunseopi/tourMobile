@@ -288,7 +288,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     if (selectedItem.type === "CHALLENGE") {
       const challenge = ongoing.data?.find((item) => String(item.id) === String(selectedItem.id));
       if (challenge) navigation.navigate("ChallengeDetail", { challenge });
-      else navigation.navigate("Challenge");
+      else navigation.navigate("Main", { screen: "Challenge" });
       return;
     }
 
