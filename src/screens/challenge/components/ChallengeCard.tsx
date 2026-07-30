@@ -1,4 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import NoneTrophy from "src/assets/noneTrophy.svg";
+import Stamp from "src/assets/Stamp.svg";
 import { colors, shadow, typography } from "src/design/theme";
 import type { ChallengeCardData } from "src/reducer/types";
 
@@ -9,15 +11,29 @@ type Props = {
 };
 
 export function ChallengeCard({ item, highlighted, onPress }: Props) {
+  const isDone = item.statusLabel === "완료";
+  const isPrimaryTone = (item.categoryTone ?? "neutral") === "primary";
+
   return (
     <Pressable style={[styles.card, highlighted && styles.cardHighlighted]} onPress={onPress}>
       <View style={styles.cardMedia}>
         {item.imageUrl ? (
           <Image source={{ uri: item.imageUrl }} style={styles.image} />
         ) : null}
-        {item.statusLabel === "완료" ? <View style={styles.dim} /> : null}
-        <Text style={styles.trophy}>🏆</Text>
-        <Text style={styles.category}>{item.categoryLabel}</Text>
+
+        {isDone ? (
+          <>
+            <View style={styles.dim} />
+            <Stamp width={140} height={140} style={styles.stamp} />
+          </>
+        ) : null}
+
+        <NoneTrophy width={24} height={24} style={styles.trophy} />
+
+        <View style={[styles.category, isPrimaryTone ? styles.categoryPrimary : styles.categoryNeutral]}>
+          <Text style={styles.categoryText}>{item.categoryLabel}</Text>
+        </View>
+
         <View style={styles.bottomLeft}>
           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
           <Text style={styles.status}>{item.statusLabel}</Text>
@@ -61,11 +77,20 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.28)",
   },
+  stamp: {
+    position: "absolute",
+    top: 20,
+    left: "50%",
+    marginLeft: -70,
+  },
   trophy: {
     position: "absolute",
     right: 12,
     top: 12,
-    fontSize: 22,
+    shadowColor: "#000",
+    shadowOpacity: 0.22,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
   },
   category: {
     position: "absolute",
@@ -75,9 +100,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderBottomRightRadius: 12,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.16,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
+  },
+  categoryPrimary: {
+    backgroundColor: colors.primary[400],
+  },
+  categoryNeutral: {
+    backgroundColor: colors.gray[600],
+  },
+  categoryText: {
     ...typography.body1,
     color: colors.base[0],
-    backgroundColor: colors.gray[600],
   },
   bottomLeft: {
     position: "absolute",
@@ -89,12 +126,18 @@ const styles = StyleSheet.create({
     ...typography.head3,
     fontWeight: "700",
     color: colors.base[0],
+    textShadowColor: "rgba(0,0,0,0.16)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   status: {
     ...typography.body1,
     fontWeight: "600",
     color: colors.gray[100],
     marginTop: 2,
+    textShadowColor: "rgba(0,0,0,0.16)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   cardDate: {
     position: "absolute",
@@ -103,6 +146,9 @@ const styles = StyleSheet.create({
     ...typography.body4,
     fontWeight: "600",
     color: colors.gray[100],
+    textShadowColor: "rgba(0,0,0,0.35)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   highlightText: {
     ...typography.caption1,

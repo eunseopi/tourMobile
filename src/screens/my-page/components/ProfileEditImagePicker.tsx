@@ -1,4 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import CameraIcon from "src/assets/Camera_2.svg";
+import DefaultProfile from "src/assets/default_profile.svg";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, layout, typography } from "src/design/theme";
 
@@ -31,11 +33,11 @@ export function ProfileEditImagePicker({
             <Image source={{ uri: profileUri }} style={styles.profileImage} />
           ) : (
             <View style={styles.profileFallback}>
-              <Text style={styles.profileFallbackText}>{fallbackInitial}</Text>
+              <DefaultProfile width={76} height={76} />
             </View>
           )}
           <View style={styles.cameraIcon}>
-            <Text style={styles.cameraText}>+</Text>
+            <CameraIcon width={18} height={14} />
           </View>
         </Pressable>
       </View>
@@ -86,10 +88,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.gray[200],
   },
-  profileFallbackText: {
-    ...typography.head2,
-    color: colors.gray[500],
-  },
   cameraIcon: {
     position: "absolute",
     right: 0,
@@ -102,11 +100,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.gray[200],
-  },
-  cameraText: {
-    ...typography.head4,
-    color: colors.gray[600],
-    marginTop: -2,
   },
   imageButtons: {
     gap: 10,

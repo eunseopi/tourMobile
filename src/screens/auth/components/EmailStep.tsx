@@ -5,21 +5,38 @@ type Props = {
   email: string;
   emailError?: string;
   isSendingCode: boolean;
+  isDuplicateChecked: boolean;
+  showAuthInput: boolean;
+  authCode: string;
+  authPassed: boolean;
+  authError?: string;
+  isVerifyingCode: boolean;
   onChangeEmail: (value: string) => void;
   onBlurEmail: () => void;
   onSendCode: () => void;
+  onChangeAuthCode: (value: string) => void;
+  onVerifyCode: () => void;
 };
 
 export function EmailStep({
   email,
   emailError,
   isSendingCode,
+  isDuplicateChecked,
+  showAuthInput,
+  authCode,
+  authPassed,
+  authError,
+  isVerifyingCode,
   onChangeEmail,
   onBlurEmail,
   onSendCode,
+  onChangeAuthCode,
+  onVerifyCode,
 }: Props) {
   const canCheckDuplicate = email.trim().length > 0;
   const isDuplicateButtonDisabled = isSendingCode || !canCheckDuplicate;
+  const isVerifyButtonDisabled = isVerifyingCode || authPassed || !authCode.trim();
 
   return (
     <View style={styles.section}>
@@ -33,28 +50,73 @@ export function EmailStep({
           placeholderTextColor="#a0a0a0"
           autoCapitalize="none"
           keyboardType="email-address"
+          editable={!isDuplicateChecked}
           style={styles.input}
         />
-        <Pressable
-          style={[styles.duplicateButton, isDuplicateButtonDisabled && styles.duplicateButtonDisabled]}
-          onPress={onSendCode}
-          disabled={isDuplicateButtonDisabled}
-        >
-          {isSendingCode ? (
-            <ActivityIndicator color={colors.primary[500]} />
-          ) : (
-            <Text
-              style={[
-                styles.duplicateButtonText,
-                isDuplicateButtonDisabled && styles.duplicateButtonTextDisabled,
-              ]}
-            >
-              중복확인
-            </Text>
-          )}
-        </Pressable>
+        {!isDuplicateChecked && (
+          <Pressable
+            style={[styles.duplicateButton, isDuplicateButtonDisabled && styles.duplicateButtonDisabled]}
+            onPress={onSendCode}
+            disabled={isDuplicateButtonDisabled}
+          >
+            {isSendingCode ? (
+              <ActivityIndicator color={colors.primary[500]} />
+            ) : (
+              <Text
+                style={[
+                  styles.duplicateButtonText,
+                  isDuplicateButtonDisabled && styles.duplicateButtonTextDisabled,
+                ]}
+              >
+                중복확인
+              </Text>
+            )}
+          </Pressable>
+        )}
       </View>
       {!!emailError && <Text style={styles.errorText}>{emailError}</Text>}
+      {!emailError && isDuplicateChecked && !authPassed && (
+        <Text style={styles.hintText}>이메일을 인증해주세요.</Text>
+      )}
+
+      {showAuthInput && (
+        <View style={styles.authSection}>
+          <Text style={styles.authLabel}>인증번호를 입력해주세요.</Text>
+          <View style={[styles.inputShell, authError ? styles.inputShellError : null]}>
+            <TextInput
+              value={authCode}
+              onChangeText={onChangeAuthCode}
+              placeholder="인증번호를 입력해주세요."
+              placeholderTextColor="#a0a0a0"
+              keyboardType="number-pad"
+              editable={!authPassed}
+              style={styles.input}
+            />
+            {!authPassed && (
+              <Pressable
+                style={[styles.duplicateButton, isVerifyButtonDisabled && styles.duplicateButtonDisabled]}
+                onPress={onVerifyCode}
+                disabled={isVerifyButtonDisabled}
+              >
+                {isVerifyingCode ? (
+                  <ActivityIndicator color={colors.primary[500]} />
+                ) : (
+                  <Text
+                    style={[
+                      styles.duplicateButtonText,
+                      isVerifyButtonDisabled && styles.duplicateButtonTextDisabled,
+                    ]}
+                  >
+                    확인
+                  </Text>
+                )}
+              </Pressable>
+            )}
+          </View>
+          {!!authError && <Text style={styles.errorText}>{authError}</Text>}
+          {authPassed && <Text style={styles.successText}>이메일 인증이 완료됐어요.</Text>}
+        </View>
+      )}
     </View>
   );
 }
@@ -116,5 +178,23 @@ const styles = StyleSheet.create({
     marginTop: 6,
     ...typography.caption2,
     color: colors.error[100],
+  },
+  hintText: {
+    marginTop: 6,
+    ...typography.caption2,
+    color: colors.gray[500],
+  },
+  successText: {
+    marginTop: 6,
+    ...typography.caption2,
+    color: colors.primary[400],
+  },
+  authSection: {
+    marginTop: 20,
+  },
+  authLabel: {
+    ...typography.body3,
+    color: colors.gray[700],
+    marginBottom: 8,
   },
 });

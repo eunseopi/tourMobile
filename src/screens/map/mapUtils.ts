@@ -36,19 +36,6 @@ export function normalizeType(type?: string): "POST" | "SPOT" | "CHALLENGE" {
   return "SPOT";
 }
 
-export function markerIcon(type?: string) {
-  switch (type) {
-    case "CHALLENGE":
-      return "C";
-    case "POST":
-      return "P";
-    case "SPOT":
-      return "S";
-    default:
-      return "•";
-  }
-}
-
 export function pickDominantType(items: MapMarkerItem[]): "POST" | "SPOT" | "CHALLENGE" {
   const score = { POST: 0, SPOT: 0, CHALLENGE: 0 };
   items.forEach((item) => {

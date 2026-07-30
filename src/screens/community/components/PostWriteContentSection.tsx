@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { FormTextField } from "src/components/form/FormTextField";
-import { colors, typography } from "src/design/theme";
+import { colors } from "src/design/theme";
 
 type Props = {
   description: string;
@@ -28,18 +28,18 @@ export function PostWriteContentSection({ description, error, onChangeDescriptio
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 22,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.bg[0],
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
   sectionTitle: {
-    ...typography.head4,
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
     color: colors.gray[800],
     marginBottom: 10,
   },
   required: {
-    color: colors.error[100],
+    color: colors.primary[400],
   },
   textarea: {
     minHeight: 136,

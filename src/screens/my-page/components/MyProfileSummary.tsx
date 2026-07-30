@@ -1,4 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import DefaultProfile from "src/assets/default_profile.svg";
+import Hanlabong from "src/assets/hanlabong.svg";
 import { colors, shadow, typography } from "src/design/theme";
 
 type Props = {
@@ -21,7 +23,7 @@ export function MyProfileSummary({ profile, nickname, name, level, onPressProfil
           {profile ? (
             <Image source={{ uri: profile }} style={styles.profileImage} />
           ) : (
-            <Text style={styles.avatarInitial}>{displayName.slice(0, 1)}</Text>
+            <DefaultProfile width={100} height={100} />
           )}
         </View>
 
@@ -37,7 +39,7 @@ export function MyProfileSummary({ profile, nickname, name, level, onPressProfil
       <View style={styles.hallabongWrapper}>
         <View style={styles.goToStoreBox}>
           <View style={styles.hallabongIcon}>
-            <Text style={styles.hallabongIconText}>●</Text>
+            <Hanlabong width={28} height={28} />
           </View>
           <Pressable style={styles.goToStore} onPress={onPressShop}>
             <View style={styles.storeTextBox}>
@@ -60,7 +62,6 @@ const styles = StyleSheet.create({
   profileBox: { flexDirection: "row", alignItems: "center", gap: 30 },
   profileImageWrapper: { width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: colors.gray[300], backgroundColor: colors.gray[200], alignItems: "center", justifyContent: "center", overflow: "hidden" },
   profileImage: { width: "100%", height: "100%" },
-  avatarInitial: { ...typography.head1, color: colors.gray[500] },
   nicknameWrapper: { flex: 1, paddingTop: 20, paddingBottom: 18 },
   nicknameBox: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 12 },
   nickname: { width: 140, ...typography.head3, color: colors.gray[800] },
@@ -68,7 +69,6 @@ const styles = StyleSheet.create({
   hallabongWrapper: { paddingVertical: 18, paddingHorizontal: 16, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
   goToStoreBox: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 20 },
   hallabongIcon: { width: 50, height: 50, borderRadius: 25, alignItems: "center", justifyContent: "center", backgroundColor: colors.primary[100] },
-  hallabongIconText: { color: colors.primary[400], fontSize: 20 },
   goToStore: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   storeTextBox: { flex: 1 },
   storeTitle: { ...typography.head4, color: colors.gray[700], fontWeight: "600", marginBottom: 4 },

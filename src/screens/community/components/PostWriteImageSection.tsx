@@ -2,6 +2,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
 import type { UploadableImage } from "src/types/SpotTypes";
+import ClearIcon from "src/assets/Clear.svg";
 
 type Props = {
   images: UploadableImage[];
@@ -17,67 +18,75 @@ export function PostWriteImageSection({
   onRemoveImage,
 }: Props) {
   return (
-    <View style={styles.section}>
+    <View>
       <Text style={styles.sectionTitle}>사진 업로드</Text>
-      <Text style={styles.helperText}>최대 5장까지 선택할 수 있어요.</Text>
-      <Pressable style={styles.secondaryButton} onPress={onPickImages}>
-        <Text style={styles.secondaryButtonText}>사진 선택하기</Text>
-      </Pressable>
-      <Pressable style={styles.secondaryButton} onPress={onTakeImages}>
-        <Text style={styles.secondaryButtonText}>지금 촬영하기</Text>
-      </Pressable>
 
-      {images.length > 0 ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.imageRow}>
-          {images.map((image, index) => (
-            <View key={`${image.uri}-${index}`} style={styles.imageCard}>
-              <Image source={{ uri: image.uri }} style={styles.imagePreview} />
-              <Pressable style={styles.imageRemoveButton} onPress={() => onRemoveImage(index)}>
-                <Text style={styles.imageRemoveButtonText}>×</Text>
-              </Pressable>
-            </View>
-          ))}
-        </ScrollView>
-      ) : null}
+      <View style={styles.actionsRow}>
+        <Pressable style={styles.secondaryButton} onPress={onPickImages}>
+          <Text style={styles.secondaryButtonText}>사진 선택하기</Text>
+        </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={onTakeImages}>
+          <Text style={styles.secondaryButtonText}>지금 촬영하기</Text>
+        </Pressable>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.slideWrapper}
+      >
+        {images.map((image, index) => (
+          <View key={`${image.uri}-${index}`} style={styles.thumb}>
+            <Image source={{ uri: image.uri }} style={styles.imagePreview} />
+            <Pressable style={styles.imageRemoveButton} onPress={() => onRemoveImage(index)}>
+              <ClearIcon width={18} height={18} />
+            </Pressable>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: {
-    marginBottom: 22,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.bg[0],
-  },
   sectionTitle: {
-    ...typography.head4,
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
     color: colors.gray[800],
-    marginBottom: 10,
+    marginBottom: 17,
+    paddingLeft: 20,
   },
-  helperText: {
-    ...typography.caption2,
-    color: colors.gray[500],
+  actionsRow: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 20,
+    marginBottom: 14,
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,
-    marginTop: 12,
+    flex: 1,
   },
   secondaryButtonText: {
     ...commonStyles.secondaryButtonText,
   },
-  imageRow: {
-    gap: 10,
-    marginTop: 12,
+  slideWrapper: {
+    gap: 8,
+    paddingLeft: 20,
+    paddingRight: 20,
   },
-  imageCard: {
-    position: "relative",
+  thumb: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+    backgroundColor: colors.gray[100],
+    overflow: "hidden",
   },
   imagePreview: {
-    width: 112,
-    height: 112,
-    borderRadius: 8,
-    backgroundColor: colors.gray[200],
+    width: "100%",
+    height: "100%",
   },
   imageRemoveButton: {
     position: "absolute",
@@ -88,12 +97,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(34,31,31,0.65)",
-  },
-  imageRemoveButtonText: {
-    color: colors.base[0],
-    fontSize: 16,
-    lineHeight: 18,
-    fontWeight: "700",
+    backgroundColor: colors.bg[0],
   },
 });

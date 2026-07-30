@@ -2,6 +2,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import { colors, shadow, typography } from "src/design/theme";
 import type { Spot } from "src/reducer/types";
 import { formatDate } from "src/utils/formDate";
+import DefaultProfile from "src/assets/default_profile.svg";
 
 type Props = {
   post: Spot;
@@ -17,9 +18,7 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
           {post.userProfile ? (
             <Image source={{ uri: post.userProfile }} style={styles.avatarImage} />
           ) : (
-            <Text style={styles.avatarText}>
-              {(post.userNickname || "제").slice(0, 1)}
-            </Text>
+            <DefaultProfile width={40} height={40} />
           )}
         </View>
         <View style={styles.authorBox}>
@@ -62,10 +61,6 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
             {post.likedByMe ? "♥" : "♡"} 좋아요 {post.likeCount || 0}
           </Text>
         </Pressable>
-        <View style={styles.actionDivider} />
-        <View style={styles.actionButton}>
-          <Text style={styles.actionText}>댓글 보기</Text>
-        </View>
       </View>
     </Pressable>
   );
@@ -97,10 +92,6 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: "100%",
     height: "100%",
-  },
-  avatarText: {
-    ...typography.body3,
-    color: colors.gray[500],
   },
   authorBox: {
     flex: 1,
@@ -169,11 +160,6 @@ const styles = StyleSheet.create({
     minHeight: 32,
     alignItems: "center",
     justifyContent: "center",
-  },
-  actionDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: 18,
-    backgroundColor: colors.gray[200],
   },
   actionText: {
     ...typography.caption1,

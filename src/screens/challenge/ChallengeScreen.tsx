@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import TrophyColor from "src/assets/trophyColor.svg";
 import { colors, typography } from "src/design/theme";
 import {
   useLoadCompletedChallenges,
@@ -71,7 +72,6 @@ export default function ChallengeScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>챌린지</Text>
         <ChallengeTabs value={tab} onChange={setTab} />
       </View>
 
@@ -89,6 +89,7 @@ export default function ChallengeScreen({ navigation, route }: Props) {
         }}
         ListEmptyComponent={
           <View style={styles.emptyBox}>
+            <TrophyColor width={120} height={120} style={styles.emptyEmoji} />
             <Text style={styles.mutedText}>{emptyText}</Text>
           </View>
         }
@@ -119,13 +120,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg[0],
     paddingTop: 6,
   },
-  title: {
-    ...typography.head3,
-    color: colors.gray[800],
-    textAlign: "center",
-    paddingTop: 6,
-    paddingBottom: 8,
-  },
   listContent: {
     paddingHorizontal: 14,
     paddingTop: 14,
@@ -143,6 +137,9 @@ const styles = StyleSheet.create({
   emptyBox: {
     paddingVertical: 120,
     alignItems: "center",
+  },
+  emptyEmoji: {
+    marginBottom: 40,
   },
   mutedText: {
     ...typography.body1,

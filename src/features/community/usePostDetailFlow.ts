@@ -50,8 +50,9 @@ export function usePostDetailFlow(postId: number) {
       queryClient.setQueryData(["spotDetail", postId], context?.previous);
       Alert.alert("좋아요 실패", "잠시 후 다시 시도해주세요.");
     },
-    onSettled: () => {
+    onSettled: (_data, error) => {
       void queryClient.invalidateQueries({ queryKey: ["spotDetail", postId] });
+      if (error) return;
       void queryClient.invalidateQueries({ queryKey: ["GET /api/spots"] });
       void queryClient.invalidateQueries({
         predicate: (query) =>

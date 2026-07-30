@@ -2,6 +2,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "rea
 import type { SpotComment } from "src/components/community/Comment/types";
 import { colors, typography } from "src/design/theme";
 import { formatDate } from "src/utils/formDate";
+import DefaultProfile from "src/assets/default_profile.svg";
 
 type Props = {
   comments: SpotComment[];
@@ -50,7 +51,7 @@ function CommentItem({ comment, onReply }: { comment: SpotComment; onReply: () =
         {comment.userProfile ? (
           <Image source={{ uri: comment.userProfile }} style={styles.commentAvatarImage} />
         ) : (
-          <Text style={styles.commentAvatarText}>{(comment.userNickname || "익").slice(0, 1)}</Text>
+          <DefaultProfile width={40} height={40} />
         )}
       </View>
       <View style={styles.commentBody}>
@@ -71,17 +72,20 @@ function CommentItem({ comment, onReply }: { comment: SpotComment; onReply: () =
 
 const styles = StyleSheet.create({
   commentHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.bg[50],
+    borderTopWidth: 1,
+    borderTopColor: colors.gray[200],
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
+    backgroundColor: colors.bg[0],
   },
   commentTitle: {
-    ...typography.head4,
-    color: colors.gray[800],
+    ...typography.body1,
+    color: colors.gray[700],
   },
   refreshText: {
     ...typography.caption1,
@@ -91,30 +95,31 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyComments: {
-    paddingVertical: 36,
+    minHeight: 292,
     alignItems: "center",
-    backgroundColor: colors.bg[50],
+    justifyContent: "center",
+    backgroundColor: colors.bg[0],
   },
   mutedText: {
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[400],
+    textAlign: "center",
   },
   commentItem: {
     flexDirection: "row",
-    gap: 10,
-    paddingVertical: 14,
+    alignItems: "flex-start",
+    gap: 12,
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.gray[200],
     backgroundColor: colors.bg[0],
   },
   replyItem: {
     paddingLeft: 62,
   },
   commentAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -125,10 +130,6 @@ const styles = StyleSheet.create({
   commentAvatarImage: {
     width: "100%",
     height: "100%",
-  },
-  commentAvatarText: {
-    ...typography.caption1,
-    color: colors.gray[500],
   },
   commentBody: {
     flex: 1,

@@ -1,6 +1,7 @@
 import type { PropsWithChildren, ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, shadow, typography } from "src/design/theme";
+import EmptyBuddy from "src/assets/emptyBuddy.svg";
 
 type Props = PropsWithChildren<{
   title: string;
@@ -31,7 +32,12 @@ export function HomeSection({ title, meta, description, linkLabel, onPressLink, 
 }
 
 export function SectionState({ children }: PropsWithChildren) {
-  return <View style={styles.centerBox}><Text style={styles.centerText}>{children}</Text></View>;
+  return (
+    <View style={styles.centerBox}>
+      <EmptyBuddy width={64} height={64} />
+      <Text style={styles.centerText}>{children}</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

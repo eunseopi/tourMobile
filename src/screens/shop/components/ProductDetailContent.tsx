@@ -1,6 +1,7 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import type { Product } from "src/types/ProductTypes";
 import { colors, typography } from "src/design/theme";
+import Hanlabong from "src/assets/hanlabong.svg";
 
 type Props = {
   product: Product;
@@ -20,7 +21,12 @@ export function ProductDetailContent({ product, categoryLabel }: Props) {
           <Text style={styles.chevron}>›</Text>
         </View>
         <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.productPrice}>{(product.hallabongCost ?? 0).toLocaleString("ko-KR")} 한라봉</Text>
+        {typeof product.hallabongCost === "number" ? (
+          <View style={styles.priceRow}>
+            <Text style={styles.productPrice}>{product.hallabongCost}</Text>
+            <Hanlabong width={26} height={26} />
+          </View>
+        ) : null}
         {product.description ? <Text style={styles.description}>{product.description}</Text> : null}
       </View>
     </>
@@ -31,7 +37,7 @@ const styles = StyleSheet.create({
   productImageWrapper: {
     width: "100%",
     aspectRatio: 32 / 27,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 8,
     overflow: "hidden",
     backgroundColor: colors.gray[200],
@@ -41,7 +47,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   productInfo: {
-    marginTop: 0,
+    marginTop: 20,
   },
   productArea: {
     flexDirection: "row",
@@ -54,8 +60,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   chevron: {
-    fontSize: 20,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 18,
     color: colors.gray[400],
   },
   productName: {
@@ -64,9 +70,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 2,
   },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
   productPrice: {
     ...typography.head3,
-    color: colors.gray[700],
+    color: colors.gray[800],
   },
   description: {
     ...typography.body4,

@@ -1,7 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { FormTextField } from "src/components/form/FormTextField";
-import { colors, typography } from "src/design/theme";
+import { colors } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import LocationIcon from "src/assets/Location.svg";
 
 type Props = {
   name: string;
@@ -22,7 +23,10 @@ export function PostWriteLocationSection({
 }: Props) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>위치를 알려주세요.<Text style={styles.required}>*</Text></Text>
+      <View style={styles.titleRow}>
+        <LocationIcon width={18} height={18} />
+        <Text style={styles.sectionTitle}>위치를 알려주세요.<Text style={styles.required}>*</Text></Text>
+      </View>
       <FormTextField
         value={name}
         onChangeText={onChangeName}
@@ -45,18 +49,23 @@ export function PostWriteLocationSection({
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 22,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.bg[0],
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
-  sectionTitle: {
-    ...typography.head4,
-    color: colors.gray[800],
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
     marginBottom: 10,
   },
+  sectionTitle: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
+    color: colors.gray[800],
+  },
   required: {
-    color: colors.error[100],
+    color: colors.primary[400],
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,
@@ -66,7 +75,8 @@ const styles = StyleSheet.create({
     ...commonStyles.secondaryButtonText,
   },
   coordinateText: {
-    ...typography.caption2,
+    fontSize: 13,
+    lineHeight: 18,
     color: colors.gray[500],
     marginTop: 10,
   },

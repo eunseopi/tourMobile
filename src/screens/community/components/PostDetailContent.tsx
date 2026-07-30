@@ -2,6 +2,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import type { PostDetailProps } from "src/components/community/PostDetail/types";
 import { colors, typography } from "src/design/theme";
 import { formatDate } from "src/utils/formDate";
+import DefaultProfile from "src/assets/default_profile.svg";
 
 type Props = {
   post: PostDetailProps;
@@ -22,9 +23,19 @@ export function PostDetailContent({ post, isLiking, onToggleLike }: Props) {
       ) : null}
 
       <View style={styles.postWrapper}>
-        <Text style={styles.meta}>
-          {post.userNickname || "익명"} · {formatDate(post.createdAt)}
-        </Text>
+        <View style={styles.profileRow}>
+          <View style={styles.avatar}>
+            {post.userProfile ? (
+              <Image source={{ uri: post.userProfile }} style={styles.avatarImage} />
+            ) : (
+              <DefaultProfile width={40} height={40} />
+            )}
+          </View>
+          <View style={styles.profileInfo}>
+            <Text style={styles.author}>{post.userNickname || "익명"}</Text>
+            <Text style={styles.date}>{formatDate(post.createdAt)}</Text>
+          </View>
+        </View>
         <Text style={styles.description}>{post.description}</Text>
         <Pressable style={styles.likeButton} onPress={onToggleLike} disabled={isLiking}>
           <Text style={[styles.likeText, post.likedByMe && styles.likedText]}>
@@ -38,7 +49,9 @@ export function PostDetailContent({ post, isLiking, onToggleLike }: Props) {
 
 const styles = StyleSheet.create({
   title: {
-    ...typography.head2,
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "700",
     color: colors.gray[800],
     paddingLeft: 20,
     paddingTop: 10,
@@ -60,7 +73,35 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 22,
   },
-  meta: {
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    paddingVertical: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.gray[100],
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  profileInfo: {
+    gap: 2,
+  },
+  author: {
+    ...typography.body3,
+    color: colors.gray[800],
+  },
+  date: {
     ...typography.caption2,
     color: colors.gray[400],
   },

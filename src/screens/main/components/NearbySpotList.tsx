@@ -1,6 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import type { NearbySpot } from "src/api/spotsApi";
+import LocationIcon from "src/assets/Location.svg";
+import { SectionState } from "./HomeSection";
 
 type NearbySpotItem = NearbySpot & { distanceKm?: number | null };
 
@@ -21,11 +23,7 @@ export function NearbySpotList({ isLoading, items, onPressItem }: Props) {
   }
 
   if (items.length === 0) {
-    return (
-      <View style={styles.centerBox}>
-        <Text style={styles.centerText}>근처 스팟이 아직 없어요.</Text>
-      </View>
-    );
+    return <SectionState>근처 스팟이 아직 없어요.</SectionState>;
   }
 
   return (
@@ -34,9 +32,12 @@ export function NearbySpotList({ isLoading, items, onPressItem }: Props) {
         <Pressable key={String(item.id)} style={styles.listItem} onPress={() => onPressItem(item)}>
           <View style={styles.listMain}>
             <Text style={styles.listTitle} numberOfLines={1}>{item.name}</Text>
-            <Text style={styles.listMeta}>
-              {spotTypeLabel(item.type)} · {formatDistance(item.distanceKm)}
-            </Text>
+            <View style={styles.listMetaRow}>
+              <LocationIcon width={12} height={12} />
+              <Text style={styles.listMeta}>
+                {spotTypeLabel(item.type)} · {formatDistance(item.distanceKm)}
+              </Text>
+            </View>
           </View>
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{Math.max(0, item.likeCount ?? 0)} ♥</Text>
@@ -81,7 +82,8 @@ const styles = StyleSheet.create({
   },
   listMain: { flex: 1, paddingRight: 12 },
   listTitle: { ...typography.body3, color: colors.gray[800] },
-  listMeta: { ...typography.caption2, color: colors.gray[500], marginTop: 4 },
+  listMetaRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
+  listMeta: { ...typography.caption2, color: colors.gray[500] },
   badge: {
     minWidth: 62,
     minHeight: 32,

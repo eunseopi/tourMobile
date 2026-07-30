@@ -1,6 +1,8 @@
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import DefaultProfile from "src/assets/default_profile.svg";
+import CameraIcon from "src/assets/Camera_2.svg";
 
 type Props = {
   isKakaoRegister: boolean;
@@ -39,13 +41,18 @@ export function ProfileStep({
       {!isKakaoRegister ? (
         <>
           <View style={styles.profileImageSection}>
-            {imageUrl ? (
-              <Image source={{ uri: imageUrl }} style={styles.profilePreview} />
-            ) : (
-              <View style={styles.profilePreviewFallback}>
-                <Text style={styles.profilePreviewFallbackText}>프로필</Text>
+            <View style={styles.avatarWrapper}>
+              <View style={styles.avatarCircle}>
+                {imageUrl ? (
+                  <Image source={{ uri: imageUrl }} style={styles.profilePreview} />
+                ) : (
+                  <DefaultProfile width={68} height={72} />
+                )}
               </View>
-            )}
+              <Pressable style={styles.cameraBadge} onPress={onPickImage} hitSlop={8}>
+                <CameraIcon width={20} height={16} />
+              </Pressable>
+            </View>
             <View style={styles.profileButtonColumn}>
               <Pressable style={styles.secondaryButton} onPress={onPickImage}>
                 <Text style={styles.secondaryButtonText}>이미지 선택</Text>
@@ -127,27 +134,39 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 16,
   },
-  profilePreview: {
+  avatarWrapper: {
     width: 90,
     height: 90,
-    borderRadius: 45,
-    backgroundColor: colors.gray[200],
-    borderWidth: 1,
-    borderColor: colors.gray[300],
+    position: "relative",
   },
-  profilePreviewFallback: {
+  avatarCircle: {
     width: 90,
     height: 90,
     borderRadius: 45,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
     backgroundColor: colors.gray[200],
     borderWidth: 1,
     borderColor: colors.gray[300],
   },
-  profilePreviewFallbackText: {
-    ...typography.caption1,
-    color: colors.gray[500],
+  profilePreview: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+  },
+  cameraBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.gray[200],
+    borderWidth: 1,
+    borderColor: colors.base[0],
   },
   profileButtonColumn: {
     width: "100%",

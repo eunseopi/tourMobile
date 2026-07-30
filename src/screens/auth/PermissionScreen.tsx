@@ -4,26 +4,34 @@ import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
 import { colors, layout, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import { ErrorToast } from "src/components/ui/ErrorToast";
+import Notification from "src/assets/Alarm.svg";
+import CameraIcon from "src/assets/Camera.svg";
+import Gallery from "src/assets/Gallery.svg";
+import Location2 from "src/assets/Location.svg";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Permission">;
 
 const PERMISSIONS = [
-  { title: "알림", description: "푸시알림 발송" },
-  { title: "카메라", description: "사진 업로드" },
-  { title: "사진", description: "사진 업로드" },
-  { title: "위치", description: "사용자 위치 기반" },
+  { title: "알림", description: "푸시알림 발송", Icon: Notification },
+  { title: "카메라", description: "사진 업로드", Icon: CameraIcon },
+  { title: "사진", description: "사진 업로드", Icon: Gallery },
+  { title: "위치", description: "사용자 위치 기반", Icon: Location2 },
 ] as const;
 
 export default function PermissionScreen({ navigation }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
 
   const showError = (message: string) => {
-    Alert.alert("권한 필요", message);
+    setToastMessage(message);
+    setToastVisible(true);
   };
 
   const handleAllow = async () => {
@@ -80,15 +88,18 @@ export default function PermissionScreen({ navigation }: Props) {
         <Text style={styles.guide}>앱 사용 권한을 위해{"\n"}접근 권한을 허용해주세요.</Text>
         <View style={styles.listBox}>
           <Text style={styles.permissionSectionTitle}>선택 권한</Text>
-          {PERMISSIONS.map((item) => (
-            <View key={item.title} style={styles.permissionRow}>
-              <View style={styles.permissionLeft}>
-                <View style={styles.dot} />
-                <Text style={styles.permissionTitle}>{item.title}</Text>
+          {PERMISSIONS.map((item) => {
+            const Icon = item.Icon;
+            return (
+              <View key={item.title} style={styles.permissionRow}>
+                <View style={styles.permissionLeft}>
+                  <Icon width={32} height={32} />
+                  <Text style={styles.permissionTitle}>{item.title}</Text>
+                </View>
+                <Text style={styles.permissionDescription}>{item.description}</Text>
               </View>
-              <Text style={styles.permissionDescription}>{item.description}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       </View>
 
@@ -101,6 +112,8 @@ export default function PermissionScreen({ navigation }: Props) {
           )}
         </Pressable>
       </View>
+
+      <ErrorToast message={toastMessage} visible={toastVisible} onClose={() => setToastVisible(false)} />
     </View>
   );
 }
@@ -133,12 +146,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary[400],
   },
   permissionTitle: {
     ...typography.head4,

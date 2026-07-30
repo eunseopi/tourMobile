@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import type { ProductCategory } from "src/types/ProductTypes";
+import Hanlabong from "src/assets/hanlabong.svg";
 
 const CATEGORIES: Array<{ key: ProductCategory; label: string }> = [
   { key: "JEJU_TICON", label: "제주티콘" },
@@ -19,8 +20,8 @@ export function ShopHeader({ hallabong, category, onChangeCategory, onPressCharg
     <>
       <View style={styles.balancePill}>
         <View style={styles.balanceLeft}>
-          <Text style={styles.fruitIcon}>●</Text>
           <Text style={styles.balanceLabel}>내 한라봉</Text>
+          <Hanlabong width={24} height={24} />
           <Text style={styles.balanceValue}>{(hallabong ?? 0).toLocaleString("ko-KR")}</Text>
         </View>
         <View style={styles.balanceDivider} />
@@ -46,18 +47,17 @@ export function ShopHeader({ hallabong, category, onChangeCategory, onPressCharg
 }
 
 const styles = StyleSheet.create({
-  balancePill: { flexDirection: "row", alignItems: "center", marginVertical: 10, paddingVertical: 14, paddingHorizontal: 18, borderRadius: 50, borderWidth: 1, borderColor: colors.primary[200], backgroundColor: colors.primary[50] },
-  balanceLeft: { flex: 1, flexDirection: "row", alignItems: "center" },
-  fruitIcon: { color: colors.primary[400], fontSize: 14, marginRight: 8 },
-  balanceLabel: { ...typography.body3, color: colors.gray[600], marginRight: 6 },
-  balanceValue: { ...typography.body1, color: colors.primary[400] },
+  balancePill: { flexDirection: "row", alignItems: "center", marginVertical: 10, paddingVertical: 14, paddingHorizontal: 17.5, borderRadius: 50, borderWidth: 1, borderColor: colors.primary[200], backgroundColor: colors.primary[50] },
+  balanceLeft: { flex: 1, flexDirection: "row", alignItems: "center", minWidth: 0 },
+  balanceLabel: { ...typography.body1, color: colors.primary[400] },
+  balanceValue: { fontSize: 14, lineHeight: 20, fontWeight: "500", color: colors.gray[600], marginLeft: 8 },
   balanceDivider: { width: 1, alignSelf: "stretch", backgroundColor: colors.primary[200] },
   chargeButton: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 9 },
   chargeText: { ...typography.body1, color: colors.primary[400] },
-  chargeArrow: { fontSize: 22, lineHeight: 22, color: colors.primary[400] },
+  chargeArrow: { fontSize: 20, lineHeight: 20, color: colors.primary[400] },
   tabs: { flexDirection: "row", minHeight: 48, borderBottomWidth: 1, borderBottomColor: colors.gray[200] },
   tab: { flex: 1, alignItems: "center", justifyContent: "center" },
-  tabText: { ...typography.body1, color: colors.gray[500] },
-  activeTabText: { color: colors.primary[400] },
-  tabIndicator: { position: "absolute", left: 0, right: 0, bottom: -1, height: 2, backgroundColor: colors.primary[400] },
+  tabText: { fontSize: 16, lineHeight: 22, fontWeight: "400", color: colors.gray[500] },
+  activeTabText: { fontWeight: "600", color: colors.primary[400] },
+  tabIndicator: { position: "absolute", left: 0, right: 0, bottom: -1, height: 1.5, backgroundColor: colors.primary[400] },
 });

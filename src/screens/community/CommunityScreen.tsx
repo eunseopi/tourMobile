@@ -18,6 +18,7 @@ import { useCommunityBanners } from "src/features/community/useCommunityBanners"
 import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import type { SpotPage } from "src/reducer/types";
 import { useCommunityStore } from "src/stores/communityStore";
+import WriteIcon from "src/assets/Icons.svg";
 import { CommunityHeader } from "./components/CommunityHeader";
 import { PostCard } from "./components/PostCard";
 
@@ -80,8 +81,8 @@ export default function CommunityScreen({ navigation }: Props) {
       });
       Alert.alert("좋아요 실패", "잠시 후 다시 시도해주세요.");
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ["GET /api/spots"] });
+    onSettled: (_data, error) => {
+      if (error) return;
       void queryClient.invalidateQueries({
         predicate: (query) =>
           Array.isArray(query.queryKey) &&
@@ -144,7 +145,7 @@ export default function CommunityScreen({ navigation }: Props) {
       />
 
       <Pressable style={styles.fab} onPress={() => navigation.navigate("PostWrite")}>
-        <Text style={styles.fabText}>+</Text>
+        <WriteIcon width={26} height={26} />
       </Pressable>
     </View>
   );
@@ -196,11 +197,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.primary[400],
     ...shadow.card,
-  },
-  fabText: {
-    fontSize: 28,
-    fontWeight: "400",
-    color: colors.base[0],
-    marginTop: -2,
   },
 });

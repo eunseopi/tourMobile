@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import AlertIcon from "src/assets/Alert.svg";
 import { colors, typography } from "src/design/theme";
 import { USER_THEME_OPTIONS } from "src/features/user/useThemeEditFlow";
 
@@ -26,7 +27,10 @@ export function ThemeSelectionGrid({ selected, onToggleTheme }: Props) {
       </View>
 
       <View style={styles.alertBox}>
-        <Text style={styles.alertText}>관심 테마는 최대 3개까지 선택할 수 있어요.</Text>
+        <View style={styles.alertRow}>
+          <AlertIcon width={15} height={16} />
+          <Text style={styles.alertText}>최대 3개까지 선택 가능합니다.</Text>
+        </View>
       </View>
     </>
   );
@@ -66,6 +70,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 32,
+  },
+  alertRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
   },
   alertText: {
     ...typography.body3,

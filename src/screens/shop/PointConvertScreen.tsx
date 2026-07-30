@@ -15,6 +15,10 @@ import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
+import Steps from "src/assets/Steps.svg";
+import Hanlabong from "src/assets/hanlabong.svg";
+import Arrow from "src/assets/Arrow.svg";
+import Clear from "src/assets/Clear.svg";
 
 type Props = NativeStackScreenProps<RootStackParamList, "PointConvert">;
 
@@ -80,25 +84,39 @@ export default function PointConvertScreen({ navigation }: Props) {
 
       <View style={styles.convertBox}>
         <View style={styles.convertItem}>
+          <Steps width={27} height={26} />
           <Text style={styles.convertCaption}>걸음수</Text>
           <Text style={styles.convertValue}>10</Text>
         </View>
-        <Text style={styles.arrow}>→</Text>
+        <View style={styles.arrowBox}>
+          <Arrow width={31} height={12} />
+        </View>
         <View style={styles.convertItem}>
+          <Hanlabong width={26} height={26} />
           <Text style={styles.convertCaption}>한라봉</Text>
           <Text style={styles.convertValue}>1</Text>
         </View>
       </View>
 
       <Text style={styles.label}>전환할 포인트</Text>
-      <TextInput
-        value={value}
-        onChangeText={(next) => setValue(next.replace(/\D/g, ""))}
-        placeholder="1~100 입력"
-        placeholderTextColor={colors.gray[400]}
-        keyboardType="number-pad"
-        style={styles.input}
-      />
+      <View style={styles.inputBox}>
+        <TextInput
+          value={value}
+          onChangeText={(next) => setValue(next.replace(/\D/g, ""))}
+          placeholder="1~100 입력"
+          placeholderTextColor={colors.gray[400]}
+          keyboardType="number-pad"
+          style={[
+            styles.input,
+            value.length > 0 && !validation.ok && styles.inputNegative,
+          ]}
+        />
+        {value.length > 0 ? (
+          <Pressable style={styles.clearButton} onPress={() => setValue("")} hitSlop={8}>
+            <Clear width={20} height={20} />
+          </Pressable>
+        ) : null}
+      </View>
       <Text style={[styles.helperText, validation.ok && styles.helperTextPositive]}>
         {validation.message}
       </Text>
@@ -137,13 +155,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 75,
     backgroundColor: colors.gray[100],
+    position: "relative",
   },
   convertItem: { flex: 1, maxWidth: 100, alignItems: "center", gap: 4 },
   convertCaption: { ...typography.head4, fontWeight: "600", color: colors.gray[700] },
   convertValue: { ...typography.body1, color: colors.gray[500] },
-  arrow: { position: "absolute", fontSize: 24, fontWeight: "700", color: colors.gray[400] },
+  arrowBox: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: [{ translateX: -15.5 }, { translateY: -6 }],
+  },
   label: { ...typography.body3, color: colors.gray[700], marginTop: 20, marginBottom: 8 },
-  input: { ...commonStyles.input },
+  inputBox: { justifyContent: "center" },
+  input: { ...commonStyles.input, paddingRight: 44 },
+  inputNegative: { borderColor: colors.error[100] },
+  clearButton: {
+    position: "absolute",
+    right: 14,
+    top: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   helperText: { ...typography.caption2, color: colors.error[100], marginTop: 8 },
   helperTextPositive: { color: colors.primary[400] },
   primaryButton: { ...commonStyles.primaryButton, marginTop: 24 },

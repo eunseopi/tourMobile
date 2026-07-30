@@ -1,4 +1,5 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 
 export type CommunityTab = "latest" | "popular";
@@ -20,31 +21,50 @@ type Props = {
   onChangeTab: (tab: CommunityTab) => void;
 };
 
+function BannerSlider({ items }: { items: CommunityBanner[] }) {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (items.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev === items.length - 1 ? 0 : prev + 1));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [items.length]);
+
+  useEffect(() => {
+    if (current > items.length - 1) setCurrent(0);
+  }, [items.length, current]);
+
+  if (!items.length) return null;
+
+  return (
+    <View style={styles.bannerWrapper}>
+      {items.map((banner, idx) => (
+        <Image
+          key={String(banner.id)}
+          source={{ uri: banner.imageUrl ?? undefined }}
+          style={[styles.bannerImage, { opacity: idx === current ? 1 : 0 }]}
+        />
+      ))}
+      <View style={styles.bannerCounter}>
+        <Text style={styles.bannerCounterText}>
+          {current + 1} / {items.length}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
 export function CommunityHeader({ activeTab, banners, onChangeTab }: Props) {
   return (
     <View>
-      <Text style={styles.title}>커뮤니티</Text>
+      <View style={styles.titleSection}>
+        <Text style={styles.subTitle}>현재 제주는?</Text>
+        <Text style={styles.subtitle}>제주의 지역 축제를 알아보세요!</Text>
+      </View>
 
-      {banners.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.bannerList}
-        >
-          {banners.map((banner) => (
-            <View key={String(banner.id)} style={styles.bannerCard}>
-              {banner.imageUrl ? (
-                <Image source={{ uri: banner.imageUrl }} style={styles.bannerImage} />
-              ) : null}
-              {banner.title ? (
-                <Text style={styles.bannerTitle} numberOfLines={1}>
-                  {banner.title}
-                </Text>
-              ) : null}
-            </View>
-          ))}
-        </ScrollView>
-      ) : null}
+      <BannerSlider items={banners} />
 
       <View style={styles.tabs}>
         {TAB_ITEMS.map((item) => {
@@ -67,38 +87,52 @@ export function CommunityHeader({ activeTab, banners, onChangeTab }: Props) {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    ...typography.head2,
+  titleSection: {
+    gap: 3,
+    marginTop: 8,
+    marginBottom: 19,
+  },
+  subTitle: {
+    ...typography.head3,
     color: colors.gray[800],
-    marginBottom: 4,
   },
-  bannerList: {
-    gap: 12,
-    paddingVertical: 16,
+  subtitle: {
+    ...typography.body3,
+    color: colors.gray[500],
   },
-  bannerCard: {
-    width: 280,
-    height: 112,
-    borderRadius: 12,
+  bannerWrapper: {
+    position: "relative",
+    width: "100%",
+    height: 136,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.gray[100],
   },
   bannerImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
     width: "100%",
     height: "100%",
   },
-  bannerTitle: {
+  bannerCounter: {
     position: "absolute",
-    left: 14,
-    right: 14,
-    bottom: 12,
-    ...typography.body1,
+    right: 16,
+    bottom: 16,
+    backgroundColor: colors.gray[500],
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  bannerCounterText: {
+    ...typography.caption2,
+    fontSize: 12,
     color: colors.base[0],
   },
   tabs: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 14,
+    marginTop: 30,
     borderTopWidth: 1,
     borderTopColor: colors.gray[200],
     backgroundColor: colors.bg[0],

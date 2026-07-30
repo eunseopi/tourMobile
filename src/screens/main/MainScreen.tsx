@@ -96,6 +96,7 @@ export default function MainScreen({ navigation }: Props) {
       >
         <MainHero
           nickname={me?.nickname}
+          profileUrl={me?.profile}
           isLocating={isLocating}
           locationLabel={locationLabel}
           hallabong={me?.hallabong}

@@ -1,5 +1,7 @@
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { PostDetailProps } from "src/components/community/PostDetail/types";
+import LocationIcon from "src/assets/Location.svg";
+import SpotMarker from "src/assets/spot.svg";
 import { colors, typography } from "src/design/theme";
 import { formatDate } from "src/utils/formDate";
 
@@ -19,21 +21,31 @@ export function SpotDetailContent({ spot }: Props) {
         </ScrollView>
       ) : (
         <View style={[styles.slideImage, styles.heroFallback]}>
-          <Text style={styles.heroFallbackText}>SPOT</Text>
+          <SpotMarker width={56} height={57} />
         </View>
       )}
 
       <View style={styles.postWrapper}>
-        <Text style={styles.meta}>
-          {spot.userNickname || "제주데이"} · {formatDate(spot.createdAt)}
-        </Text>
+        <View style={styles.profileRow}>
+          <View style={styles.avatar}>
+            {spot.userProfile ? (
+              <Image source={{ uri: spot.userProfile }} style={styles.avatarImage} />
+            ) : null}
+          </View>
+          <View style={styles.profileInfo}>
+            <Text style={styles.username}>{spot.userNickname || "제주데이"}</Text>
+            <Text style={styles.date}>{formatDate(spot.createdAt)}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.description}>{spot.description || "이 스팟에 대한 소개가 아직 준비되지 않았어요."}</Text>
+
         <View style={styles.locationTag}>
-          <Text style={styles.locationIcon}>⌖</Text>
+          <LocationIcon width={14} height={14} />
           <Text style={styles.locationText} numberOfLines={1}>
             {spot.name}
           </Text>
         </View>
-        <Text style={styles.description}>{spot.description || "이 스팟에 대한 소개가 아직 준비되지 않았어요."}</Text>
         <View style={styles.statsRow}>
           <Text style={styles.statText}>좋아요 {spot.likeCount ?? 0}</Text>
           <Text style={styles.statText}>
@@ -47,7 +59,8 @@ export function SpotDetailContent({ spot }: Props) {
 
 const styles = StyleSheet.create({
   title: {
-    ...typography.head2,
+    fontSize: 20,
+    fontWeight: "700",
     color: colors.gray[800],
     paddingLeft: 20,
     paddingTop: 10,
@@ -71,16 +84,41 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: colors.primary[50],
   },
-  heroFallbackText: {
-    ...typography.head2,
-    color: colors.primary[400],
-  },
   postWrapper: {
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 22,
   },
-  meta: {
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    paddingVertical: 10,
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 100,
+    backgroundColor: colors.gray[100],
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  profileInfo: {
+    justifyContent: "center",
+    gap: 2,
+  },
+  username: {
+    ...typography.body1,
+    color: colors.gray[800],
+  },
+  date: {
     ...typography.caption2,
     color: colors.gray[400],
   },
@@ -95,10 +133,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     borderRadius: 50,
     backgroundColor: colors.gray[100],
-  },
-  locationIcon: {
-    ...typography.caption1,
-    color: colors.gray[400],
   },
   locationText: {
     ...typography.caption1,

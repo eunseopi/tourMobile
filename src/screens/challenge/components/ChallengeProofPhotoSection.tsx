@@ -1,4 +1,6 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import CameraIcon from "src/assets/Camera_2.svg";
+import GalleryIcon from "src/assets/Gallery.svg";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 
@@ -19,9 +21,11 @@ export function ChallengeProofPhotoSection({
       <Text style={styles.infoText}>챌린지를 완료했다는 걸 보여줄 사진을 업로드해주세요.</Text>
 
       <Pressable style={styles.secondaryButton} onPress={onPickPhoto}>
+        <GalleryIcon width={20} height={20} />
         <Text style={styles.secondaryButtonText}>사진 선택하기</Text>
       </Pressable>
       <Pressable style={styles.secondaryButton} onPress={onTakePhoto}>
+        <CameraIcon width={20} height={20} />
         <Text style={styles.secondaryButtonText}>지금 촬영하기</Text>
       </Pressable>
 
@@ -54,6 +58,10 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     marginTop: 16,
   },
   secondaryButtonText: {

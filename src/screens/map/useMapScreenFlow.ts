@@ -341,6 +341,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     region,
     selectedId,
     selectedItem,
+    currentLocation,
     isLocating,
     radiusKm,
     activeFilter,

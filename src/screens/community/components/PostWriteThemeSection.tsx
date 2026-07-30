@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, typography } from "src/design/theme";
+import { colors } from "src/design/theme";
 import { POST_THEME_OPTIONS } from "src/features/community/usePostWriteFlow";
 
 type Props = {
@@ -33,42 +33,41 @@ export function PostWriteThemeSection({ themeId, onSelectTheme }: Props) {
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 22,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.bg[0],
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
   sectionTitle: {
-    ...typography.head4,
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
     color: colors.gray[800],
-    marginBottom: 10,
+    marginBottom: 12,
   },
   themeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 11,
+    gap: 8,
   },
   themeChip: {
-    width: "30.8%",
-    minHeight: 68,
-    paddingVertical: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.gray[300],
+    minWidth: 56,
+    maxWidth: 140,
+    height: 36,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.bg[0],
+    backgroundColor: colors.gray[200],
   },
   themeChipActive: {
-    borderColor: colors.primary[300],
-    backgroundColor: colors.primary[50],
+    backgroundColor: colors.primary[400],
   },
   themeChipText: {
-    ...typography.body3,
-    color: colors.gray[500],
-    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.gray[700],
   },
   themeChipTextActive: {
-    color: colors.primary[400],
+    color: colors.base[0],
   },
 });

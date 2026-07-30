@@ -6,6 +6,7 @@ import { MapBottomSheet } from "./components/MapBottomSheet";
 import { MapHud } from "./components/MapHud";
 import { MarkerLayer } from "./components/MarkerLayer";
 import { MapCardRail, MapPreviewRail } from "./components/MapRails";
+import { UserLocationMarker } from "./components/UserLocationMarker";
 import { useMapScreenFlow } from "./useMapScreenFlow";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Map">;
@@ -20,7 +21,7 @@ export default function MapScreen({ navigation, route }: Props) {
         style={styles.map}
         initialRegion={map.region}
         onRegionChangeComplete={map.setRegion}
-        showsUserLocation
+        showsUserLocation={false}
         showsMyLocationButton={false}
       >
         <MarkerLayer
@@ -29,6 +30,13 @@ export default function MapScreen({ navigation, route }: Props) {
           onMarkerPress={map.handleMarkerPress}
           onClusterPress={map.handleClusterPress}
         />
+
+        {map.currentLocation && (
+          <UserLocationMarker
+            latitude={map.currentLocation.latitude}
+            longitude={map.currentLocation.longitude}
+          />
+        )}
       </MapView>
 
       <MapPreviewRail

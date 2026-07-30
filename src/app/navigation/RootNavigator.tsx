@@ -41,10 +41,12 @@ export function RootNavigator() {
             <Pressable
               accessibilityLabel="뒤로가기"
               hitSlop={12}
-              onPress={() => navigation.goBack()}
+              android_ripple={null}
               style={styles.backButton}
+              onPress={() => navigation.goBack()}
             >
               <Text style={styles.backButtonText}>{"<"}</Text>
+              <Text style={styles.backButtonLabel}>뒤로</Text>
             </Pressable>
           ) : null,
       })}
@@ -83,12 +85,17 @@ export function RootNavigator() {
 
 const styles = StyleSheet.create({
   backButton: {
-    minWidth: 44,
-    minHeight: 44,
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    backgroundColor: "transparent",
   },
   backButtonText: {
     ...typography.head3,
+    color: colors.gray[800],
+  },
+  backButtonLabel: {
+    ...typography.body3,
     color: colors.gray[800],
   },
 });

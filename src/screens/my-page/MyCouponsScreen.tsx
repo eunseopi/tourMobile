@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import EmptyBuddy from "src/assets/emptyBuddy.svg";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
@@ -60,7 +61,8 @@ export default function MyCouponsScreen({ navigation }: Props) {
       }
       ListEmptyComponent={
         <View style={styles.emptyBox}>
-          <Text style={styles.mutedText}>보유한 쿠폰이 없습니다.</Text>
+          <EmptyBuddy width={104} height={110} />
+          <Text style={styles.emptyText}>아직 보유한 상품권이 없어요.</Text>
         </View>
       }
       renderItem={({ item }) => (
@@ -95,7 +97,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: layout.screenPadding,
     paddingVertical: 30,
-    paddingBottom: 44,
   },
   row: {
     gap: 15,
@@ -140,10 +141,17 @@ const styles = StyleSheet.create({
     minHeight: 360,
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
   },
   mutedText: {
     ...typography.body4,
     color: colors.gray[500],
+  },
+  emptyText: {
+    ...typography.body4,
+    fontWeight: "500",
+    color: colors.gray[500],
+    textAlign: "center",
   },
   errorText: {
     ...typography.body3,

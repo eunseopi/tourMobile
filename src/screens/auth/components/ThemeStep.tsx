@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
+import AlertIcon from "src/assets/Alert.svg";
 
 const THEME_OPTIONS = [
   "데이트",
@@ -38,6 +39,7 @@ export function ThemeStep({ selectedThemes, onToggleTheme }: Props) {
         })}
       </View>
       <View style={styles.alertBox}>
+        <AlertIcon width={15} height={16} />
         <Text style={styles.alertText}>최대 3개까지 선택 가능합니다.</Text>
       </View>
     </View>
@@ -59,7 +61,7 @@ const styles = StyleSheet.create({
   },
   helperText: {
     marginTop: 0,
-    ...typography.caption2,
+    ...typography.body1,
     color: colors.gray[700],
   },
   themeGrid: {
@@ -71,14 +73,15 @@ const styles = StyleSheet.create({
   alertBox: {
     marginTop: 16,
     minHeight: 36,
-    borderRadius: 8,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary[50],
+    gap: 3,
+    backgroundColor: "transparent",
   },
   alertText: {
-    ...typography.caption2,
-    color: colors.gray[600],
+    ...typography.body3,
+    color: colors.gray[500],
   },
   themeChip: {
     width: "30.8%",

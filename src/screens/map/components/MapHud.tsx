@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import ClearIcon from "src/assets/Clear.svg";
 import { colors, shadow, typography } from "src/design/theme";
 import type { MapFilter } from "../types";
 
@@ -46,13 +47,25 @@ export function MapHud({
           </Text>
         </View>
 
-        <TextInput
-          value={searchText}
-          onChangeText={onChangeSearchText}
-          placeholder="스팟이나 장소 이름 검색"
-          placeholderTextColor={colors.gray[400]}
-          style={styles.searchInput}
-        />
+        <View style={styles.searchInputWrap}>
+          <TextInput
+            value={searchText}
+            onChangeText={onChangeSearchText}
+            placeholder="스팟이나 장소 이름 검색"
+            placeholderTextColor={colors.gray[400]}
+            style={styles.searchInput}
+          />
+          {searchText.length > 0 ? (
+            <Pressable
+              style={styles.clearButton}
+              onPress={() => onChangeSearchText("")}
+              hitSlop={8}
+              accessibilityLabel="검색어 지우기"
+            >
+              <ClearIcon width={18} height={18} />
+            </Pressable>
+          ) : null}
+        </View>
 
         <View style={styles.filterRow}>
           {FILTERS.map((item) => {
@@ -116,13 +129,22 @@ const styles = StyleSheet.create({
   },
   headerTitle: { ...typography.head4, color: colors.gray[800] },
   headerSubtitle: { ...typography.caption2, color: colors.gray[600], marginTop: 6 },
+  searchInputWrap: { justifyContent: "center" },
   searchInput: {
     minHeight: 46,
     borderRadius: 12,
     paddingHorizontal: 14,
+    paddingRight: 40,
     backgroundColor: "rgba(255,255,255,0.96)",
     ...typography.body4,
     color: colors.gray[800],
+  },
+  clearButton: {
+    position: "absolute",
+    right: 12,
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   filterRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   filterChip: {

@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
+import { commonStyles } from "src/design/commonStyles";
 import { colors } from "src/design/theme";
 import { useChallengeCompleteFlow } from "src/features/challenges/useChallengeCompleteFlow";
 import { ChallengeCompleteButton } from "./components/ChallengeCompleteButton";
@@ -14,46 +15,45 @@ export default function ChallengeCompleteScreen({ navigation, route }: Props) {
   const challengeComplete = useChallengeCompleteFlow({
     challenge,
     onComplete: () =>
-      navigation.reset({
-        index: 0,
-        routes: [
-          {
-            name: "Challenge",
-            params: {
-              initialTab: "done",
-              highlightId: challenge.id,
-            },
-          },
-        ],
+      navigation.replace("Challenge", {
+        initialTab: "done",
+        highlightId: challenge.id,
       }),
   });
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <ChallengeCompleteSummary challenge={challenge} />
+    <View style={styles.screen}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <ChallengeCompleteSummary challenge={challenge} />
 
-      <ChallengeProofPhotoSection
-        selectedPhoto={challengeComplete.selectedPhoto}
-        onPickPhoto={challengeComplete.handlePickPhoto}
-        onTakePhoto={challengeComplete.handleTakePhoto}
-      />
+        <ChallengeProofPhotoSection
+          selectedPhoto={challengeComplete.selectedPhoto}
+          onPickPhoto={challengeComplete.handlePickPhoto}
+          onTakePhoto={challengeComplete.handleTakePhoto}
+        />
+      </ScrollView>
 
-      <ChallengeCompleteButton
-        isSubmitting={challengeComplete.isSubmitting}
-        onComplete={challengeComplete.handleComplete}
-      />
-    </ScrollView>
+      <View style={commonStyles.bottomAction}>
+        <ChallengeCompleteButton
+          isSubmitting={challengeComplete.isSubmitting}
+          onComplete={challengeComplete.handleComplete}
+        />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.bg[50],
+  },
+  container: {
+    flex: 1,
   },
   content: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 36,
+    paddingBottom: 140,
   },
 });

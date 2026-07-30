@@ -1,8 +1,22 @@
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import ChallengeMarker from "src/assets/challenge.svg";
+import IsDoneMarker from "src/assets/isDoneMarker.svg";
+import SpotMarker from "src/assets/spot.svg";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
 import type { MapMarkerItem } from "../types";
-import { formatDistance, markerIcon, typeLabel } from "../mapUtils";
+import { formatDistance, typeLabel } from "../mapUtils";
+
+function ThumbFallbackIcon({ item }: { item: MapMarkerItem }) {
+  if (item.type === "CHALLENGE") {
+    return item.challengeOngoing === false ? (
+      <IsDoneMarker width={32} height={33} />
+    ) : (
+      <ChallengeMarker width={32} height={33} />
+    );
+  }
+  return <SpotMarker width={32} height={33} />;
+}
 
 type Props = {
   isLoading: boolean;
@@ -50,7 +64,7 @@ export function MapBottomSheet({
               <Image source={{ uri: selectedItem.imageUrls[0] }} style={styles.cardThumb} />
             ) : (
               <View style={[styles.cardThumb, styles.cardThumbFallback]}>
-                <Text style={styles.cardThumbFallbackText}>{markerIcon(selectedItem.type)}</Text>
+                <ThumbFallbackIcon item={selectedItem} />
               </View>
             )}
           </View>
@@ -128,7 +142,6 @@ const styles = StyleSheet.create({
   cardMeta: { ...typography.body4, color: colors.gray[600], marginTop: 8 },
   cardThumb: { width: 72, height: 72, borderRadius: 8, backgroundColor: colors.gray[200] },
   cardThumbFallback: { alignItems: "center", justifyContent: "center", backgroundColor: colors.primary[50] },
-  cardThumbFallbackText: { ...typography.head2, color: colors.primary[400] },
   searchResultList: { marginTop: 14, gap: 8 },
   searchResultItem: {
     minHeight: 44,

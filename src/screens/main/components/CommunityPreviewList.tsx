@@ -1,6 +1,8 @@
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import type { Spot } from "src/reducer/types";
+import DefaultProfile from "src/assets/default_profile.svg";
+import LocationIcon from "src/assets/Location.svg";
 import { SectionState } from "./HomeSection";
 
 type Props = {
@@ -33,13 +35,25 @@ export function CommunityPreviewList({ isLoading, posts, onPressPost }: Props) {
             </View>
           )}
           <View style={styles.postPreviewText}>
-            <Text style={styles.postPreviewTitle} numberOfLines={1}>{post.name}</Text>
+            <View style={styles.titleRow}>
+              <LocationIcon width={12} height={12} />
+              <Text style={styles.postPreviewTitle} numberOfLines={1}>{post.name}</Text>
+            </View>
             <Text style={styles.postPreviewBody} numberOfLines={2}>
               {post.description || "제주 스팟 이야기를 확인해보세요."}
             </Text>
-            <Text style={styles.postPreviewMeta}>
-              {post.userNickname} · 좋아요 {post.likeCount}
-            </Text>
+            <View style={styles.postPreviewFooter}>
+              <View style={styles.avatar}>
+                {post.userProfile ? (
+                  <Image source={{ uri: post.userProfile }} style={styles.avatarImage} />
+                ) : (
+                  <DefaultProfile width={14} height={14} />
+                )}
+              </View>
+              <Text style={styles.postPreviewMeta} numberOfLines={1}>
+                {post.userNickname} · 좋아요 {post.likeCount}
+              </Text>
+            </View>
           </View>
         </Pressable>
       ))}
@@ -51,11 +65,32 @@ const styles = StyleSheet.create({
   centerBox: { paddingVertical: 22, alignItems: "center", justifyContent: "center" },
   centerText: { ...typography.body4, color: colors.gray[500], marginTop: 10 },
   postPreview: { flexDirection: "row", marginTop: 12, minHeight: 92, gap: 12 },
-  postPreviewImage: { width: 92, height: 92, borderRadius: 8, backgroundColor: colors.gray[200] },
+  postPreviewImage: {
+    width: 92,
+    height: 92,
+    borderRadius: 8,
+    backgroundColor: colors.gray[100],
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+  },
   postPreviewFallback: { alignItems: "center", justifyContent: "center" },
   postPreviewFallbackText: { ...typography.caption1, color: colors.gray[400] },
-  postPreviewText: { flex: 1, justifyContent: "center" },
-  postPreviewTitle: { ...typography.body3, color: colors.gray[800] },
-  postPreviewBody: { ...typography.caption2, color: colors.gray[600], marginTop: 6 },
-  postPreviewMeta: { ...typography.caption2, color: colors.gray[400], marginTop: 8 },
+  postPreviewText: { flex: 1, justifyContent: "center", gap: 6 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  postPreviewTitle: { ...typography.body3, color: colors.gray[800], flexShrink: 1 },
+  postPreviewBody: { ...typography.caption2, color: colors.gray[600] },
+  postPreviewFooter: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
+  avatar: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: colors.gray[100],
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+  },
+  avatarImage: { width: "100%", height: "100%" },
+  postPreviewMeta: { ...typography.caption2, color: colors.gray[400], flexShrink: 1 },
 });

@@ -17,6 +17,7 @@ import type { RootStackParamList } from "src/app/navigation/types";
 import { FormTextField } from "src/components/form/FormTextField";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { colors, layout, typography } from "src/design/theme";
+import { commonStyles } from "src/design/commonStyles";
 import { authApi } from "src/api/auth";
 import { QK } from "src/utils/lib/queryKeys";
 import { validateLoginForm } from "src/utils/validation/authValidation";
@@ -102,8 +103,7 @@ export default function LoginScreen({ navigation }: Props) {
             <Text style={styles.backButtonText}>{"<"}</Text>
           </Pressable>
 
-          <Text style={styles.title}>다시 오신 것을 환영해요 :)</Text>
-          <Text style={styles.subtitle}>로그인해주세요.</Text>
+          <Text style={styles.title}>{"다시 오신 것을 환영해요 :)\n로그인해주세요."}</Text>
 
           <View style={styles.form}>
             <FormTextField
@@ -137,7 +137,7 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
         </ScrollView>
 
-        <View style={styles.bottomAction}>
+        <View style={commonStyles.bottomAction}>
           <PrimaryActionButton
             label="입장하기"
             isLoading={isSubmitting}
@@ -182,31 +182,9 @@ const styles = StyleSheet.create({
   title: {
     ...typography.head3,
     color: colors.gray[800],
-    marginBottom: 6,
-  },
-  subtitle: {
-    ...typography.body2,
-    color: colors.gray[600],
-    marginBottom: 28,
+    marginBottom: 20,
   },
   form: {
     gap: 10,
-  },
-  bottomAction: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: layout.screenPadding,
-    paddingTop: 12,
-    paddingBottom: layout.bottomActionPaddingBottom,
-    backgroundColor: colors.bg[0],
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.gray[200],
-    shadowColor: "#D2D2D2",
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
   },
 });

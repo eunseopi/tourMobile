@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { colors, layout, typography } from "src/design/theme";
+import { colors, layout } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import ClearIcon from "src/assets/Clear.svg";
 
 type Props = {
   tagInput: string;
@@ -34,26 +35,35 @@ export function PostWriteTagSection({
         </Pressable>
       </View>
 
-      <View style={styles.tagList}>
-        {tags.map((tag, index) => (
-          <Pressable key={`${tag}-${index}`} style={styles.tagChip} onPress={() => onRemoveTag(index)}>
-            <Text style={styles.tagChipText}>#{tag}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {tags.length > 0 ? (
+        <View style={styles.tagList}>
+          {tags.map((tag, index) => (
+            <View key={`${tag}-${index}`} style={styles.tagChip}>
+              <Text style={styles.tagChipText}>#{tag}</Text>
+              <Pressable
+                style={styles.tagRemoveButton}
+                onPress={() => onRemoveTag(index)}
+                hitSlop={6}
+              >
+                <ClearIcon width={12} height={12} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 22,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.bg[0],
+    paddingHorizontal: 20,
+    paddingVertical: 15,
   },
   sectionTitle: {
-    ...typography.head4,
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
     color: colors.gray[800],
     marginBottom: 10,
   },
@@ -75,25 +85,36 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[100],
   },
   tagAddButtonText: {
-    ...typography.body3,
+    fontSize: 14,
+    fontWeight: "500",
     color: colors.gray[500],
   },
   tagList: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    marginTop: 12,
+    marginTop: 10,
   },
   tagChip: {
-    minHeight: 36,
-    paddingHorizontal: 12,
-    borderRadius: 18,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.primary[50],
+    gap: 4,
+    minHeight: 36,
+    maxWidth: 140,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: colors.gray[200],
   },
   tagChipText: {
-    ...typography.caption1,
-    color: colors.primary[500],
+    fontSize: 14,
+    fontWeight: "500",
+    color: colors.gray[700],
+  },
+  tagRemoveButton: {
+    width: 18,
+    height: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

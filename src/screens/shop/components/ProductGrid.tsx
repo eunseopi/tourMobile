@@ -2,6 +2,7 @@ import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleShe
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import type { Product } from "src/types/ProductTypes";
+import Hanlabong from "src/assets/hanlabong.svg";
 
 type Props = {
   products: Product[];
@@ -52,9 +53,12 @@ export function ProductGrid({ products, isLoading, isError, error, onRefresh, on
             {item.imageUrl ? <Image source={{ uri: item.imageUrl }} style={styles.productImage} /> : null}
           </View>
           <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-          <Text style={styles.productPrice}>
-            {(item.hallabongCost ?? 0).toLocaleString("ko-KR")} 한라봉
-          </Text>
+          {typeof item.hallabongCost === "number" ? (
+            <View style={styles.productPriceRow}>
+              <Text style={styles.productPrice}>{item.hallabongCost.toLocaleString("ko-KR")}</Text>
+              <Hanlabong width={24} height={24} />
+            </View>
+          ) : null}
         </Pressable>
       )}
     />
@@ -68,7 +72,8 @@ const styles = StyleSheet.create({
   productImageWrapper: { width: "100%", aspectRatio: 32 / 27, marginBottom: 10, borderRadius: 8, overflow: "hidden", backgroundColor: colors.gray[200] },
   productImage: { width: "100%", height: "100%" },
   productName: { ...typography.body2, color: colors.gray[700] },
-  productPrice: { ...typography.body3, color: colors.gray[700], marginTop: 2 },
+  productPriceRow: { flexDirection: "row", alignItems: "center", marginTop: 2 },
+  productPrice: { ...typography.body3, color: colors.gray[700] },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24 },
   emptyBox: { minHeight: 220, alignItems: "center", justifyContent: "center" },
   mutedText: { ...typography.body4, color: colors.gray[500] },

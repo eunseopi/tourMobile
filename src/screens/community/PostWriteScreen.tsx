@@ -1,7 +1,8 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
-import { colors, layout } from "src/design/theme";
+import { colors } from "src/design/theme";
+import { commonStyles } from "src/design/commonStyles";
 import { usePostWriteFlow } from "src/features/community/usePostWriteFlow";
 import { PostWriteContentSection } from "./components/PostWriteContentSection";
 import { PostWriteImageSection } from "./components/PostWriteImageSection";
@@ -72,7 +73,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
           onRemoveTag={postWrite.handleRemoveTag}
         />
       </ScrollView>
-      <View style={styles.bottomAction}>
+      <View style={commonStyles.bottomAction}>
         <PostWriteSubmitButton
           isSubmitting={postWrite.isSubmitting}
           onSubmit={postWrite.handleSubmit}
@@ -85,27 +86,13 @@ export default function PostWriteScreen({ navigation, route }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.bg[50],
+    backgroundColor: colors.bg[0],
   },
   scroll: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: layout.screenPadding,
-    paddingVertical: 20,
+    paddingTop: 30,
     paddingBottom: 137,
-  },
-  bottomAction: {
-    paddingHorizontal: layout.screenPadding,
-    paddingTop: 12,
-    paddingBottom: layout.bottomActionPaddingBottom,
-    backgroundColor: colors.bg[0],
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.gray[200],
-    shadowColor: "#D2D2D2",
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
   },
 });

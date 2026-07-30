@@ -22,6 +22,5 @@ const styles = StyleSheet.create({
   primaryButton: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 24,
   },
 });
