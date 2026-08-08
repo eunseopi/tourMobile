@@ -5,6 +5,7 @@ import { authApi } from "src/api/auth";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useProfileEditor } from "src/features/user/useProfileEditor";
 import type { UploadableImage } from "src/types/SpotTypes";
+import { toJpeg } from "src/utils/lib/image";
 
 type UseProfileEditFlowOptions = {
   onComplete: () => void;
@@ -18,11 +19,12 @@ function validateNickname(value: string) {
   return "";
 }
 
-function toUploadableImage(asset: ImagePicker.ImagePickerAsset): UploadableImage {
+async function toUploadableImage(asset: ImagePicker.ImagePickerAsset): Promise<UploadableImage> {
+  const { uri } = await toJpeg(asset.uri);
   return {
-    uri: asset.uri,
-    name: asset.fileName ?? `profile-${Date.now()}.jpg`,
-    type: asset.mimeType ?? "image/jpeg",
+    uri,
+    name: `profile-${Date.now()}.jpg`,
+    type: "image/jpeg",
   };
 }
 
@@ -123,7 +125,7 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
       const asset = result.assets[0];
       if (!asset) return;
 
-      setSelectedImage(toUploadableImage(asset));
+      setSelectedImage(await toUploadableImage(asset));
     } catch {
       Alert.alert("선택 실패", "이미지를 가져오지 못했어요.");
     }
@@ -147,7 +149,7 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
       const asset = result.assets[0];
       if (!asset) return;
 
-      setSelectedImage(toUploadableImage(asset));
+      setSelectedImage(await toUploadableImage(asset));
     } catch {
       Alert.alert("촬영 실패", "이미지를 촬영하지 못했어요.");
     }

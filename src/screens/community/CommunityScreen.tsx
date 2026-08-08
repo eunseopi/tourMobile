@@ -13,7 +13,10 @@ import {
   Text,
   View,
 } from "react-native";
-import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from "src/app/navigation/types";
 import { communityApi } from "src/api/community";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
@@ -94,7 +97,8 @@ export default function CommunityScreen({ navigation }: Props) {
       void queryClient.invalidateQueries({
         predicate: (query) =>
           Array.isArray(query.queryKey) &&
-          (query.queryKey[0] === "nearbySpots" || query.queryKey[0] === "mapSearch"),
+          (query.queryKey[0] === "nearbySpots" ||
+            query.queryKey[0] === "mapSearch"),
       });
     },
   });
@@ -117,7 +121,10 @@ export default function CommunityScreen({ navigation }: Props) {
         <ScreenHeader title="커뮤니티" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
-          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <Pressable
+            style={commonStyles.primaryButton}
+            onPress={() => refetch()}
+          >
             <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
           </Pressable>
         </View>
@@ -139,9 +146,15 @@ export default function CommunityScreen({ navigation }: Props) {
             onChangeTab={setActiveTab}
           />
         }
-        contentContainerStyle={[styles.content, { paddingBottom: 24 + tabBarHeight }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: 24 + tabBarHeight },
+        ]}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={() => refetch()} />
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => refetch()}
+          />
         }
         ListEmptyComponent={
           <View style={styles.emptyBox}>
@@ -151,7 +164,15 @@ export default function CommunityScreen({ navigation }: Props) {
         renderItem={({ item }) => (
           <PostCard
             post={item}
-            onPress={() => navigation.navigate("PostDetail", { postId: item.id })}
+            onPress={() => {
+              if (item.type === "CHALLENGE") {
+                navigation.navigate("Main", { screen: "Challenge" });
+              } else if (item.type === "SPOT") {
+                navigation.navigate("SpotDetail", { spotId: item.id });
+              } else {
+                navigation.navigate("PostDetail", { postId: item.id });
+              }
+            }}
             onToggleLike={() =>
               likeMutation.mutate({ id: item.id, liked: !item.likedByMe })
             }
@@ -159,7 +180,10 @@ export default function CommunityScreen({ navigation }: Props) {
         )}
       />
 
-      <Pressable style={[styles.fab, { bottom: 8 + tabBarHeight }]} onPress={() => navigation.navigate("PostWrite")}>
+      <Pressable
+        style={[styles.fab]}
+        onPress={() => navigation.navigate("PostWrite")}
+      >
         <WriteIcon width={26} height={26} />
       </Pressable>
     </View>
@@ -204,7 +228,7 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     right: 17,
-    bottom: 96,
+    bottom: 20,
     width: 60,
     height: 60,
     borderRadius: 30,

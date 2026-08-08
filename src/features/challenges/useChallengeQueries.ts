@@ -80,6 +80,7 @@ export function useLoadUpcomingChallenges() {
       const res = await challengeApi.getUpcoming();
       return rowsFromResponse(res.data).map(toUpcomingCard);
     },
+    staleTime: 60_000,
   });
 
   useEffect(() => {
@@ -97,6 +98,7 @@ export function useLoadOngoingChallenges() {
       const res = await challengeApi.getOngoing();
       return rowsFromResponse(res.data).map(toOngoingCard);
     },
+    staleTime: 60_000,
   });
 
   useEffect(() => {
@@ -126,6 +128,7 @@ export function useLoadCompletedChallenges(size = 20) {
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextLastId,
+    staleTime: 60_000,
   });
 
   const items = useMemo(

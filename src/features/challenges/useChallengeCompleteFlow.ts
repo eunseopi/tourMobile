@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { useCompleteChallenge } from "src/features/challenges/useChallengeMutations";
 import type { ChallengeCardData } from "src/reducer/types";
+import { toJpeg } from "src/utils/lib/image";
 
 type UseChallengeCompleteFlowOptions = {
   challenge: ChallengeCardData;
@@ -19,11 +20,11 @@ export function useChallengeCompleteFlow({
   const [submitting, setSubmitting] = useState(false);
   const isSubmitting = submitting || completeChallenge.isPending;
 
-  const toProofPhoto = (asset: ImagePicker.ImagePickerAsset) => {
-    const mimeType = asset.mimeType ?? "image/jpeg";
+  const toProofPhoto = async (asset: ImagePicker.ImagePickerAsset) => {
+    const { uri, base64 } = await toJpeg(asset.uri, { base64: true });
     return {
-      uri: asset.uri,
-      proofUrl: asset.base64 ? `data:${mimeType};base64,${asset.base64}` : asset.uri,
+      uri,
+      proofUrl: base64 ? `data:image/jpeg;base64,${base64}` : uri,
     };
   };
 
@@ -39,13 +40,12 @@ export function useChallengeCompleteFlow({
         mediaTypes: ["images"],
         allowsMultipleSelection: false,
         quality: 0.8,
-        base64: true,
       });
 
       if (result.canceled) return;
       const asset = result.assets[0];
       if (!asset) return;
-      setSelectedPhoto(toProofPhoto(asset));
+      setSelectedPhoto(await toProofPhoto(asset));
     } catch {
       Alert.alert("선택 실패", "사진을 가져오지 못했어요.");
     }
@@ -62,13 +62,12 @@ export function useChallengeCompleteFlow({
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ["images"],
         quality: 0.8,
-        base64: true,
       });
 
       if (result.canceled) return;
       const asset = result.assets[0];
       if (!asset) return;
-      setSelectedPhoto(toProofPhoto(asset));
+      setSelectedPhoto(await toProofPhoto(asset));
     } catch {
       Alert.alert("촬영 실패", "사진을 촬영하지 못했어요.");
     }

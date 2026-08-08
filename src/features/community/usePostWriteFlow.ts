@@ -8,6 +8,7 @@ import { initialSpot, spotReducer } from "src/reducer/SpotReducer";
 import type { SpotCreate } from "src/types/SpotTypes";
 import { buildSpotErrorMessage, getSpotErrors } from "src/utils/validation/spotValidation";
 import { joinUniqueParts } from "src/utils/lib/location";
+import { toJpeg } from "src/utils/lib/image";
 
 type PostWriteParams = RootStackParamList["PostWrite"];
 type FieldErrors = { name?: string; description?: string };
@@ -35,11 +36,12 @@ export const POST_THEME_OPTIONS = [
   { id: 9, label: "맛집 탐방" },
 ] as const;
 
-function toUploadableImage(asset: ImagePicker.ImagePickerAsset) {
+async function toUploadableImage(asset: ImagePicker.ImagePickerAsset) {
+  const { uri } = await toJpeg(asset.uri);
   return {
-    uri: asset.uri,
-    name: asset.fileName ?? `spot-${Date.now()}.jpg`,
-    type: asset.mimeType ?? "image/jpeg",
+    uri,
+    name: `spot-${Date.now()}.jpg`,
+    type: "image/jpeg",
   };
 }
 
@@ -147,7 +149,7 @@ export function usePostWriteFlow({
 
       if (result.canceled) return;
 
-      const picked = result.assets.map(toUploadableImage);
+      const picked = await Promise.all(result.assets.map(toUploadableImage));
       const merged = [...spot.images, ...picked].slice(0, 5);
       dispatch({ type: "SET_FIELD", field: "images", value: merged });
     } catch {
@@ -177,7 +179,7 @@ export function usePostWriteFlow({
       const asset = result.assets[0];
       if (!asset) return;
 
-      const merged = [...spot.images, toUploadableImage(asset)].slice(0, 5);
+      const merged = [...spot.images, await toUploadableImage(asset)].slice(0, 5);
       dispatch({ type: "SET_FIELD", field: "images", value: merged });
     } catch {
       Alert.alert("촬영 실패", "이미지를 촬영하지 못했어요.");

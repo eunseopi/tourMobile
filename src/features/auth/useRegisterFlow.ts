@@ -9,6 +9,7 @@ import type { Gender, RegisterAction, RegisterState } from "src/types/RegisterTy
 import type { UploadableImage } from "src/types/SpotTypes";
 import { QK } from "src/utils/lib/queryKeys";
 import { authStorage } from "src/utils/lib/authStorage";
+import { toJpeg } from "src/utils/lib/image";
 import {
   validateEmail,
   validatePassword,
@@ -396,12 +397,13 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       const asset = result.assets[0];
       if (!asset) return;
 
+      const { uri } = await toJpeg(asset.uri);
       setSelectedProfileImage({
-        uri: asset.uri,
-        name: asset.fileName ?? `register-${Date.now()}.jpg`,
-        type: asset.mimeType ?? "image/jpeg",
+        uri,
+        name: `register-${Date.now()}.jpg`,
+        type: "image/jpeg",
       });
-      dispatch({ type: "SET_IMAGE_URL", payload: asset.uri });
+      dispatch({ type: "SET_IMAGE_URL", payload: uri });
     } catch {
       Alert.alert("선택 실패", "이미지를 가져오지 못했어요.");
     }
@@ -425,12 +427,13 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       const asset = result.assets[0];
       if (!asset) return;
 
+      const { uri } = await toJpeg(asset.uri);
       setSelectedProfileImage({
-        uri: asset.uri,
-        name: asset.fileName ?? `register-${Date.now()}.jpg`,
-        type: asset.mimeType ?? "image/jpeg",
+        uri,
+        name: `register-${Date.now()}.jpg`,
+        type: "image/jpeg",
       });
-      dispatch({ type: "SET_IMAGE_URL", payload: asset.uri });
+      dispatch({ type: "SET_IMAGE_URL", payload: uri });
     } catch {
       Alert.alert("촬영 실패", "이미지를 촬영하지 못했어요.");
     }
