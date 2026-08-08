@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import DefaultProfile from "src/assets/default_profile.svg";
 import Hanlabong from "src/assets/hanlabong.svg";
@@ -15,13 +16,25 @@ type Props = {
 
 export function MyProfileSummary({ profile, nickname, name, level, onPressProfile, onPressShop, onPressCoupons }: Props) {
   const displayName = nickname || name || "게스트";
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [profile]);
 
   return (
     <View style={styles.profileWrapper}>
       <Pressable style={styles.profileBox} onPress={onPressProfile}>
         <View style={styles.profileImageWrapper}>
-          {profile ? (
-            <Image source={{ uri: profile }} style={styles.profileImage} />
+          {profile && !imageFailed ? (
+            <Image
+              source={{ uri: profile }}
+              style={styles.profileImage}
+              onError={(e) => {
+                console.warn("[MyProfileSummary] 프로필 이미지 로드 실패:", profile, e.nativeEvent.error);
+                setImageFailed(true);
+              }}
+            />
           ) : (
             <DefaultProfile width={72} height={72} />
           )}

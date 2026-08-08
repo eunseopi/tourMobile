@@ -5,6 +5,7 @@ import { colors, typography } from "src/design/theme";
 type Props = {
   nickname: string;
   error?: string;
+  isChecking?: boolean;
   onChangeNickname: (value: string) => void;
   onValidateNickname: () => void;
 };
@@ -12,6 +13,7 @@ type Props = {
 export function ProfileNicknameForm({
   nickname,
   error,
+  isChecking,
   onChangeNickname,
   onValidateNickname,
 }: Props) {
@@ -27,8 +29,8 @@ export function ProfileNicknameForm({
           error={error}
           containerStyle={styles.inputField}
         />
-        <Pressable style={styles.checkButton} onPress={onValidateNickname}>
-          <Text style={styles.checkButtonText}>확인</Text>
+        <Pressable style={styles.checkButton} onPress={onValidateNickname} disabled={isChecking}>
+          <Text style={styles.checkButtonText}>{isChecking ? "확인 중..." : "확인"}</Text>
         </Pressable>
       </View>
     </>

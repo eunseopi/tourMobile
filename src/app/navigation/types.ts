@@ -27,6 +27,7 @@ export type RootStackParamList = {
         longitude?: number;
         type?: "POST" | "SPOT" | "CHALLENGE";
         filter?: "ALL" | "SPOT" | "POST" | "CHALLENGE";
+        pickMode?: boolean;
       }
     | undefined;
   Login: undefined;

@@ -6,20 +6,18 @@ import LocationIcon from "src/assets/Location.svg";
 
 type Props = {
   name: string;
-  latitude: number;
-  longitude: number;
   error?: string;
   onChangeName: (value: string) => void;
   onUseCurrentLocation: () => void;
+  onPickOnMap: () => void;
 };
 
 export function PostWriteLocationSection({
   name,
-  latitude,
-  longitude,
   error,
   onChangeName,
   onUseCurrentLocation,
+  onPickOnMap,
 }: Props) {
   return (
     <View style={styles.section}>
@@ -34,15 +32,14 @@ export function PostWriteLocationSection({
         error={error}
       />
 
-      <Pressable style={styles.secondaryButton} onPress={onUseCurrentLocation}>
-        <Text style={styles.secondaryButtonText}>현재 위치로 채우기</Text>
-      </Pressable>
-
-      {latitude !== 0 && longitude !== 0 ? (
-        <Text style={styles.coordinateText}>
-          좌표: {latitude.toFixed(5)}, {longitude.toFixed(5)}
-        </Text>
-      ) : null}
+      <View style={styles.buttonRow}>
+        <Pressable style={[styles.secondaryButton, styles.buttonFlex]} onPress={onUseCurrentLocation}>
+          <Text style={styles.secondaryButtonText}>현재 위치로 채우기</Text>
+        </Pressable>
+        <Pressable style={[styles.secondaryButton, styles.buttonFlex]} onPress={onPickOnMap}>
+          <Text style={styles.secondaryButtonText}>지도에서 위치 선택하기</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -67,17 +64,20 @@ const styles = StyleSheet.create({
   required: {
     color: colors.primary[400],
   },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+  },
+  buttonFlex: {
+    flex: 1,
+    marginTop: 0,
+  },
   secondaryButton: {
     ...commonStyles.secondaryButton,
     marginTop: 12,
   },
   secondaryButtonText: {
     ...commonStyles.secondaryButtonText,
-  },
-  coordinateText: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: colors.gray[500],
-    marginTop: 10,
   },
 });

@@ -14,6 +14,7 @@ import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import { useCheckIn } from "src/features/main/useCheckIn";
 import { useNearbySpots } from "src/features/main/useNearbySpots";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
+import { joinUniqueParts } from "src/utils/lib/location";
 import { CommunityPreviewList } from "./components/CommunityPreviewList";
 import { FeaturedChallenge } from "./components/FeaturedChallenge";
 import { HomeSection } from "./components/HomeSection";
@@ -64,7 +65,7 @@ export default function MainScreen({ navigation }: Props) {
         const places = await Location.reverseGeocodeAsync(nextCoords);
         const place = places[0];
         if (place) {
-          const region = [place.region, place.city, place.district].filter(Boolean).slice(0, 2).join(" ");
+          const region = joinUniqueParts([place.region, place.district || place.city], 2);
           if (region) setLocationLabel(region);
         }
       } catch {

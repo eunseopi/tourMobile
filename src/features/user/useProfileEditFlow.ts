@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { authApi } from "src/api/auth";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useProfileEditor } from "src/features/user/useProfileEditor";
 import type { UploadableImage } from "src/types/SpotTypes";
@@ -31,6 +32,7 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState<UploadableImage | null>(null);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
 
   useEffect(() => {
     if (me?.nickname) setNickname(me.nickname);
@@ -47,8 +49,38 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
     if (error) setError("");
   };
 
-  const handleValidateNickname = () => {
-    setError(validateNickname(nickname));
+  const handleValidateNickname = async () => {
+    const nextError = validateNickname(nickname);
+    setError(nextError);
+    if (nextError) return;
+
+    const trimmed = nickname.trim();
+    if (trimmed === (me?.nickname ?? "").trim()) {
+      Alert.alert("확인", "현재 사용 중인 닉네임이에요.");
+      return;
+    }
+
+    try {
+      setIsCheckingNickname(true);
+      const response = await authApi.checkNicknameDuplicate(trimmed);
+      const body = response.data as { success: boolean; message?: string };
+
+      if (body.success) {
+        setError("");
+        Alert.alert("사용 가능", "이 닉네임은 사용할 수 있어요.");
+      } else {
+        const message = body.message || "이미 사용 중인 닉네임입니다.";
+        setError(message);
+        Alert.alert("중복된 닉네임", message);
+      }
+    } catch (e: any) {
+      Alert.alert(
+        "확인 실패",
+        e?.response?.data?.message ?? e?.message ?? "잠시 후 다시 시도해주세요.",
+      );
+    } finally {
+      setIsCheckingNickname(false);
+    }
   };
 
   const handleSave = async () => {
@@ -151,6 +183,7 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
     isError,
     isSaving,
     isDeletingImage,
+    isCheckingNickname,
     isSubmitDisabled,
     refetch,
     handleChangeNickname,

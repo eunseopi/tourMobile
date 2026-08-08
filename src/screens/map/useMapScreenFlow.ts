@@ -10,6 +10,7 @@ import { useLoadOngoingChallenges } from "src/features/challenges/useChallengeQu
 import { useNearbySpots } from "src/features/main/useNearbySpots";
 import { usePathStats } from "src/features/main/usePathStats";
 import { useSaveSteps } from "src/features/steps/useSaveSteps";
+import { joinUniqueParts } from "src/utils/lib/location";
 import { RADIUS_OPTIONS } from "./components/MapHud";
 import { normalizeType, pickDominantType } from "./mapUtils";
 import type { ClusteredMarker, MapFilter, MapMarkerItem } from "./types";
@@ -33,6 +34,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
   const [activeFilter, setActiveFilter] = useState<MapFilter>(params?.filter ?? "ALL");
   const [searchText, setSearchText] = useState("");
   const [pendingFocusId, setPendingFocusId] = useState<string | number | null>(null);
+  const [isConfirmingLocation, setIsConfirmingLocation] = useState(false);
+  const pickMode = params?.pickMode === true;
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -326,6 +329,33 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     navigation.navigate("PostWrite", { initialLocation: base, openedFromMap: true });
   };
 
+  const handleConfirmLocation = async () => {
+    try {
+      setIsConfirmingLocation(true);
+      const places = await Location.reverseGeocodeAsync({
+        latitude: region.latitude,
+        longitude: region.longitude,
+      });
+      const place = places[0];
+      const name =
+        joinUniqueParts([place?.region, place?.district, place?.street, place?.name]) ||
+        `제주 스팟 ${region.latitude.toFixed(3)}, ${region.longitude.toFixed(3)}`;
+
+      if (navigation.canGoBack()) navigation.goBack();
+      navigation.navigate("PostWrite", {
+        initialLocation: {
+          name,
+          latitude: region.latitude,
+          longitude: region.longitude,
+        },
+      });
+    } catch {
+      Alert.alert("위치 확인 실패", "선택한 위치를 가져오지 못했어요.");
+    } finally {
+      setIsConfirmingLocation(false);
+    }
+  };
+
   return {
     mapRef,
     region,
@@ -351,5 +381,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     handleOpenSelected,
     handleFocusItem,
     handleWriteSpot,
+    pickMode,
+    isConfirmingLocation,
+    handleConfirmLocation,
   };
 }

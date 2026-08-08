@@ -53,6 +53,7 @@ export default function ProfileEditScreen({ navigation }: Props) {
         <ProfileNicknameForm
           nickname={profileEdit.nickname}
           error={profileEdit.error}
+          isChecking={profileEdit.isCheckingNickname}
           onChangeNickname={profileEdit.handleChangeNickname}
           onValidateNickname={profileEdit.handleValidateNickname}
         />

@@ -49,11 +49,10 @@ export default function PostWriteScreen({ navigation, route }: Props) {
 
         <PostWriteLocationSection
           name={postWrite.spot.name || ""}
-          latitude={postWrite.spot.latitude}
-          longitude={postWrite.spot.longitude}
           error={postWrite.errors.name}
           onChangeName={postWrite.handleChangeLocationText}
           onUseCurrentLocation={postWrite.handleUseCurrentLocation}
+          onPickOnMap={() => navigation.navigate("Map", { pickMode: true })}
         />
 
         <PostWriteContentSection

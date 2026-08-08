@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import CameraIcon from "src/assets/Camera_2.svg";
 import DefaultProfile from "src/assets/default_profile.svg";
@@ -25,12 +26,25 @@ export function ProfileEditImagePicker({
   onTakeImage,
   onDeleteImage,
 }: Props) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [profileUri]);
+
   return (
     <>
       <View style={styles.profileUploadBox}>
         <Pressable style={styles.profileUploadWrapper} onPress={onPickImage}>
-          {profileUri ? (
-            <Image source={{ uri: profileUri }} style={styles.profileImage} />
+          {profileUri && !imageFailed ? (
+            <Image
+              source={{ uri: profileUri }}
+              style={styles.profileImage}
+              onError={(e) => {
+                console.warn("[ProfileEditImagePicker] 프로필 이미지 로드 실패:", profileUri, e.nativeEvent.error);
+                setImageFailed(true);
+              }}
+            />
           ) : (
             <View style={styles.profileFallback}>
               <DefaultProfile width={66} height={66} />

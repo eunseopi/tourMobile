@@ -159,7 +159,7 @@ export default function CommunityScreen({ navigation }: Props) {
         )}
       />
 
-      <Pressable style={[styles.fab, { bottom: 17 + tabBarHeight }]} onPress={() => navigation.navigate("PostWrite")}>
+      <Pressable style={[styles.fab, { bottom: 8 + tabBarHeight }]} onPress={() => navigation.navigate("PostWrite")}>
         <WriteIcon width={26} height={26} />
       </Pressable>
     </View>

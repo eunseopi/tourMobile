@@ -7,6 +7,7 @@ import { useCreateSpot } from "src/features/spot/useCreateSpot";
 import { initialSpot, spotReducer } from "src/reducer/SpotReducer";
 import type { SpotCreate } from "src/types/SpotTypes";
 import { buildSpotErrorMessage, getSpotErrors } from "src/utils/validation/spotValidation";
+import { joinUniqueParts } from "src/utils/lib/location";
 
 type PostWriteParams = RootStackParamList["PostWrite"];
 type FieldErrors = { name?: string; description?: string };
@@ -114,7 +115,7 @@ export function usePostWriteFlow({
       });
       const place = places[0];
       const name =
-        [place?.district, place?.street, place?.name].filter(Boolean).join(" ") ||
+        joinUniqueParts([place?.region, place?.district, place?.street, place?.name]) ||
         `제주 스팟 ${current.coords.latitude.toFixed(3)}, ${current.coords.longitude.toFixed(3)}`;
 
       dispatch({ type: "SET_LOCATION_TEXT", value: name });

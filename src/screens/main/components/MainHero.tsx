@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { colors, shadow, typography } from "src/design/theme";
 import DefaultProfile from "src/assets/default_profile.svg";
@@ -15,12 +16,25 @@ type Props = {
 };
 
 export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hallabong, totalSteps }: Props) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [profileUrl]);
+
   return (
     <View style={styles.heroSection}>
       <View style={styles.heroTop}>
         <View style={styles.avatar}>
-          {profileUrl ? (
-            <Image source={{ uri: profileUrl }} style={styles.avatarImage} />
+          {profileUrl && !imageFailed ? (
+            <Image
+              source={{ uri: profileUrl }}
+              style={styles.avatarImage}
+              onError={(e) => {
+                console.warn("[MainHero] 프로필 이미지 로드 실패:", profileUrl, e.nativeEvent.error);
+                setImageFailed(true);
+              }}
+            />
           ) : (
             <DefaultProfile width={40} height={40} />
           )}

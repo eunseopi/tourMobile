@@ -4,6 +4,7 @@ import MapView from "react-native-maps";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { MapBottomSheet } from "./components/MapBottomSheet";
 import { MapHud } from "./components/MapHud";
+import { MapLocationPicker } from "./components/MapLocationPicker";
 import { MarkerLayer } from "./components/MarkerLayer";
 import { MapPreviewRail } from "./components/MapRails";
 import { UserLocationMarker } from "./components/UserLocationMarker";
@@ -39,11 +40,13 @@ export default function MapScreen({ navigation, route }: Props) {
         )}
       </MapView>
 
-      <MapPreviewRail
-        items={map.filteredMarkers}
-        selectedItem={map.selectedItem}
-        onFocusItem={map.handleFocusItem}
-      />
+      {map.pickMode ? null : (
+        <MapPreviewRail
+          items={map.filteredMarkers}
+          selectedItem={map.selectedItem}
+          onFocusItem={map.handleFocusItem}
+        />
+      )}
 
       <MapHud
         onBack={navigation.canGoBack() ? () => navigation.goBack() : undefined}
@@ -59,18 +62,22 @@ export default function MapScreen({ navigation, route }: Props) {
         onRecenter={map.recenter}
       />
 
-      <MapBottomSheet
-        isLoading={map.nearby.isLoading || map.search.isLoading}
-        selectedItem={map.selectedItem}
-        searchText={map.searchText}
-        filteredMarkers={map.filteredMarkers}
-        onOpenSelected={map.handleOpenSelected}
-        onWriteSpot={map.handleWriteSpot}
-        onGoHome={() => navigation.navigate("Main")}
-        onGoCommunity={() => navigation.navigate("Main", { screen: "Community" })}
-        onGoChallenge={() => navigation.navigate("Main", { screen: "Challenge" })}
-        onFocusItem={map.handleFocusItem}
-      />
+      {map.pickMode ? (
+        <MapLocationPicker isConfirming={map.isConfirmingLocation} onConfirm={map.handleConfirmLocation} />
+      ) : (
+        <MapBottomSheet
+          isLoading={map.nearby.isLoading || map.search.isLoading}
+          selectedItem={map.selectedItem}
+          searchText={map.searchText}
+          filteredMarkers={map.filteredMarkers}
+          onOpenSelected={map.handleOpenSelected}
+          onWriteSpot={map.handleWriteSpot}
+          onGoHome={() => navigation.navigate("Main")}
+          onGoCommunity={() => navigation.navigate("Main", { screen: "Community" })}
+          onGoChallenge={() => navigation.navigate("Main", { screen: "Challenge" })}
+          onFocusItem={map.handleFocusItem}
+        />
+      )}
     </View>
   );
 }
