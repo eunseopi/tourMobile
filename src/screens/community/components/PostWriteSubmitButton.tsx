@@ -1,12 +1,13 @@
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 
 type Props = {
+  label?: string;
   isSubmitting: boolean;
   onSubmit: () => void;
 };
 
-export function PostWriteSubmitButton({ isSubmitting, onSubmit }: Props) {
+export function PostWriteSubmitButton({ label = "등록하기", isSubmitting, onSubmit }: Props) {
   return (
-    <PrimaryActionButton label="등록하기" isLoading={isSubmitting} onPress={onSubmit} />
+    <PrimaryActionButton label={label} isLoading={isSubmitting} onPress={onSubmit} />
   );
 }

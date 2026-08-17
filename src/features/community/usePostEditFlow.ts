@@ -2,50 +2,23 @@ import { useEffect, useReducer, useState } from "react";
 import { Alert } from "src/components/ui/AppAlert";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-import type { RootStackParamList } from "src/app/navigation/types";
-import { useCreateSpot } from "src/features/spot/useCreateSpot";
+import { useQuery } from "@tanstack/react-query";
+import { communityApi } from "src/api/community";
+import { useUpdateSpot } from "src/features/spot/useUpdateSpot";
+import { toUploadableImage } from "src/features/community/usePostWriteFlow";
 import { initialSpot, spotReducer } from "src/reducer/SpotReducer";
-import type { SpotCreate } from "src/types/SpotTypes";
-import { buildSpotErrorMessage, getSpotErrors } from "src/utils/validation/spotValidation";
+import type { SpotCreate, UploadableImage } from "src/types/SpotTypes";
 import { getCurrentPositionWithFallback, getLocationErrorMessage, joinUniqueParts } from "src/utils/lib/location";
-import { toJpeg } from "src/utils/lib/image";
+import { buildSpotErrorMessage, getSpotErrors } from "src/utils/validation/spotValidation";
 
-type PostWriteParams = RootStackParamList["PostWrite"];
 type FieldErrors = { title?: string; name?: string; description?: string };
-
-type UsePostWriteFlowOptions = {
-  routeParams: PostWriteParams;
-  onBack: () => void;
-  onOpenCreatedPost: (postId: number) => void;
-  onOpenCreatedSpotOnMap: (params: {
-    spotId: number;
-    latitude: number;
-    longitude: number;
-  }) => void;
-};
-
-export const POST_THEME_OPTIONS = [
-  { id: 1, label: "데이트" },
-  { id: 2, label: "힐링" },
-  { id: 3, label: "반려동물" },
-  { id: 4, label: "사진 명소" },
-  { id: 5, label: "가족 여행" },
-  { id: 6, label: "자연" },
-  { id: 7, label: "한달 살이" },
-  { id: 8, label: "나홀로 여행" },
-  { id: 9, label: "맛집 탐방" },
-] as const;
-
 const MAX_POST_IMAGES = 3;
 
-export async function toUploadableImage(asset: ImagePicker.ImagePickerAsset) {
-  const { uri } = await toJpeg(asset.uri, { width: asset.width, height: asset.height });
-  return {
-    uri,
-    name: `spot-${Date.now()}.jpg`,
-    type: "image/jpeg",
-  };
-}
+type UsePostEditFlowOptions = {
+  postId: number;
+  onBack: () => void;
+  onSaved: () => void;
+};
 
 function setTags(dispatch: React.Dispatch<Parameters<typeof spotReducer>[1]>, tags: string[]) {
   dispatch({ type: "SET_FIELD", field: "tag1", value: tags[0] ?? "" });
@@ -53,44 +26,34 @@ function setTags(dispatch: React.Dispatch<Parameters<typeof spotReducer>[1]>, ta
   dispatch({ type: "SET_FIELD", field: "tag3", value: tags[2] ?? "" });
 }
 
-function getSubmitErrorMessage(error: any) {
-  const serverMessage = error?.response?.data?.message;
-  if (serverMessage) return serverMessage;
-  if (error?.code === "ECONNABORTED") {
-    return "사진 업로드 시간이 초과됐어요. 네트워크 상태를 확인한 뒤 다시 시도해주세요.";
-  }
-  if (error?.code === "ERR_NETWORK" || error?.message === "Network Error") {
-    return "서버에 연결하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해주세요.";
-  }
-  return error?.message ?? "스팟 등록에 실패했어요.";
-}
-
-export function usePostWriteFlow({
-  routeParams,
-  onBack,
-  onOpenCreatedPost,
-  onOpenCreatedSpotOnMap,
-}: UsePostWriteFlowOptions) {
-  const createSpot = useCreateSpot();
+export function usePostEditFlow({ postId, onBack, onSaved }: UsePostEditFlowOptions) {
+  const updateSpot = useUpdateSpot(postId);
   const [spot, dispatch] = useReducer(spotReducer, initialSpot as SpotCreate);
+  const [keepImageUrls, setKeepImageUrls] = useState<string[]>([]);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [tagInput, setTagInput] = useState("");
+  const [isHydrated, setIsHydrated] = useState(false);
   const tags = [spot.tag1, spot.tag2, spot.tag3].filter(Boolean) as string[];
-  const openedFromMap = routeParams?.openedFromMap === true;
+  const totalImageCount = keepImageUrls.length + spot.images.length;
+
+  const detailQuery = useQuery({
+    queryKey: ["spotDetail", postId],
+    queryFn: () => communityApi.getSpotDetail(postId).then((res) => res.data),
+  });
 
   useEffect(() => {
-    const preset = routeParams?.initialLocation;
-    if (!preset) return;
+    if (!detailQuery.data || isHydrated) return;
+    const post = detailQuery.data;
 
-    dispatch({
-      type: "SET_COORDS",
-      latitude: preset.latitude,
-      longitude: preset.longitude,
-    });
-    if (preset.name) {
-      dispatch({ type: "SET_LOCATION_TEXT", value: preset.name });
-    }
-  }, [routeParams]);
+    dispatch({ type: "SET_FIELD", field: "title", value: post.title });
+    dispatch({ type: "SET_FIELD", field: "name", value: post.name });
+    dispatch({ type: "SET_FIELD", field: "description", value: post.description ?? "" });
+    dispatch({ type: "SET_COORDS", latitude: post.latitude, longitude: post.longitude });
+    dispatch({ type: "SET_FIELD", field: "themeId", value: post.themeId ?? 0 });
+    setTags(dispatch, post.tags ?? []);
+    setKeepImageUrls(post.imageUrls ?? []);
+    setIsHydrated(true);
+  }, [detailQuery.data, isHydrated]);
 
   const handleChangeTitle = (value: string) => {
     dispatch({ type: "SET_FIELD", field: "title", value });
@@ -135,8 +98,7 @@ export function usePostWriteFlow({
         name =
           joinUniqueParts([place?.region, place?.district, place?.street, place?.name]) || name;
       } catch {
-        // 주소 변환은 네트워크/기기 상태에 따라 실패할 수 있지만,
-        // 이미 확보한 좌표는 유효하므로 위치 선택 자체는 유지한다.
+        // 주소 변환이 실패해도 이미 확보한 좌표는 유지한다.
       }
 
       dispatch({ type: "SET_LOCATION_TEXT", value: name });
@@ -148,7 +110,7 @@ export function usePostWriteFlow({
 
   const handlePickImages = async () => {
     try {
-      if (spot.images.length >= MAX_POST_IMAGES) {
+      if (totalImageCount >= MAX_POST_IMAGES) {
         Alert.alert("입력 제한", `이미지는 최대 ${MAX_POST_IMAGES}장까지 등록할 수 있어요.`);
         return;
       }
@@ -163,13 +125,16 @@ export function usePostWriteFlow({
         mediaTypes: ["images"],
         allowsMultipleSelection: true,
         quality: 0.8,
-        selectionLimit: Math.max(1, MAX_POST_IMAGES - spot.images.length),
+        selectionLimit: Math.max(1, MAX_POST_IMAGES - totalImageCount),
       });
 
       if (result.canceled) return;
 
       const picked = await Promise.all(result.assets.map(toUploadableImage));
-      const merged = [...spot.images, ...picked].slice(0, MAX_POST_IMAGES);
+      const merged = [...spot.images, ...picked].slice(
+        0,
+        Math.max(0, MAX_POST_IMAGES - keepImageUrls.length)
+      );
       dispatch({ type: "SET_FIELD", field: "images", value: merged });
     } catch {
       Alert.alert("선택 실패", "이미지를 가져오지 못했어요.");
@@ -178,7 +143,7 @@ export function usePostWriteFlow({
 
   const handleTakeImages = async () => {
     try {
-      if (spot.images.length >= MAX_POST_IMAGES) {
+      if (totalImageCount >= MAX_POST_IMAGES) {
         Alert.alert("입력 제한", `이미지는 최대 ${MAX_POST_IMAGES}장까지 등록할 수 있어요.`);
         return;
       }
@@ -198,15 +163,28 @@ export function usePostWriteFlow({
       const asset = result.assets[0];
       if (!asset) return;
 
-      const merged = [...spot.images, await toUploadableImage(asset)].slice(0, MAX_POST_IMAGES);
+      const merged = [...spot.images, await toUploadableImage(asset)].slice(
+        0,
+        Math.max(0, MAX_POST_IMAGES - keepImageUrls.length)
+      );
       dispatch({ type: "SET_FIELD", field: "images", value: merged });
     } catch {
       Alert.alert("촬영 실패", "이미지를 촬영하지 못했어요.");
     }
   };
 
+  // 기존(원격) 이미지 + 새로 추가한(로컬) 이미지를 하나의 목록으로 합쳐 보여준다.
+  const displayImages: UploadableImage[] = [
+    ...keepImageUrls.map((uri) => ({ uri })),
+    ...spot.images,
+  ];
+
   const handleRemoveImage = (index: number) => {
-    dispatch({ type: "REMOVE_IMAGE", index });
+    if (index < keepImageUrls.length) {
+      setKeepImageUrls((prev) => prev.filter((_, i) => i !== index));
+      return;
+    }
+    dispatch({ type: "REMOVE_IMAGE", index: index - keepImageUrls.length });
   };
 
   const handleAddTag = () => {
@@ -228,7 +206,7 @@ export function usePostWriteFlow({
   const handleRemoveTag = (index: number) => {
     setTags(
       dispatch,
-      tags.filter((_, currentIndex) => currentIndex !== index),
+      tags.filter((_, currentIndex) => currentIndex !== index)
     );
   };
 
@@ -246,64 +224,44 @@ export function usePostWriteFlow({
     }
 
     if (!spot.latitude || !spot.longitude) {
-      Alert.alert("위치 필요", "현재 위치를 먼저 선택해주세요.");
+      Alert.alert("위치 필요", "위치 정보가 없어요.");
       return;
     }
 
     try {
-      const created = await createSpot.mutateAsync(spot);
-      const createdSpotId = Number(created.data);
-      const createdLatitude = Number(spot.latitude);
-      const createdLongitude = Number(spot.longitude);
-
-      Alert.alert("등록 완료", "새 스팟이 등록됐어요.", [
-        ...(openedFromMap
-          ? [
-              {
-                text: "지도에서 보기",
-                onPress: () => {
-                  dispatch({ type: "RESET" });
-                  onOpenCreatedSpotOnMap({
-                    spotId: createdSpotId,
-                    latitude: createdLatitude,
-                    longitude: createdLongitude,
-                  });
-                },
-              } as const,
-            ]
-          : []),
-        {
-          text: "바로 보기",
-          onPress: () => {
-            dispatch({ type: "RESET" });
-            onOpenCreatedPost(createdSpotId);
-          },
+      await updateSpot.mutateAsync({
+        payload: {
+          title: spot.title,
+          name: spot.name,
+          description: spot.description,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          themeId: spot.themeId || null,
+          tag1: spot.tag1,
+          tag2: spot.tag2,
+          tag3: spot.tag3,
+          keepImageUrls,
         },
-        {
-          text: "닫기",
-          onPress: () => {
-            dispatch({ type: "RESET" });
-            onBack();
-          },
-        },
-      ]);
-    } catch (error: any) {
-      console.warn("[PostWrite] 스팟 등록 실패", {
-        code: error?.code,
-        status: error?.response?.status,
-        message: error?.message,
-        response: error?.response?.data,
+        newImages: spot.images,
       });
-      Alert.alert("등록 실패", getSubmitErrorMessage(error));
+      onSaved();
+    } catch (error: any) {
+      Alert.alert(
+        "수정 실패",
+        error?.response?.data?.message ?? error?.message ?? "게시글 수정에 실패했어요."
+      );
     }
   };
 
   return {
     spot,
+    displayImages,
     errors,
     tags,
     tagInput,
-    isSubmitting: createSpot.isPending,
+    isLoading: detailQuery.isLoading || !isHydrated,
+    isError: detailQuery.isError,
+    isSubmitting: updateSpot.isPending,
     setTagInput,
     handleChangeTitle,
     handleChangeDescription,
@@ -315,5 +273,7 @@ export function usePostWriteFlow({
     handleAddTag,
     handleRemoveTag,
     handleSubmit,
+    refetch: detailQuery.refetch,
+    onBack,
   };
 }

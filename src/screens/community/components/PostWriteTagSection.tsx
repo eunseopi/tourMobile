@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   tagAddButtonText: {
     fontSize: 14,
     fontWeight: "500",
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   tagList: {
     flexDirection: "row",

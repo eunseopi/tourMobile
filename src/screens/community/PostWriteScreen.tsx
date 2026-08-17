@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors } from "src/design/theme";
@@ -11,6 +11,7 @@ import { PostWriteLocationSection } from "./components/PostWriteLocationSection"
 import { PostWriteSubmitButton } from "./components/PostWriteSubmitButton";
 import { PostWriteTagSection } from "./components/PostWriteTagSection";
 import { PostWriteThemeSection } from "./components/PostWriteThemeSection";
+import { PostWriteTitleSection } from "./components/PostWriteTitleSection";
 
 type Props = NativeStackScreenProps<RootStackParamList, "PostWrite">;
 
@@ -30,7 +31,6 @@ export default function PostWriteScreen({ navigation, route }: Props) {
         focusId: spotId,
         latitude,
         longitude,
-        type: "SPOT",
         filter: "SPOT",
       });
     },
@@ -39,7 +39,16 @@ export default function PostWriteScreen({ navigation, route }: Props) {
   return (
     <View style={styles.container}>
       <ScreenHeader title="스팟추가" />
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+      <KeyboardAvoidingView
+        style={styles.keyboardRoot}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
+      >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <PostWriteImageSection
           images={postWrite.spot.images}
           onPickImages={postWrite.handlePickImages}
@@ -47,10 +56,15 @@ export default function PostWriteScreen({ navigation, route }: Props) {
           onRemoveImage={postWrite.handleRemoveImage}
         />
 
+        <PostWriteTitleSection
+          title={postWrite.spot.title || ""}
+          error={postWrite.errors.title}
+          onChangeTitle={postWrite.handleChangeTitle}
+        />
+
         <PostWriteLocationSection
           name={postWrite.spot.name || ""}
           error={postWrite.errors.name}
-          onChangeName={postWrite.handleChangeLocationText}
           onUseCurrentLocation={postWrite.handleUseCurrentLocation}
           onPickOnMap={() => navigation.navigate("Map", { pickMode: true })}
         />
@@ -80,12 +94,17 @@ export default function PostWriteScreen({ navigation, route }: Props) {
           onSubmit={postWrite.handleSubmit}
         />
       </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: colors.bg[0],
+  },
+  keyboardRoot: {
     flex: 1,
     backgroundColor: colors.bg[0],
   },

@@ -1,6 +1,7 @@
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import { PressableScale } from "src/components/ui/PressableScale";
 import type { UploadableImage } from "src/types/SpotTypes";
 import ClearIcon from "src/assets/Clear.svg";
 
@@ -22,12 +23,12 @@ export function PostWriteImageSection({
       <Text style={styles.sectionTitle}>사진 업로드</Text>
 
       <View style={styles.actionsRow}>
-        <Pressable style={styles.secondaryButton} onPress={onPickImages}>
+        <PressableScale style={styles.secondaryButton} onPress={onPickImages}>
           <Text style={styles.secondaryButtonText}>사진 선택하기</Text>
-        </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={onTakeImages}>
+        </PressableScale>
+        <PressableScale style={styles.secondaryButton} onPress={onTakeImages}>
           <Text style={styles.secondaryButtonText}>지금 촬영하기</Text>
-        </Pressable>
+        </PressableScale>
       </View>
 
       <ScrollView
