@@ -43,7 +43,7 @@ export const commonStyles = StyleSheet.create({
   },
   secondaryButton: {
     minHeight: layout.buttonHeight,
-    borderRadius: 7,
+    borderRadius: layout.buttonRadius,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,

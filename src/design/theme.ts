@@ -54,6 +54,21 @@ export const layout = {
   bottomActionPaddingBottom: 46,
 } as const;
 
+// 카드/섹션 간 여백을 통일하기 위한 스케일. 전체적으로 여백이 너무 넓다는 피드백으로
+// 처음 값(4/8/12/16/20/24/32)에서 절반으로 줄였다.
+export const spacing = {
+  xs: 2,
+  sm: 4,
+  md: 6,
+  lg: 8,
+  xl: 10,
+  xxl: 12,
+  xxxl: 16,
+  cardPadding: 8,
+  cardGap: 8,
+  sectionGap: 12,
+} as const;
+
 export const shadow = {
   card: {
     shadowColor: "#D2D2D2",

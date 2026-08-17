@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   errorText: {
     ...typography.body3,
