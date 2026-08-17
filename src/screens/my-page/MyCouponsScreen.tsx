@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   acceptedStatus: {
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
   center: {
     flex: 1,
@@ -159,12 +159,12 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   emptyText: {
     ...typography.body4,
     fontWeight: "500",
-    color: colors.gray[500],
+    color: colors.gray[600],
     textAlign: "center",
   },
   errorText: {

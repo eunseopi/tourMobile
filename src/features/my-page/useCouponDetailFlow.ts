@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import { useAcceptToggle } from "src/features/my-page/useAcceptToggle";
 import { useExchangeDetail } from "src/features/my-page/useExchangeDetail";
 import { useSessionMe } from "src/features/my-page/useSessionMe";

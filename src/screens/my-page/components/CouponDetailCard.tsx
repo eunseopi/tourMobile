@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   alertText: {
     ...typography.caption2,
-    color: colors.gray[400],
+    color: colors.gray[600],
     textAlign: "center",
   },
 });
