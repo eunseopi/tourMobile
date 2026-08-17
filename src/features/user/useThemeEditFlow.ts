@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useChangeThemes } from "src/features/user/useChangeThemes";
 

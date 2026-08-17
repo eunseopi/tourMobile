@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   themeText: {
     ...typography.body3,
-    color: colors.gray[500],
+    color: colors.gray[600],
     textAlign: "center",
   },
   themeTextActive: {
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   alertText: {
     ...typography.body3,
-    color: colors.gray[500],
+    color: colors.gray[600],
     textAlign: "center",
   },
 });

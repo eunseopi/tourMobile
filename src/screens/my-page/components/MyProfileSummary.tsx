@@ -1,22 +1,36 @@
 import { useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import DefaultProfile from "src/assets/default_profile.svg";
 import Hanlabong from "src/assets/hanlabong.svg";
+import PenIcon from "src/assets/pen.svg";
+import Steps from "src/assets/Steps.svg";
+import TrophyIcon from "src/assets/trophyColor.svg";
 import { colors, shadow, typography } from "src/design/theme";
+import { LevelInfoModal } from "./LevelInfoModal";
 
 type Props = {
   profile?: string | null;
   nickname?: string | null;
   name?: string | null;
   level: string;
+  hallabong?: number | null;
+  totalSteps?: number | null;
   onPressProfile: () => void;
-  onPressShop: () => void;
-  onPressCoupons: () => void;
 };
 
-export function MyProfileSummary({ profile, nickname, name, level, onPressProfile, onPressShop, onPressCoupons }: Props) {
+export function MyProfileSummary({
+  profile,
+  nickname,
+  name,
+  level,
+  hallabong,
+  totalSteps,
+  onPressProfile,
+}: Props) {
   const displayName = nickname || name || "게스트";
   const [imageFailed, setImageFailed] = useState(false);
+  const [levelInfoOpen, setLevelInfoOpen] = useState(false);
 
   useEffect(() => {
     setImageFailed(false);
@@ -30,8 +44,10 @@ export function MyProfileSummary({ profile, nickname, name, level, onPressProfil
             <Image
               source={{ uri: profile }}
               style={styles.profileImage}
+              cachePolicy="memory-disk"
+              transition={150}
               onError={(e) => {
-                console.warn("[MyProfileSummary] 프로필 이미지 로드 실패:", profile, e.nativeEvent.error);
+                console.warn("[MyProfileSummary] 프로필 이미지 로드 실패:", profile, e.error);
                 setImageFailed(true);
               }}
             />
@@ -43,28 +59,44 @@ export function MyProfileSummary({ profile, nickname, name, level, onPressProfil
         <View style={styles.nicknameWrapper}>
           <View style={styles.nicknameBox}>
             <Text style={styles.nickname} numberOfLines={1}>{displayName}</Text>
-            <Text style={styles.chevron}>›</Text>
+            <PenIcon width={16} height={16} />
           </View>
-          <Text style={styles.level}>LV. {level}</Text>
+          <Pressable
+            style={styles.levelBadge}
+            hitSlop={8}
+            onPress={(event) => {
+              event.stopPropagation();
+              setLevelInfoOpen(true);
+            }}
+          >
+            <TrophyIcon width={16} height={16} />
+            <Text style={styles.levelBadgeText}>LV. {level}</Text>
+          </Pressable>
         </View>
       </Pressable>
 
-      <View style={styles.hallabongWrapper}>
-        <View style={styles.goToStoreBox}>
-          <View style={styles.hallabongIcon}>
-            <Hanlabong width={28} height={28} />
+      <LevelInfoModal
+        visible={levelInfoOpen}
+        totalSteps={totalSteps ?? 0}
+        onClose={() => setLevelInfoOpen(false)}
+      />
+
+      <View style={styles.statsRow}>
+        <View style={styles.statBox}>
+          <View style={styles.statLabelRow}>
+            <Hanlabong width={18} height={18} />
+            <Text style={styles.statLabel}>내 한라봉</Text>
           </View>
-          <Pressable style={styles.goToStore} onPress={onPressShop}>
-            <View style={styles.storeTextBox}>
-              <Text style={styles.storeTitle}>상점</Text>
-              <Text style={styles.storeDesc}>한라봉으로 다양한 상품을 구매해요!</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
+          <Text style={styles.statValue}>{(hallabong ?? 0).toLocaleString("ko-KR")}</Text>
         </View>
-        <Pressable style={styles.giftButton} onPress={onPressCoupons}>
-          <Text style={styles.giftButtonText}>내 상품권 확인하기</Text>
-        </Pressable>
+        <View style={styles.statDivider} />
+        <View style={styles.statBox}>
+          <View style={styles.statLabelRow}>
+            <Steps width={18} height={18} />
+            <Text style={styles.statLabel}>누적 걸음수</Text>
+          </View>
+          <Text style={styles.statValue}>{(totalSteps ?? 0).toLocaleString("ko-KR")}</Text>
+        </View>
       </View>
     </View>
   );
@@ -78,15 +110,28 @@ const styles = StyleSheet.create({
   nicknameWrapper: { flex: 1, paddingTop: 20, paddingBottom: 18 },
   nicknameBox: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 12 },
   nickname: { width: 140, ...typography.head3, color: colors.gray[800] },
-  level: { ...typography.body4, color: colors.gray[600] },
-  hallabongWrapper: { paddingVertical: 18, paddingHorizontal: 16, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
-  goToStoreBox: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 20 },
-  hallabongIcon: { width: 50, height: 50, borderRadius: 25, alignItems: "center", justifyContent: "center", backgroundColor: colors.primary[100] },
-  goToStore: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  storeTextBox: { flex: 1 },
-  storeTitle: { ...typography.head4, color: colors.gray[700], fontWeight: "600", marginBottom: 4 },
-  storeDesc: { ...typography.body4, color: colors.gray[600] },
-  giftButton: { width: "100%", padding: 10, borderRadius: 8, backgroundColor: colors.primary[100], alignItems: "center" },
-  giftButtonText: { ...typography.body3, color: colors.primary[500] },
-  chevron: { fontSize: 26, lineHeight: 26, color: colors.gray[400] },
+  levelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    alignSelf: "flex-start",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: colors.primary[50],
+    borderWidth: 1,
+    borderColor: colors.primary[200],
+  },
+  levelBadgeText: { ...typography.caption1, fontWeight: "700", color: colors.primary[500] },
+  statsRow: {
+    flexDirection: "row",
+    borderRadius: 12,
+    backgroundColor: colors.bg[0],
+    ...shadow.card,
+  },
+  statBox: { flex: 1, paddingVertical: 16, paddingHorizontal: 14, gap: 8 },
+  statDivider: { width: 1, marginVertical: 14, backgroundColor: colors.gray[200] },
+  statLabelRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  statLabel: { ...typography.caption1, color: colors.gray[600] },
+  statValue: { ...typography.head3, color: colors.gray[800] },
 });

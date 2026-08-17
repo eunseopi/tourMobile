@@ -1,30 +1,27 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CompositeScreenProps } from "@react-navigation/native";
+import { useScrollToTop } from "@react-navigation/native";
 import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
 import { authApi } from "src/api/auth";
+import { userApi } from "src/api/users";
+import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { PressableScale } from "src/components/ui/PressableScale";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import { useNotification } from "src/features/my-page/useNotification";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { authStorage } from "src/utils/lib/authStorage";
+import { gradeNameOf } from "src/utils/lib/moodGrade";
 import { QK } from "src/utils/lib/queryKeys";
+import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
 import { MyPageMenuList } from "./components/MyPageMenuList";
 import { MyProfileSummary } from "./components/MyProfileSummary";
-
-const gradeNameOf = (code?: string) => {
-  switch (code) {
-    case "BALBADAK":
-      return "발바닥";
-    default:
-      return "발바닥";
-  }
-};
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, "MyPage">,
@@ -32,13 +29,28 @@ type Props = CompositeScreenProps<
 >;
 
 export default function MyPageScreen({ navigation }: Props) {
-  const tabBarHeight = useBottomTabBarHeight();
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
+  const tabBarHeight = useTabBarHeight();
   const queryClient = useQueryClient();
   const { data: me, isLoading, isError, refetch } = useSessionMe();
   const { notiEnabled, toggleNoti } = useNotification();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const gradeName = useMemo(() => gradeNameOf(me?.moodGrade), [me?.moodGrade]);
+
+  const goToLogin = () => {
+    const rootNavigation =
+      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
+    rootNavigation.reset({ index: 0, routes: [{ name: "Login" }] });
+  };
+
+  const goToFirstScreen = () => {
+    const rootNavigation =
+      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
+    rootNavigation.reset({ index: 0, routes: [{ name: "Splash" }] });
+  };
 
   const handleLogout = () => {
     Alert.alert("로그아웃", "로그아웃 하시겠어요?", [
@@ -56,13 +68,40 @@ export default function MyPageScreen({ navigation }: Props) {
             await authStorage.clearLoginAt();
             queryClient.removeQueries({ queryKey: QK.sessionMe });
             setIsLoggingOut(false);
-            const rootNavigation =
-              navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
-            rootNavigation.reset({ index: 0, routes: [{ name: "Login" }] });
+            goToLogin();
           }
         },
       },
     ]);
+  };
+
+  const handleDeleteAccount = () => {
+    if (!me) return;
+
+    Alert.alert(
+      "회원 탈퇴",
+      "탈퇴 시 계정 정보와 활동 내역이 모두 삭제되며 복구할 수 없어요. 정말 탈퇴하시겠어요?",
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "탈퇴하기",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsDeletingAccount(true);
+              await userApi.deleteAccount(me.email);
+              await authStorage.clearLoginAt();
+              queryClient.removeQueries({ queryKey: QK.sessionMe });
+              goToFirstScreen();
+            } catch {
+              Alert.alert("탈퇴 실패", "회원 탈퇴 처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.");
+            } finally {
+              setIsDeletingAccount(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   if (isLoading) {
@@ -83,9 +122,9 @@ export default function MyPageScreen({ navigation }: Props) {
         <ScreenHeader title="마이페이지" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
-          <Pressable style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <PressableScale style={commonStyles.primaryButton} onPress={() => refetch()}>
             <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       </View>
     );
@@ -93,38 +132,55 @@ export default function MyPageScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="마이페이지" showBack={false} />
+      <ScreenHeader title="마이페이지" showBack={false} right={<NotificationBellButton />} />
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: 24 + tabBarHeight }]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}
       >
-      <MyProfileSummary
-        profile={me.profile}
-        nickname={me.nickname}
-        name={me.name}
-        level={gradeName}
-        onPressProfile={() => navigation.navigate("ProfileEdit")}
-        onPressShop={() => navigation.navigate("Shop")}
-        onPressCoupons={() => navigation.navigate("MyCoupons")}
-      />
-
-      <View style={styles.menuArea}>
-        <MyPageMenuList
-          notiEnabled={notiEnabled}
-          onToggleNoti={toggleNoti}
-          onPressCommunity={() => navigation.navigate("Community")}
-          onPressChallenge={() => navigation.navigate("Challenge")}
+        <MyProfileSummary
+          profile={me.profile}
+          nickname={me.nickname}
+          name={me.name}
+          level={gradeName}
+          hallabong={me.hallabong}
+          totalSteps={me.totalSteps}
           onPressProfile={() => navigation.navigate("ProfileEdit")}
-          onPressTheme={() => navigation.navigate("ThemeEdit")}
-          onPressPassword={() => navigation.navigate("PasswordReset")}
         />
 
-        <Pressable style={styles.logoutButton} onPress={handleLogout} disabled={isLoggingOut}>
-          <Text style={styles.logoutButtonText}>
-            {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
-          </Text>
-        </Pressable>
-      </View>
+        <View style={styles.menuArea}>
+          <MyPageMenuList
+            notiEnabled={notiEnabled}
+            onToggleNoti={toggleNoti}
+            onPressActivity={() => navigation.navigate("MyActivity")}
+            onPressBlockedUsers={() => navigation.navigate("BlockedUsers")}
+            onPressTheme={() => navigation.navigate("ThemeEdit")}
+            onPressPassword={() => navigation.navigate("PasswordReset")}
+            onPressContact={() => navigation.navigate("Contact")}
+            onPressAbout={() => navigation.navigate("About")}
+            onPressTerms={() => navigation.navigate("Terms")}
+            onPressPrivacy={() => navigation.navigate("PrivacyPolicy")}
+          />
+
+          <View style={styles.accountActions}>
+            <PressableScale style={styles.logoutButton} scaleTo={0.96} onPress={handleLogout} disabled={isLoggingOut}>
+              <Text style={styles.logoutButtonText}>
+                {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
+              </Text>
+            </PressableScale>
+            <Text style={styles.actionDivider}>|</Text>
+            <PressableScale
+              style={styles.logoutButton}
+              scaleTo={0.96}
+              onPress={handleDeleteAccount}
+              disabled={isDeletingAccount}
+            >
+              <Text style={styles.deleteAccountButtonText}>
+                {isDeletingAccount ? "탈퇴 처리 중..." : "회원탈퇴"}
+              </Text>
+            </PressableScale>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -133,11 +189,20 @@ export default function MyPageScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg[0] },
   container: { flex: 1, backgroundColor: colors.bg[0] },
-  content: { paddingBottom: 24 },
+  content: {},
   menuArea: { padding: 20, backgroundColor: colors.bg[50] },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: colors.bg[0] },
-  mutedText: { ...typography.body4, color: colors.gray[500] },
+  mutedText: { ...typography.body4, color: colors.gray[600] },
   errorText: { ...typography.body3, color: colors.error[100] },
-  logoutButton: { marginTop: 20, alignItems: "center", justifyContent: "center", paddingVertical: 12 },
-  logoutButtonText: { ...typography.body3, color: colors.gray[500] },
+  accountActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  logoutButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 8 },
+  logoutButtonText: { ...typography.body3, color: colors.gray[600] },
+  actionDivider: { ...typography.body3, color: colors.gray[300] },
+  deleteAccountButtonText: { ...typography.body3, color: colors.error[100] },
 });
