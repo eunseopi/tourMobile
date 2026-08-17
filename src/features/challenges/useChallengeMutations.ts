@@ -33,6 +33,33 @@ export function useStartChallenge() {
   });
 }
 
+export function useRefreshUpcomingChallenges() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: QK.mChallengeRefreshUpcoming,
+    mutationFn: challengeApi.refreshUpcoming,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: QK.challengesUpcoming });
+    },
+  });
+}
+
+export function useCancelChallenge() {
+  const queryClient = useQueryClient();
+  const cancelChallenge = useChallengeStore((state) => state.cancelChallenge);
+
+  return useMutation({
+    mutationKey: QK.mChallengeCancel,
+    mutationFn: (id: string | number) => challengeApi.cancel(id),
+    onSuccess: (_data, id) => {
+      cancelChallenge(String(id));
+      void queryClient.invalidateQueries({ queryKey: QK.challengesOngoing });
+      void queryClient.invalidateQueries({ queryKey: QK.challengesUpcoming });
+    },
+  });
+}
+
 export function useCompleteChallenge() {
   const queryClient = useQueryClient();
   const completeChallenge = useChallengeStore((state) => state.completeChallenge);

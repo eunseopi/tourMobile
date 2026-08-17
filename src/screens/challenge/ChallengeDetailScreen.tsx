@@ -1,17 +1,21 @@
+import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { ImageViewerModal } from "src/components/ui/ImageViewerModal";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import { useChallengeStartFlow } from "src/features/challenges/useChallengeStartFlow";
+import { SpotRecommendationsWidget } from "src/screens/map/components/SpotRecommendationsWidget";
 import { ChallengeStartInfo } from "./components/ChallengeStartInfo";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ChallengeDetail">;
 
 export default function ChallengeDetailScreen({ navigation, route }: Props) {
   const { challenge } = route.params;
+  const [viewerOpen, setViewerOpen] = useState(false);
   const challengeStart = useChallengeStartFlow({
     challenge,
     onStarted: () => {
@@ -33,9 +37,18 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
 
         <View style={styles.imageBox}>
           {challenge.imageUrl ? (
-            <Image source={{ uri: challenge.imageUrl }} style={styles.image} />
+            <Pressable onPress={() => setViewerOpen(true)}>
+              <Image source={{ uri: challenge.imageUrl }} style={styles.image} />
+            </Pressable>
           ) : null}
         </View>
+        {challenge.imageUrl ? (
+          <ImageViewerModal
+            visible={viewerOpen}
+            images={[challenge.imageUrl]}
+            onClose={() => setViewerOpen(false)}
+          />
+        ) : null}
 
         <ChallengeStartInfo
           challenge={challenge}
@@ -46,11 +59,14 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
                     focusId: challenge.id,
                     latitude: challenge.latitude ?? undefined,
                     longitude: challenge.longitude ?? undefined,
-                    type: "CHALLENGE",
-                    filter: "CHALLENGE",
                   })
               : undefined
           }
+        />
+
+        <SpotRecommendationsWidget
+          spotId={challenge.id}
+          onSelect={(item) => navigation.push("SpotDetail", { spotId: item.id })}
         />
       </ScrollView>
 
@@ -91,7 +107,7 @@ const styles = StyleSheet.create({
   description: {
     marginTop: 6,
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   imageBox: {
     width: "100%",

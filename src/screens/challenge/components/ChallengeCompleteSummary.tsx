@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   },
   date: {
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[600],
     marginTop: 8,
   },
 });

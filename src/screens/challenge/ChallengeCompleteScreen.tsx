@@ -22,6 +22,10 @@ export default function ChallengeCompleteScreen({ navigation, route }: Props) {
         params: { initialTab: "done", highlightId: challenge.id },
       });
     },
+    onCancel: () => {
+      navigation.goBack();
+      navigation.navigate("Main", { screen: "Challenge", params: { initialTab: "pre" } });
+    },
   });
 
   return (
@@ -40,7 +44,9 @@ export default function ChallengeCompleteScreen({ navigation, route }: Props) {
       <View style={commonStyles.bottomAction}>
         <ChallengeCompleteButton
           isSubmitting={challengeComplete.isSubmitting}
+          isCancelling={challengeComplete.isCancelling}
           onComplete={challengeComplete.handleComplete}
+          onCancel={challengeComplete.handleCancel}
         />
       </View>
     </View>

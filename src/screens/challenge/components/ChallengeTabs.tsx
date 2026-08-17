@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     ...typography.body1,
-    color: colors.gray[500],
+    color: colors.gray[600],
     fontWeight: "400",
   },
   activeTabText: {

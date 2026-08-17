@@ -1,6 +1,7 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import CameraIcon from "src/assets/Camera_2.svg";
 import GalleryIcon from "src/assets/Gallery.svg";
+import { PressableScale } from "src/components/ui/PressableScale";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 
@@ -20,14 +21,14 @@ export function ChallengeProofPhotoSection({
       <Text style={styles.infoTitle}>인증 사진</Text>
       <Text style={styles.infoText}>챌린지를 완료했다는 걸 보여줄 사진을 업로드해주세요.</Text>
 
-      <Pressable style={styles.secondaryButton} onPress={onPickPhoto}>
+      <PressableScale style={styles.secondaryButton} onPress={onPickPhoto}>
         <GalleryIcon width={20} height={20} />
         <Text style={styles.secondaryButtonText}>사진 선택하기</Text>
-      </Pressable>
-      <Pressable style={styles.secondaryButton} onPress={onTakePhoto}>
+      </PressableScale>
+      <PressableScale style={styles.secondaryButton} onPress={onTakePhoto}>
         <CameraIcon width={20} height={20} />
         <Text style={styles.secondaryButtonText}>지금 촬영하기</Text>
-      </Pressable>
+      </PressableScale>
 
       {selectedPhoto ? (
         <Image source={{ uri: selectedPhoto }} style={styles.proofImage} />
@@ -85,6 +86,6 @@ const styles = StyleSheet.create({
   },
   proofPlaceholderText: {
     ...typography.caption1,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
 });

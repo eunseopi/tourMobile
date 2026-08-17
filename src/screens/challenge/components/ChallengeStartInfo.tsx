@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import ChallengePosIcon from "src/assets/challengePos.svg";
 import LocationPin from "src/assets/Location.svg";
+import SpotMarker from "src/assets/spot.svg";
 import type { ChallengeCardData } from "src/reducer/types";
 import { colors, typography } from "src/design/theme";
 
@@ -21,8 +23,29 @@ export function ChallengeStartInfo({ challenge, onOpenMap }: Props) {
 
       {hasCoords ? (
         <Pressable style={styles.mapPreview} onPress={onOpenMap}>
-          <LocationPin width={40} height={40} />
-          <Text style={styles.mapPreviewTitle}>지도에서 위치 확인하기</Text>
+          <MapView
+            style={StyleSheet.absoluteFillObject}
+            region={{
+              latitude: Number(challenge.latitude),
+              longitude: Number(challenge.longitude),
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+            pointerEvents="none"
+          >
+            <Marker
+              coordinate={{ latitude: Number(challenge.latitude), longitude: Number(challenge.longitude) }}
+            >
+              <SpotMarker width={30} height={31} />
+            </Marker>
+          </MapView>
+          <View style={styles.mapPreviewOverlay}>
+            <Text style={styles.mapPreviewOverlayText}>지도에서 크게 보기</Text>
+          </View>
         </Pressable>
       ) : (
         <View style={styles.mapPreview}>
@@ -61,6 +84,19 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: colors.gray[100],
     overflow: "hidden",
+  },
+  mapPreviewOverlay: {
+    position: "absolute",
+    right: 10,
+    bottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.94)",
+  },
+  mapPreviewOverlayText: {
+    ...typography.caption1,
+    color: colors.gray[700],
   },
   mapPreviewTitle: {
     ...typography.body1,

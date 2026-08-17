@@ -17,6 +17,7 @@ type ChallengeStore = ChallengeState & {
   appendDoneChallenges: (list: ChallengeCardData[]) => void;
   startChallenge: (id: string) => void;
   completeChallenge: (id: string, dateText?: string) => void;
+  cancelChallenge: (id: string) => void;
 };
 
 export const useChallengeStore = create<ChallengeStore>((set) => ({
@@ -69,4 +70,8 @@ export const useChallengeStore = create<ChallengeStore>((set) => ({
         done: [moved, ...state.done],
       };
     }),
+  cancelChallenge: (id) =>
+    set((state) => ({
+      doing: state.doing.filter((c) => c.id !== id),
+    })),
 }));

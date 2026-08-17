@@ -1,4 +1,5 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import NoneTrophy from "src/assets/noneTrophy.svg";
 import Stamp from "src/assets/Stamp.svg";
 import { colors, shadow, typography } from "src/design/theme";
@@ -13,9 +14,20 @@ type Props = {
 export function ChallengeCard({ item, highlighted, onPress }: Props) {
   const isDone = item.statusLabel === "완료";
   const isPrimaryTone = (item.categoryTone ?? "neutral") === "primary";
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const animateTo = (value: number) => {
+    Animated.spring(scale, { toValue: value, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
+  };
 
   return (
-    <Pressable style={[styles.card, highlighted && styles.cardHighlighted]} onPress={onPress}>
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <Pressable
+        style={[styles.card, highlighted && styles.cardHighlighted]}
+        onPress={onPress}
+        onPressIn={() => animateTo(0.97)}
+        onPressOut={() => animateTo(1)}
+      >
       <View style={styles.cardMedia}>
         {item.imageUrl ? (
           <Image source={{ uri: item.imageUrl }} style={styles.image} />
@@ -41,16 +53,15 @@ export function ChallengeCard({ item, highlighted, onPress }: Props) {
         </View>
         {item.dateText ? <Text style={styles.cardDate}>{item.dateText}</Text> : null}
       </View>
-    </Pressable>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    width: 335,
-    maxWidth: "100%",
+    width: "100%",
     height: 180,
-    alignSelf: "center",
     padding: 10,
     borderRadius: 12,
     overflow: "hidden",
