@@ -7,7 +7,8 @@ export function useConvertSteps() {
 
   return useMutation({
     mutationFn: async (requestedPoints: number) => {
-      const res = await stepsApi.convert(requestedPoints);
+      const requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const res = await stepsApi.convert(requestedPoints, requestId);
       return res.data.data;
     },
     onSuccess: (data) => {

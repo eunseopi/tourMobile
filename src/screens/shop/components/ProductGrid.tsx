@@ -1,4 +1,8 @@
-import { ActivityIndicator, FlatList, Image, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import { useScrollToTop } from "@react-navigation/native";
+import { Image } from "expo-image";
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { PressableScale } from "src/components/ui/PressableScale";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import type { Product } from "src/types/ProductTypes";
@@ -14,6 +18,9 @@ type Props = {
 };
 
 export function ProductGrid({ products, isLoading, isError, error, onRefresh, onPressProduct }: Props) {
+  const listRef = useRef<FlatList<Product>>(null);
+  useScrollToTop(listRef);
+
   if (isLoading) {
     return (
       <View style={styles.center}>
@@ -27,15 +34,16 @@ export function ProductGrid({ products, isLoading, isError, error, onRefresh, on
     return (
       <View style={styles.center}>
         <Text style={styles.errorText}>{error ?? "상품 목록을 불러오지 못했어요."}</Text>
-        <Pressable style={commonStyles.primaryButton} onPress={onRefresh}>
+        <PressableScale style={commonStyles.primaryButton} onPress={onRefresh}>
           <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-        </Pressable>
+        </PressableScale>
       </View>
     );
   }
 
   return (
     <FlatList
+      ref={listRef}
       data={products}
       keyExtractor={(item) => String(item.productId)}
       numColumns={2}
@@ -48,9 +56,17 @@ export function ProductGrid({ products, isLoading, isError, error, onRefresh, on
         </View>
       }
       renderItem={({ item }) => (
-        <Pressable style={styles.productCard} onPress={() => onPressProduct(item.productId)}>
+        <PressableScale style={styles.productCard} scaleTo={0.97} onPress={() => onPressProduct(item.productId)}>
           <View style={styles.productImageWrapper}>
-            {item.imageUrl ? <Image source={{ uri: item.imageUrl }} style={styles.productImage} /> : null}
+            {item.imageUrl ? (
+              <Image
+                source={{ uri: item.imageUrl }}
+                style={styles.productImage}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={150}
+              />
+            ) : null}
           </View>
           <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
           {typeof item.hallabongCost === "number" ? (
@@ -59,7 +75,7 @@ export function ProductGrid({ products, isLoading, isError, error, onRefresh, on
               <Hanlabong width={24} height={24} />
             </View>
           ) : null}
-        </Pressable>
+        </PressableScale>
       )}
     />
   );
@@ -76,6 +92,6 @@ const styles = StyleSheet.create({
   productPrice: { ...typography.body3, color: colors.gray[700] },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24 },
   emptyBox: { minHeight: 220, alignItems: "center", justifyContent: "center" },
-  mutedText: { ...typography.body4, color: colors.gray[500] },
+  mutedText: { ...typography.body4, color: colors.gray[600] },
   errorText: { ...typography.body3, color: colors.error[100], textAlign: "center" },
 });

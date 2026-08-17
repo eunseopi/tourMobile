@@ -13,9 +13,16 @@ type Props = {
   category: ProductCategory;
   onChangeCategory: (category: ProductCategory) => void;
   onPressCharge: () => void;
+  onPressMyCoupons: () => void;
 };
 
-export function ShopHeader({ hallabong, category, onChangeCategory, onPressCharge }: Props) {
+export function ShopHeader({
+  hallabong,
+  category,
+  onChangeCategory,
+  onPressCharge,
+  onPressMyCoupons,
+}: Props) {
   return (
     <>
       <View style={styles.balancePill}>
@@ -30,6 +37,11 @@ export function ShopHeader({ hallabong, category, onChangeCategory, onPressCharg
           <Text style={styles.chargeArrow}>›</Text>
         </Pressable>
       </View>
+
+      <Pressable style={styles.myCouponsRow} onPress={onPressMyCoupons}>
+        <Text style={styles.myCouponsText}>내가 구매한 상품 보기</Text>
+        <Text style={styles.myCouponsArrow}>›</Text>
+      </Pressable>
 
       <View style={styles.tabs}>
         {CATEGORIES.map((item) => {
@@ -55,9 +67,18 @@ const styles = StyleSheet.create({
   chargeButton: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 9 },
   chargeText: { ...typography.body1, color: colors.primary[400] },
   chargeArrow: { fontSize: 20, lineHeight: 20, color: colors.primary[400] },
+  myCouponsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  myCouponsText: { ...typography.body3, color: colors.gray[700] },
+  myCouponsArrow: { fontSize: 20, lineHeight: 20, color: colors.gray[600] },
   tabs: { flexDirection: "row", minHeight: 48, borderBottomWidth: 1, borderBottomColor: colors.gray[200] },
   tab: { flex: 1, alignItems: "center", justifyContent: "center" },
-  tabText: { fontSize: 16, lineHeight: 22, fontWeight: "400", color: colors.gray[500] },
+  tabText: { fontSize: 16, lineHeight: 22, fontWeight: "400", color: colors.gray[600] },
   activeTabText: { fontWeight: "600", color: colors.primary[400] },
   tabIndicator: { position: "absolute", left: 0, right: 0, bottom: -1, height: 1.5, backgroundColor: colors.primary[400] },
 });

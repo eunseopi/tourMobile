@@ -1,4 +1,4 @@
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { ProductCategory } from "src/types/ProductTypes";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useExchangeProduct } from "src/features/product/useExchangeProduct";

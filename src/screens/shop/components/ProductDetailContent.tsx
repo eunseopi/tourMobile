@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
   },
   productAreaText: {
     ...typography.head4,
-    color: colors.gray[500],
+    color: colors.gray[600],
     fontWeight: "600",
   },
   chevron: {
     fontSize: 14,
     lineHeight: 18,
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
   productName: {
     ...typography.head2,

@@ -1,19 +1,12 @@
 import { useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
+import { usePedometerSteps } from "src/features/steps/usePedometerSteps";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 import Steps from "src/assets/Steps.svg";
@@ -26,6 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "PointConvert">;
 export default function PointConvertScreen({ navigation }: Props) {
   const { data: me, refetch } = useSessionMe();
   const convertSteps = useConvertSteps();
+  const todaySteps = usePedometerSteps();
   const [value, setValue] = useState("");
 
   const validation = useMemo(() => {
@@ -54,7 +48,7 @@ export default function PointConvertScreen({ navigation }: Props) {
                 navigation.goBack();
                 return;
               }
-              navigation.navigate("Shop");
+              navigation.navigate("Main", { screen: "Shop" });
             },
           },
         ]
@@ -75,8 +69,8 @@ export default function PointConvertScreen({ navigation }: Props) {
 
       <View style={styles.balanceRow}>
         <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>누적 걸음수</Text>
-          <Text style={styles.balanceValue}>{(me?.totalSteps ?? 0).toLocaleString()}</Text>
+          <Text style={styles.balanceLabel}>오늘 걸음수</Text>
+          <Text style={styles.balanceValue}>{todaySteps.toLocaleString()}</Text>
         </View>
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>보유 한라봉</Text>
@@ -162,7 +156,7 @@ const styles = StyleSheet.create({
   },
   convertItem: { flex: 1, maxWidth: 100, alignItems: "center", gap: 4 },
   convertCaption: { ...typography.head4, fontWeight: "600", color: colors.gray[700] },
-  convertValue: { ...typography.body1, color: colors.gray[500] },
+  convertValue: { ...typography.body1, color: colors.gray[600] },
   arrowBox: {
     position: "absolute",
     left: "50%",

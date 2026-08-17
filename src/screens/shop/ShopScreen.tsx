@@ -1,7 +1,10 @@
 import { useCallback, useState } from "react";
+import type { CompositeScreenProps } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { StyleSheet, View } from "react-native";
-import type { RootStackParamList } from "src/app/navigation/types";
+import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
+import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { colors, layout } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
@@ -10,7 +13,10 @@ import type { ProductCategory } from "src/types/ProductTypes";
 import { ProductGrid } from "./components/ProductGrid";
 import { ShopHeader } from "./components/ShopHeader";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Shop">;
+type Props = CompositeScreenProps<
+  BottomTabScreenProps<MainTabParamList, "Shop">,
+  NativeStackScreenProps<RootStackParamList>
+>;
 
 export default function ShopScreen({ navigation }: Props) {
   const [category, setCategory] = useState<ProductCategory>("JEJU_TICON");
@@ -24,13 +30,14 @@ export default function ShopScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="구매하기" />
+      <ScreenHeader title="구매하기" showBack={false} right={<NotificationBellButton />} />
       <View style={styles.container}>
         <ShopHeader
           hallabong={me?.hallabong}
           category={category}
           onChangeCategory={setCategory}
           onPressCharge={() => navigation.navigate("PointConvert")}
+          onPressMyCoupons={() => navigation.navigate("MyCoupons")}
         />
         <ProductGrid
           products={products ?? []}

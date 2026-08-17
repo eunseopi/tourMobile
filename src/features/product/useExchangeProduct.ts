@@ -4,7 +4,7 @@ import { QK } from "src/utils/lib/queryKeys";
 
 type ExchangeVars = {
     productId : string | number;
-    userId: string;
+    userId: string | number;
 }
 
 export const useExchangeProduct = () => {
