@@ -5,6 +5,7 @@ export type UploadableImage = {
 };
 
 export interface SpotCreate {
+  title: string;
   name: string;
   description?: string;
   latitude: number;

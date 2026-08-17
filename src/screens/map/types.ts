@@ -1,4 +1,4 @@
-export type MapFilter = "ALL" | "SPOT" | "POST" | "CHALLENGE";
+export type MapFilter = "ALL" | "SPOT" | "CHALLENGE_ONGOING" | "CHALLENGE_DONE";
 
 export type MapMarkerItem = {
   id: string | number;

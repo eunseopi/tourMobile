@@ -20,6 +20,21 @@ export interface SpotMapRes {
   type: "POST" | "SPOT" | "CHALLENGE" | string;
 }
 
+export type SpotRecommendation = {
+  id: number;
+  name: string;
+  type: "SPOT" | "CHALLENGE";
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+  imageUrls: string[] | null;
+  overviewSnippet: string | null;
+  categoryName: string | null;
+  congestionScore: number | null;
+};
+
+type ApiRes<T> = { success: boolean; data: T };
+
 export const spotsApi = {
   getNearby: (lat: number, lng: number, radiusKm: number) => {
     const safeLat = Number(lat.toFixed(6));
@@ -32,4 +47,6 @@ export const spotsApi = {
     api.get<{ success: boolean; data: SpotMapRes[] }>("api/spots/map/search", {
       params: { query },
     }),
+  getNearbyRecommendations: (spotId: number | string) =>
+    api.get<ApiRes<SpotRecommendation[]>>(`api/spots/${spotId}/nearby-recommendations`),
 };

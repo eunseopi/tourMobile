@@ -21,6 +21,7 @@ export function spotReducer(state: SpotCreate, action: SpotAction): SpotCreate {
 }
 
 export const initialSpot: SpotCreate = {
+  title: "",
   name: "",
   description: "",
   latitude: 0,

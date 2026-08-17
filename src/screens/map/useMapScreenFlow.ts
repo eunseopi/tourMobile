@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import MapView, { type Region } from "react-native-maps";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { spotsApi } from "src/api/spotsApi";
-import { useLoadOngoingChallenges } from "src/features/challenges/useChallengeQueries";
+import {
+  useLoadCompletedChallenges,
+  useLoadOngoingChallenges,
+  useLoadUpcomingChallenges,
+} from "src/features/challenges/useChallengeQueries";
 import { useNearbySpots } from "src/features/main/useNearbySpots";
-import { usePathStats } from "src/features/main/usePathStats";
-import { useSaveSteps } from "src/features/steps/useSaveSteps";
-import { joinUniqueParts } from "src/utils/lib/location";
+import { getCurrentPositionWithFallback, getLocationErrorMessage, joinUniqueParts } from "src/utils/lib/location";
 import { RADIUS_OPTIONS } from "./components/MapHud";
-import { normalizeType, pickDominantType } from "./mapUtils";
+import { getChallengeStatus, normalizeType, pickDominantType } from "./mapUtils";
 import type { ClusteredMarker, MapFilter, MapMarkerItem } from "./types";
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, "Map">;
@@ -21,8 +23,14 @@ type Params = RootStackParamList["Map"];
 export const DEFAULT_REGION: Region = {
   latitude: 33.4996,
   longitude: 126.5312,
-  latitudeDelta: 0.04,
-  longitudeDelta: 0.04,
+  // 홈 지도(약 100m)보다 조금 넓은 약 300m 시야로 시작한다.
+  latitudeDelta: 0.0054,
+  longitudeDelta: 0.0084,
+};
+
+const MAP_VIEW_DELTAS = {
+  latitudeDelta: DEFAULT_REGION.latitudeDelta,
+  longitudeDelta: DEFAULT_REGION.longitudeDelta,
 };
 
 export function useMapScreenFlow(navigation: Navigation, params: Params) {
@@ -30,7 +38,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [isLocating, setIsLocating] = useState(true);
-  const [radiusKm, setRadiusKm] = useState<(typeof RADIUS_OPTIONS)[number]>(3);
+  const [radiusKm, setRadiusKm] = useState<(typeof RADIUS_OPTIONS)[number]>(1);
   const [activeFilter, setActiveFilter] = useState<MapFilter>(params?.filter ?? "ALL");
   const [searchText, setSearchText] = useState("");
   const [pendingFocusId, setPendingFocusId] = useState<string | number | null>(null);
@@ -42,15 +50,22 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     accuracy: number | null;
   } | null>(null);
 
-  const pathStats = usePathStats(
-    currentLocation?.latitude ?? null,
-    currentLocation?.longitude ?? null,
-    currentLocation?.accuracy ?? null,
-  );
-  useSaveSteps(pathStats.steps, { enabled: pathStats.steps > 0 });
-
   const nearby = useNearbySpots(region.latitude, region.longitude, radiusKm);
   const ongoing = useLoadOngoingChallenges();
+  const upcoming = useLoadUpcomingChallenges();
+  const completed = useLoadCompletedChallenges();
+
+  const ongoingIds = useMemo(
+    () => new Set((ongoing.data ?? []).map((item) => String(item.id))),
+    [ongoing.data]
+  );
+  const completedIds = useMemo(
+    () =>
+      new Set(
+        (completed.data?.pages ?? []).flatMap((page) => page.items.map((item: { id: string | number }) => String(item.id)))
+      ),
+    [completed.data]
+  );
   const search = useQuery<MapMarkerItem[], Error>({
     queryKey: ["mapSearch", searchText.trim()],
     enabled: searchText.trim().length >= 2,
@@ -76,7 +91,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         const permission = await Location.requestForegroundPermissionsAsync();
         if (permission.status !== "granted") return;
 
-        const current = await Location.getCurrentPositionAsync({});
+        const current = await getCurrentPositionWithFallback();
         setCurrentLocation({
           latitude: current.coords.latitude,
           longitude: current.coords.longitude,
@@ -85,8 +100,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         const nextRegion: Region = {
           latitude: current.coords.latitude,
           longitude: current.coords.longitude,
-          latitudeDelta: 0.04,
-          longitudeDelta: 0.04,
+          ...MAP_VIEW_DELTAS,
         };
         setRegion(nextRegion);
         mapRef.current?.animateToRegion(nextRegion, 500);
@@ -143,8 +157,13 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     }));
 
     if (activeFilter === "ALL") return normalized;
-    return normalized.filter((item) => item.type === activeFilter);
-  }, [activeFilter, baseMarkers]);
+    if (activeFilter === "SPOT") return normalized.filter((item) => item.type !== "CHALLENGE");
+    return normalized.filter((item) => {
+      if (item.type !== "CHALLENGE") return false;
+      const status = getChallengeStatus(item, ongoingIds, completedIds);
+      return activeFilter === "CHALLENGE_ONGOING" ? status === "ongoing" : status === "done";
+    });
+  }, [activeFilter, baseMarkers, ongoingIds, completedIds]);
 
   const selectedItem = useMemo(() => {
     return filteredMarkers.find((item) => String(item.id) === String(selectedId)) ?? null;
@@ -186,9 +205,10 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
 
   useEffect(() => {
     if (selectedId == null) return;
+    if (nearby.isFetching || search.isFetching) return;
     const exists = filteredMarkers.some((item) => String(item.id) === String(selectedId));
     if (!exists && pendingFocusId == null) setSelectedId(null);
-  }, [filteredMarkers, pendingFocusId, selectedId]);
+  }, [filteredMarkers, pendingFocusId, selectedId, nearby.isFetching, search.isFetching]);
 
   useEffect(() => {
     if (pendingFocusId == null) return;
@@ -202,8 +222,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         {
           latitude: Number(focused.latitude),
           longitude: Number(focused.longitude),
-          latitudeDelta: 0.02,
-          longitudeDelta: 0.02,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
         },
         350,
       );
@@ -217,8 +237,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
       const focusedRegion: Region = {
         latitude: Number(params.latitude),
         longitude: Number(params.longitude),
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
       };
       setRegion(focusedRegion);
       setTimeout(() => {
@@ -239,18 +259,26 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         return;
       }
 
-      const current = await Location.getCurrentPositionAsync({});
+      const current = await getCurrentPositionWithFallback();
+      setCurrentLocation({
+        latitude: current.coords.latitude,
+        longitude: current.coords.longitude,
+        accuracy: current.coords.accuracy ?? null,
+      });
       const nextRegion: Region = {
         latitude: current.coords.latitude,
         longitude: current.coords.longitude,
-        latitudeDelta: 0.04,
-        longitudeDelta: 0.04,
+        ...MAP_VIEW_DELTAS,
       };
       setRegion(nextRegion);
       mapRef.current?.animateToRegion(nextRegion, 500);
-    } catch {
-      Alert.alert("위치 확인 실패", "현재 위치를 다시 가져오지 못했어요.");
+    } catch (error) {
+      Alert.alert("위치 확인 실패", getLocationErrorMessage(error));
     }
+  };
+
+  const handleRadiusChange = (radius: (typeof RADIUS_OPTIONS)[number]) => {
+    setRadiusKm(radius);
   };
 
   const handleMarkerPress = (id: string | number) => {
@@ -262,8 +290,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
       {
         latitude: Number(item.latitude),
         longitude: Number(item.longitude),
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
       },
       300,
     );
@@ -289,9 +317,21 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     }
 
     if (selectedItem.type === "CHALLENGE") {
-      const challenge = ongoing.data?.find((item) => String(item.id) === String(selectedItem.id));
-      if (challenge) navigation.navigate("ChallengeDetail", { challenge });
-      else navigation.navigate("Main", { screen: "Challenge" });
+      const ongoingChallenge = ongoing.data?.find((item) => String(item.id) === String(selectedItem.id));
+      if (ongoingChallenge) {
+        navigation.navigate("ChallengeComplete", { challenge: ongoingChallenge });
+        return;
+      }
+
+      const upcomingChallenge = upcoming.data?.find((item) => String(item.id) === String(selectedItem.id));
+      if (upcomingChallenge) {
+        navigation.navigate("ChallengeDetail", { challenge: upcomingChallenge });
+        return;
+      }
+
+      // 챌린지 목록에서 못 찾은 경우(id 매칭 실패 등)에도 뒤로가기가 없는 탭 화면으로
+      // 보내지 않도록, 항상 뒤로가기가 있는 스팟 상세로 대신 보낸다.
+      navigation.navigate("SpotDetail", { spotId: Number(selectedItem.id) });
       return;
     }
 
@@ -304,8 +344,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
       {
         latitude: Number(item.latitude),
         longitude: Number(item.longitude),
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
       },
       300,
     );
@@ -366,15 +406,16 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     radiusKm,
     activeFilter,
     searchText,
-    pathStats,
     nearby,
     search,
     filteredMarkers,
     clusteredMarkers,
+    ongoingIds,
+    completedIds,
     setRegion,
     setSearchText,
     setActiveFilter,
-    setRadiusKm,
+    handleRadiusChange,
     recenter,
     handleMarkerPress,
     handleClusterPress,

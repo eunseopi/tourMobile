@@ -1,3 +1,93 @@
+import * as Location from "expo-location";
+
+// getCurrentPositionAsync (Play Services의 단발성 getCurrentLocation() 호출)는
+// 위치 제공자가 아직 "워밍업"되지 않은 상태에서는 ERR_CURRENT_LOCATION_IS_UNAVAILABLE로
+// 실패하는 경우가 실기기/에뮬레이터를 가리지 않고 흔하다 — Google 지도 앱은 같은 상황에서도
+// 위치를 잘 잡는데, 지도 앱은 단발성 요청이 아니라 지속 구독(watchPosition)으로 위치를
+// 받기 때문이다. 그래서 단발성 요청이 실패하면 짧게 위치 구독을 열어 첫 업데이트를
+// 받는 방식으로 재시도하고, 그마저 시간 안에 안 오면 마지막으로 OS에 캐시된 위치를 쓴다.
+const WATCH_FALLBACK_TIMEOUT_MS = 8000;
+
+function currentPositionWithTimeout(): Promise<Location.LocationObject | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: Location.LocationObject | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+
+    const timeout = setTimeout(() => finish(null), WATCH_FALLBACK_TIMEOUT_MS);
+    Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+      .then((position) => {
+        clearTimeout(timeout);
+        finish(position);
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+        finish(null);
+      });
+  });
+}
+
+function watchForOnePosition(): Promise<Location.LocationObject | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    let subscription: Location.LocationSubscription | null = null;
+
+    const finish = (value: Location.LocationObject | null) => {
+      if (settled) return;
+      settled = true;
+      subscription?.remove();
+      resolve(value);
+    };
+
+    const timeout = setTimeout(() => finish(null), WATCH_FALLBACK_TIMEOUT_MS);
+
+    Location.watchPositionAsync(
+      { accuracy: Location.Accuracy.Balanced, timeInterval: 1000, distanceInterval: 0 },
+      (location) => {
+        clearTimeout(timeout);
+        finish(location);
+      }
+    )
+      .then((sub) => {
+        subscription = sub;
+        if (settled) sub.remove();
+      })
+      .catch(() => finish(null));
+  });
+}
+
+export async function getCurrentPositionWithFallback() {
+  // 실기기는 지속 구독이, 일부 에뮬레이터는 단발성 요청이 더 안정적이다.
+  // 두 요청을 동시에 열고 둘 다 8초 안에 끝나게 해 무한 대기를 막는다.
+  const [current, watched] = await Promise.all([
+    currentPositionWithTimeout(),
+    watchForOnePosition(),
+  ]);
+  if (watched) return watched;
+  if (current) return current;
+
+  const lastKnown = await Location.getLastKnownPositionAsync({});
+  if (lastKnown) return lastKnown;
+
+  const error = new Error("Current location is unavailable") as Error & { code: string };
+  error.code = "ERR_CURRENT_LOCATION_IS_UNAVAILABLE";
+  throw error;
+}
+
+// getCurrentPositionAsync/getLastKnownPositionAsync가 던지는 에러 코드별로 실제
+// 원인에 맞는 안내를 준다. 기본 "가져오지 못했어요"만 보여주면 기기 위치 서비스가
+// 꺼져 있는 경우에도 사용자는 뭘 해야 할지 알 수 없다.
+export function getLocationErrorMessage(error: unknown): string {
+  const code = (error as { code?: string } | undefined)?.code;
+  if (code === "ERR_CURRENT_LOCATION_IS_UNAVAILABLE" || code === "ERR_LOCATION_SETTINGS_UNSATISFIED") {
+    return "기기의 위치 서비스(GPS)가 꺼져 있는지 확인해주세요.";
+  }
+  return "현재 위치를 가져오지 못했어요.";
+}
+
 export function joinUniqueParts(parts: Array<string | null | undefined>, limit?: number) {
   const cleaned = parts
     .filter((value): value is string => !!value && value.trim().length > 0)

@@ -1,24 +1,59 @@
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 import type { PostDetailProps } from "src/components/community/PostDetail/types";
+import { ImageViewerModal } from "src/components/ui/ImageViewerModal";
 import LocationIcon from "src/assets/Location.svg";
 import SpotMarker from "src/assets/spot.svg";
 import { colors, typography } from "src/design/theme";
+import { UserLocationMarker } from "src/screens/map/components/UserLocationMarker";
 import { formatDate } from "src/utils/formDate";
 
 type Props = {
   spot: PostDetailProps;
+  myLocation?: { latitude: number; longitude: number } | null;
 };
 
-export function SpotDetailContent({ spot }: Props) {
+// 내 위치가 멀리 있으면(예: 서울) 목적지가 지도에서 너무 작게 보이므로,
+// 길찾기는 버튼으로 대신하고 미니맵은 항상 목적지 기준으로 확대해서 보여준다.
+function miniMapRegion(spot: PostDetailProps) {
+  return {
+    latitude: Number(spot.latitude),
+    longitude: Number(spot.longitude),
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  };
+}
+
+export function SpotDetailContent({ spot, myLocation }: Props) {
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerOpen, setViewerOpen] = useState(false);
+
   return (
     <>
       <Text style={styles.title}>{spot.name}</Text>
       {spot.imageUrls?.length ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sliderWrapper}>
-          {spot.imageUrls.map((image, index) => (
-            <Image key={`${image}-${index}`} source={{ uri: image }} style={styles.slideImage} />
-          ))}
-        </ScrollView>
+        <>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sliderWrapper}>
+            {spot.imageUrls.map((image, index) => (
+              <Pressable
+                key={`${image}-${index}`}
+                onPress={() => {
+                  setViewerIndex(index);
+                  setViewerOpen(true);
+                }}
+              >
+                <Image source={{ uri: image }} style={styles.slideImage} />
+              </Pressable>
+            ))}
+          </ScrollView>
+          <ImageViewerModal
+            visible={viewerOpen}
+            images={spot.imageUrls}
+            initialIndex={viewerIndex}
+            onClose={() => setViewerOpen(false)}
+          />
+        </>
       ) : (
         <View style={[styles.slideImage, styles.heroFallback]}>
           <SpotMarker width={56} height={57} />
@@ -46,6 +81,25 @@ export function SpotDetailContent({ spot }: Props) {
             {spot.name}
           </Text>
         </View>
+
+        <View style={styles.miniMapWrap} pointerEvents="none">
+          <MapView
+            style={styles.miniMap}
+            region={miniMapRegion(spot)}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+          >
+            <Marker coordinate={{ latitude: Number(spot.latitude), longitude: Number(spot.longitude) }}>
+              <SpotMarker width={30} height={31} />
+            </Marker>
+            {myLocation ? (
+              <UserLocationMarker latitude={myLocation.latitude} longitude={myLocation.longitude} />
+            ) : null}
+          </MapView>
+        </View>
+
         <View style={styles.statsRow}>
           <Text style={styles.statText}>좋아요 {spot.likeCount ?? 0}</Text>
           <Text style={styles.statText}>
@@ -120,7 +174,7 @@ const styles = StyleSheet.create({
   },
   date: {
     ...typography.caption2,
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
   locationTag: {
     alignSelf: "flex-start",
@@ -136,7 +190,17 @@ const styles = StyleSheet.create({
   },
   locationText: {
     ...typography.caption1,
-    color: colors.gray[500],
+    color: colors.gray[600],
+  },
+  miniMapWrap: {
+    height: 140,
+    marginTop: 12,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: colors.gray[100],
+  },
+  miniMap: {
+    ...StyleSheet.absoluteFillObject,
   },
   description: {
     ...typography.body4,
@@ -150,7 +214,7 @@ const styles = StyleSheet.create({
   },
   statText: {
     ...typography.caption1,
-    color: colors.gray[500],
+    color: colors.gray[600],
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 100,

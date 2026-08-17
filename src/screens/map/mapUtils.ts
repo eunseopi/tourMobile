@@ -1,17 +1,25 @@
 import { colors } from "src/design/theme";
 import type { MapMarkerItem } from "./types";
 
-export function markerColor(type?: string) {
-  switch (type) {
-    case "CHALLENGE":
-      return colors.primary[400];
-    case "POST":
-      return "#5B8DEF";
-    case "SPOT":
-      return "#37B26C";
-    default:
-      return colors.gray[400];
-  }
+export type ChallengeStatus = "available" | "ongoing" | "done";
+
+// 스팟/미시작 챌린지(이용 가능)는 주황, 내가 진행중인 챌린지는 파랑, 완료한 챌린지는 회색으로 구분한다.
+export function getChallengeStatus(
+  item: { id: string | number; type?: string },
+  ongoingIds: Set<string>,
+  completedIds: Set<string>
+): ChallengeStatus {
+  if (item.type !== "CHALLENGE") return "available";
+  const id = String(item.id);
+  if (completedIds.has(id)) return "done";
+  if (ongoingIds.has(id)) return "ongoing";
+  return "available";
+}
+
+export function markerColor(status: ChallengeStatus) {
+  if (status === "ongoing") return "#3B82F6";
+  if (status === "done") return colors.gray[400];
+  return colors.primary[400];
 }
 
 export function markerDescription(type?: string, likeCount?: number) {
@@ -34,6 +42,21 @@ export function typeLabel(type?: string) {
 export function normalizeType(type?: string): "POST" | "SPOT" | "CHALLENGE" {
   if (type === "POST" || type === "SPOT" || type === "CHALLENGE") return type;
   return "SPOT";
+}
+
+export function pickDominantStatus(
+  items: MapMarkerItem[],
+  ongoingIds: Set<string>,
+  completedIds: Set<string>
+): ChallengeStatus {
+  const score = { available: 0, ongoing: 0, done: 0 };
+  items.forEach((item) => {
+    score[getChallengeStatus(item, ongoingIds, completedIds)] += 1;
+  });
+
+  if (score.ongoing >= score.done && score.ongoing >= score.available) return "ongoing";
+  if (score.done >= score.available) return "done";
+  return "available";
 }
 
 export function pickDominantType(items: MapMarkerItem[]): "POST" | "SPOT" | "CHALLENGE" {

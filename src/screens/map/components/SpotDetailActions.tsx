@@ -1,20 +1,31 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { PressableScale } from "src/components/ui/PressableScale";
 import { commonStyles } from "src/design/commonStyles";
+import { colors } from "src/design/theme";
 
 type Props = {
-  onOpenMap: () => void;
-  onOpenCommunity: () => void;
+  onBack: () => void;
+  onAddChallenge: () => void;
+  isAddingChallenge?: boolean;
 };
 
-export function SpotDetailActions({ onOpenMap, onOpenCommunity }: Props) {
+export function SpotDetailActions({ onBack, onAddChallenge, isAddingChallenge }: Props) {
   return (
     <View style={styles.actionRow}>
-      <Pressable style={styles.primaryButton} onPress={onOpenMap}>
-        <Text style={styles.primaryButtonText}>지도에서 보기</Text>
-      </Pressable>
-      <Pressable style={styles.secondaryButton} onPress={onOpenCommunity}>
-        <Text style={styles.secondaryButtonText}>커뮤니티로</Text>
-      </Pressable>
+      <PressableScale style={styles.secondaryButton} onPress={onBack}>
+        <Text style={styles.secondaryButtonText}>뒤로가기</Text>
+      </PressableScale>
+      <PressableScale
+        style={[styles.primaryButton, isAddingChallenge && styles.primaryButtonDisabled]}
+        onPress={onAddChallenge}
+        disabled={isAddingChallenge}
+      >
+        {isAddingChallenge ? (
+          <ActivityIndicator color={colors.base[0]} />
+        ) : (
+          <Text style={styles.primaryButtonText}>챌린지에 추가하기</Text>
+        )}
+      </PressableScale>
     </View>
   );
 }
@@ -32,6 +43,9 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     ...commonStyles.primaryButtonText,
+  },
+  primaryButtonDisabled: {
+    ...commonStyles.primaryButtonDisabled,
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,

@@ -21,6 +21,7 @@ export interface ChallengeState {
 
 export interface Spot {
   id: number;
+  title: string;
   name: string;
   description: string;
   latitude: number;
@@ -34,6 +35,8 @@ export interface Spot {
   type: "POST" | "SPOT" | "CHALLENGE";
   challengeOngoing: boolean;
   createdAt: string;
+  // true: 관광공사 TourAPI 동기화 데이터, false: 유저 작성 글(승격되어도 유지됨)
+  official: boolean;
 }
 
 export interface SpotPage {

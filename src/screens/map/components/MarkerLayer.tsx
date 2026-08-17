@@ -1,15 +1,17 @@
 import { StyleSheet, Text, View } from "react-native";
 import { Marker } from "react-native-maps";
-import ChallengeMarker from "src/assets/challenge.svg";
+import ChallengeOngoingMarker from "src/assets/challengeOngoingMarker.svg";
 import IsDoneMarker from "src/assets/isDoneMarker.svg";
 import SpotMarker from "src/assets/spot.svg";
 import { colors } from "src/design/theme";
 import type { ClusteredMarker, MapMarkerItem } from "../types";
-import { markerColor, markerDescription } from "../mapUtils";
+import { getChallengeStatus, markerColor, markerDescription, pickDominantStatus } from "../mapUtils";
 
 type Props = {
   markers: ClusteredMarker[];
   selectedId: string | number | null;
+  ongoingIds: Set<string>;
+  completedIds: Set<string>;
   onMarkerPress: (id: string | number) => void;
   onClusterPress: (cluster: Extract<ClusteredMarker, { kind: "cluster" }>) => void;
 };
@@ -17,18 +19,16 @@ type Props = {
 const PIN_WIDTH = 36;
 const PIN_HEIGHT = 37;
 
-function MarkerPin({ item }: { item: MapMarkerItem }) {
-  if (item.type === "CHALLENGE") {
-    return item.challengeOngoing === false ? (
-      <IsDoneMarker width={PIN_WIDTH} height={PIN_HEIGHT} />
-    ) : (
-      <ChallengeMarker width={PIN_WIDTH} height={PIN_HEIGHT} />
-    );
-  }
+// 스팟/미시작 챌린지(이용 가능)는 주황 핀, 내가 진행중인 챌린지는 파란 핀,
+// 인증까지 끝낸 챌린지는 회색 핀으로 구분한다.
+function MarkerPin({ item, ongoingIds, completedIds }: { item: MapMarkerItem; ongoingIds: Set<string>; completedIds: Set<string> }) {
+  const status = getChallengeStatus(item, ongoingIds, completedIds);
+  if (status === "done") return <IsDoneMarker width={PIN_WIDTH} height={PIN_HEIGHT} />;
+  if (status === "ongoing") return <ChallengeOngoingMarker width={PIN_WIDTH} height={PIN_HEIGHT} />;
   return <SpotMarker width={PIN_WIDTH} height={PIN_HEIGHT} />;
 }
 
-export function MarkerLayer({ markers, selectedId, onMarkerPress, onClusterPress }: Props) {
+export function MarkerLayer({ markers, selectedId, ongoingIds, completedIds, onMarkerPress, onClusterPress }: Props) {
   return (
     <>
       {markers.map((entry) =>
@@ -50,7 +50,7 @@ export function MarkerLayer({ markers, selectedId, onMarkerPress, onClusterPress
                 String(selectedId) === String(entry.item.id) && styles.markerWrapSelected,
               ]}
             >
-              <MarkerPin item={entry.item} />
+              <MarkerPin item={entry.item} ongoingIds={ongoingIds} completedIds={completedIds} />
             </View>
           </Marker>
         ) : (
@@ -63,7 +63,13 @@ export function MarkerLayer({ markers, selectedId, onMarkerPress, onClusterPress
               <View
                 style={[
                   styles.clusterBubble,
-                  { backgroundColor: markerColor(entry.dominantType) },
+                  {
+                    backgroundColor: markerColor(
+                      entry.dominantType === "CHALLENGE"
+                        ? pickDominantStatus(entry.items, ongoingIds, completedIds)
+                        : "available"
+                    ),
+                  },
                 ]}
               >
                 <Text style={styles.clusterCount}>{entry.count}</Text>
