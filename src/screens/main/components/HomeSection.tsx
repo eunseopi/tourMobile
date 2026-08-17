@@ -41,12 +41,12 @@ export function SectionState({ children }: PropsWithChildren) {
 }
 
 const styles = StyleSheet.create({
-  section: { marginTop: 20, padding: 16, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
+  section: { padding: 8, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   sectionTitle: { ...typography.head3, color: colors.gray[800] },
-  sectionMeta: { ...typography.caption2, color: colors.gray[500] },
-  sectionDescription: { ...typography.body4, color: colors.gray[600], marginTop: 8 },
+  sectionMeta: { ...typography.caption2, color: colors.gray[600] },
+  sectionDescription: { ...typography.body4, color: colors.gray[600], marginTop: 4 },
   linkText: { ...typography.body3, color: colors.primary[400] },
-  centerBox: { paddingVertical: 22, alignItems: "center", justifyContent: "center" },
-  centerText: { ...typography.body4, color: colors.gray[500], marginTop: 10 },
+  centerBox: { paddingVertical: 11, alignItems: "center", justifyContent: "center" },
+  centerText: { ...typography.body4, color: colors.gray[600], marginTop: 5 },
 });

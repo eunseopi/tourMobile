@@ -1,26 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CompositeScreenProps } from "@react-navigation/native";
+import { useScrollToTop } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import * as Location from "expo-location";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
-import CheckInModal from "src/components/main/CheckInModal";
-import { colors } from "src/design/theme";
-import { useLoadOngoingChallenges, useLoadUpcomingChallenges } from "src/features/challenges/useChallengeQueries";
+import { colors, spacing } from "src/design/theme";
+import { useStartChallenge } from "src/features/challenges/useChallengeMutations";
 import { useCommunityPosts } from "src/features/community/useCommunityPosts";
-import { useCheckIn } from "src/features/main/useCheckIn";
 import { useNearbySpots } from "src/features/main/useNearbySpots";
+import { usePedometerSteps } from "src/features/steps/usePedometerSteps";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
-import { joinUniqueParts } from "src/utils/lib/location";
+import { getCurrentPositionWithFallback, joinUniqueParts } from "src/utils/lib/location";
+import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
+import { CheckInButton } from "./components/CheckInButton";
 import { CommunityPreviewList } from "./components/CommunityPreviewList";
-import { FeaturedChallenge } from "./components/FeaturedChallenge";
 import { HomeSection } from "./components/HomeSection";
 import { MainHero } from "./components/MainHero";
-import { NearbySpotList, normalizeMapType } from "./components/NearbySpotList";
-import { QuickActions } from "./components/QuickActions";
+import { NearbyMapWidget, type NearbyMapItem } from "./components/NearbyMapWidget";
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, "Home">,
@@ -29,21 +29,20 @@ type Props = CompositeScreenProps<
 const DEFAULT_JEJU = { latitude: 33.4996, longitude: 126.5312 };
 
 export default function MainScreen({ navigation }: Props) {
+  const scrollRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollRef);
   const [coords, setCoords] = useState(DEFAULT_JEJU);
   const [locationLabel, setLocationLabel] = useState("제주 제주시");
   const [isLocating, setIsLocating] = useState(true);
-  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [mapRecenterKey, setMapRecenterKey] = useState(0);
+
+  const [startingId, setStartingId] = useState<string | number | null>(null);
 
   const { data: me } = useSessionMe();
-  const { state: checkInState, claim } = useCheckIn();
-  const upcoming = useLoadUpcomingChallenges();
-  const ongoing = useLoadOngoingChallenges();
+  const todaySteps = usePedometerSteps();
   const community = useCommunityPosts("latest", 0, 5);
-  const nearby = useNearbySpots(coords.latitude, coords.longitude, 3);
-
-  useEffect(() => {
-    if (checkInState.shouldOpen) setCheckInOpen(true);
-  }, [checkInState.shouldOpen]);
+  const nearby = useNearbySpots(coords.latitude, coords.longitude, 1);
+  const startChallenge = useStartChallenge();
 
   useEffect(() => {
     const loadLocation = async () => {
@@ -55,7 +54,7 @@ export default function MainScreen({ navigation }: Props) {
           return;
         }
 
-        const position = await Location.getCurrentPositionAsync({});
+        const position = await getCurrentPositionWithFallback();
         const nextCoords = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -79,26 +78,64 @@ export default function MainScreen({ navigation }: Props) {
   }, []);
 
   const refreshAll = async () => {
-    await Promise.all([nearby.refetch(), community.refetch(), upcoming.refetch(), ongoing.refetch()]);
+    setMapRecenterKey((value) => value + 1);
+    await Promise.all([nearby.refetch(), community.refetch()]);
   };
 
   const nearestItems = useMemo(
-    () => [...nearby.items].sort((a, b) => (a.distanceKm ?? 99) - (b.distanceKm ?? 99)).slice(0, 5),
+    () => [...nearby.items].sort((a, b) => (a.distanceKm ?? 99) - (b.distanceKm ?? 99)).slice(0, 20),
     [nearby.items]
   );
 
-  const heroChallenge = ongoing.data?.[0] ?? upcoming.data?.[0] ?? null;
   const latestPosts = community.data?.content?.slice(0, 3) ?? [];
-  const tabBarHeight = useBottomTabBarHeight();
+  const tabBarHeight = useTabBarHeight();
+
+  const handleStartChallenge = (item: NearbyMapItem) => {
+    Alert.alert("챌린지 시작", `'${item.name}' 챌린지를 시작할까요?`, [
+      { text: "취소", style: "cancel" },
+      {
+        text: "시작하기",
+        onPress: async () => {
+          try {
+            setStartingId(item.id);
+            const permission = await Location.requestForegroundPermissionsAsync();
+            let latitude = coords.latitude;
+            let longitude = coords.longitude;
+
+            if (permission.status === "granted") {
+              try {
+                const current = await getCurrentPositionWithFallback();
+                latitude = current.coords.latitude;
+                longitude = current.coords.longitude;
+              } catch {
+                // 위치를 못 가져와도 이미 있는 좌표로 챌린지 시작은 계속 진행한다.
+              }
+            }
+
+            await startChallenge.mutateAsync({ id: item.id, latitude, longitude });
+            Alert.alert("챌린지 시작", "챌린지 탭의 '진행중'에서 확인할 수 있어요.");
+          } catch (error: any) {
+            Alert.alert(
+              "시작 실패",
+              error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요."
+            );
+          } finally {
+            setStartingId(null);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: 20 + tabBarHeight }]}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
         refreshControl={
           <RefreshControl
-            refreshing={nearby.isRefetching || community.isRefetching || upcoming.isRefetching || ongoing.isRefetching}
+            refreshing={nearby.isRefetching || community.isRefetching}
             onRefresh={refreshAll}
           />
         }
@@ -109,49 +146,33 @@ export default function MainScreen({ navigation }: Props) {
           isLocating={isLocating}
           locationLabel={locationLabel}
           hallabong={me?.hallabong}
-          totalSteps={me?.totalSteps}
+          totalSteps={todaySteps}
+          onPressStats={() => navigation.navigate("PointConvert")}
         />
 
-        <QuickActions
-          actions={[
-            { label: "지도", onPress: () => navigation.navigate("Map") },
-            { label: "상점", onPress: () => navigation.navigate("Shop") },
-          ]}
-        />
+        <CheckInButton />
 
         <HomeSection
-          title="주변 스팟"
-          meta="반경 3km"
-          description={isLocating ? "위치를 잡는 동안 기본 제주 중심 좌표로 불러와요." : `${locationLabel} 주변 추천입니다.`}
+          title="주변 챌린지 · 스팟"
+          linkLabel="지도에서 보기"
+          // 글쓰기에서 사용한 위치 선택 모드가 내비게이션 스택에 남아 있어도
+          // 홈에서는 항상 일반 탐색 지도로 열리도록 명시적으로 초기화한다.
+          onPressLink={() => navigation.navigate("Map", { pickMode: false })}
+          description={
+            isLocating
+              ? "위치를 잡는 동안 기본 제주 중심 좌표로 불러와요."
+              : `${locationLabel} 주변 추천이에요.`
+          }
         >
-          <NearbySpotList
-            isLoading={nearby.isLoading}
+          <NearbyMapWidget
+            latitude={coords.latitude}
+            longitude={coords.longitude}
+            recenterKey={mapRecenterKey}
             items={nearestItems}
-            onPressItem={(item) =>
-              navigation.navigate("Map", {
-                focusId: item.id,
-                latitude: Number(item.latitude),
-                longitude: Number(item.longitude),
-                type: normalizeMapType(item.type),
-                filter: normalizeMapType(item.type),
-              })
-            }
-          />
-        </HomeSection>
-
-        <HomeSection title="추천 챌린지" linkLabel="전체 보기" onPressLink={() => navigation.navigate("Challenge")}>
-          <FeaturedChallenge
-            challenge={heroChallenge}
-            onPressDetail={(challenge) => navigation.navigate("ChallengeDetail", { challenge })}
-            onPressMap={(challenge) =>
-              navigation.navigate("Map", {
-                filter: "CHALLENGE",
-                type: "CHALLENGE",
-                focusId: challenge.latitude != null && challenge.longitude != null ? challenge.id : undefined,
-                latitude: challenge.latitude ?? undefined,
-                longitude: challenge.longitude ?? undefined,
-              })
-            }
+            isLoading={nearby.isLoading}
+            isStarting={startChallenge.isPending}
+            startingId={startingId}
+            onStartChallenge={handleStartChallenge}
           />
         </HomeSection>
 
@@ -163,18 +184,6 @@ export default function MainScreen({ navigation }: Props) {
           />
         </HomeSection>
       </ScrollView>
-
-      <CheckInModal
-        open={checkInOpen}
-        day={checkInState.day}
-        reward={checkInState.reward}
-        bonus={checkInState.bonus}
-        onClose={() => setCheckInOpen(false)}
-        onClaim={() => {
-          claim();
-          setCheckInOpen(false);
-        }}
-      />
     </SafeAreaView>
   );
 }
@@ -182,5 +191,5 @@ export default function MainScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg[50] },
   container: { flex: 1, backgroundColor: colors.bg[50] },
-  content: { padding: 20, paddingBottom: 90 },
+  content: { padding: 20, gap: spacing.sectionGap },
 });

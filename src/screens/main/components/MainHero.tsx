@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, shadow, typography } from "src/design/theme";
+import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
 import DefaultProfile from "src/assets/default_profile.svg";
 import LocationIcon from "src/assets/Location.svg";
 import HanlabongIcon from "src/assets/hanlabong.svg";
@@ -13,9 +15,18 @@ type Props = {
   locationLabel: string;
   hallabong?: number | null;
   totalSteps?: number | null;
+  onPressStats?: () => void;
 };
 
-export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hallabong, totalSteps }: Props) {
+export function MainHero({
+  nickname,
+  profileUrl,
+  isLocating,
+  locationLabel,
+  hallabong,
+  totalSteps,
+  onPressStats,
+}: Props) {
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
@@ -30,8 +41,10 @@ export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hall
             <Image
               source={{ uri: profileUrl }}
               style={styles.avatarImage}
+              cachePolicy="memory-disk"
+              transition={150}
               onError={(e) => {
-                console.warn("[MainHero] 프로필 이미지 로드 실패:", profileUrl, e.nativeEvent.error);
+                console.warn("[MainHero] 프로필 이미지 로드 실패:", profileUrl, e.error);
                 setImageFailed(true);
               }}
             />
@@ -41,13 +54,12 @@ export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hall
         </View>
 
         <View style={styles.heroTopText}>
-          <View style={styles.eyebrowPill}>
-            <Text style={styles.eyebrowText}>JEJU DAY</Text>
-          </View>
           <Text style={styles.title} numberOfLines={2}>
-            {nickname ? `${nickname}님, 오늘도 제주를 걸어볼까요?` : "오늘도 제주를 걸어볼까요?"}
+            {nickname ? `${nickname}님,\n오늘도 제주를 걸어볼까요?` : "오늘도 제주를 걸어볼까요?"}
           </Text>
         </View>
+
+        <NotificationBellButton />
       </View>
 
       <View style={styles.locationRow}>
@@ -57,7 +69,7 @@ export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hall
         </Text>
       </View>
 
-      <View style={styles.heroStats}>
+      <Pressable style={styles.heroStats} onPress={onPressStats}>
         <View style={styles.heroStat}>
           <View style={styles.heroStatLabelRow}>
             <HanlabongIcon width={16} height={16} />
@@ -68,18 +80,18 @@ export function MainHero({ nickname, profileUrl, isLocating, locationLabel, hall
         <View style={styles.heroStat}>
           <View style={styles.heroStatLabelRow}>
             <StepsIcon width={16} height={16} />
-            <Text style={styles.heroStatLabel}>누적 걸음수</Text>
+            <Text style={styles.heroStatLabel}>오늘 걸음수</Text>
           </View>
           <Text style={styles.heroStatValue}>{(totalSteps ?? 0).toLocaleString()}</Text>
         </View>
-      </View>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  heroSection: { padding: 20, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
-  heroTop: { flexDirection: "row", alignItems: "center", gap: 12 },
+  heroSection: { padding: 8, borderRadius: 12, backgroundColor: colors.bg[0], ...shadow.card },
+  heroTop: { flexDirection: "row", alignItems: "center", gap: 6 },
   avatar: {
     width: 56,
     height: 56,
@@ -92,21 +104,13 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[300],
   },
   avatarImage: { width: "100%", height: "100%" },
-  heroTopText: { flex: 1, gap: 6 },
-  eyebrowPill: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 999,
-    backgroundColor: colors.primary[100],
-  },
-  eyebrowText: { ...typography.caption1, color: colors.primary[400] },
+  heroTopText: { flex: 1 },
   title: { ...typography.head3, color: colors.gray[800] },
-  locationRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 14 },
+  locationRow: { flexDirection: "row", alignItems: "center", gap: 3, marginTop: 6 },
   description: { ...typography.body4, color: colors.gray[600], flexShrink: 1 },
-  heroStats: { flexDirection: "row", gap: 12, marginTop: 18 },
-  heroStat: { flex: 1, padding: 14, borderRadius: 12, backgroundColor: colors.bg[50] },
-  heroStatLabelRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  heroStatLabel: { ...typography.caption2, color: colors.gray[500] },
-  heroStatValue: { ...typography.head3, color: colors.primary[400], marginTop: 8 },
+  heroStats: { flexDirection: "row", gap: 6, marginTop: 8 },
+  heroStat: { flex: 1, padding: 6, borderRadius: 12, backgroundColor: colors.bg[50] },
+  heroStatLabelRow: { flexDirection: "row", alignItems: "center", gap: 3 },
+  heroStatLabel: { ...typography.caption2, color: colors.gray[600] },
+  heroStatValue: { ...typography.head3, color: colors.primary[400], marginTop: 4 },
 });

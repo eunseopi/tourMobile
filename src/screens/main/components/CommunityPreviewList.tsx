@@ -1,4 +1,5 @@
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import type { Spot } from "src/reducer/types";
 import DefaultProfile from "src/assets/default_profile.svg";
@@ -28,7 +29,13 @@ export function CommunityPreviewList({ isLoading, posts, onPressPost }: Props) {
       {posts.map((post) => (
         <Pressable key={post.id} style={styles.postPreview} onPress={() => onPressPost(post)}>
           {post.imageUrls?.[0] ? (
-            <Image source={{ uri: post.imageUrls[0] }} style={styles.postPreviewImage} />
+            <Image
+              source={{ uri: post.imageUrls[0] }}
+              style={styles.postPreviewImage}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={150}
+            />
           ) : (
             <View style={[styles.postPreviewImage, styles.postPreviewFallback]}>
               <Text style={styles.postPreviewFallbackText}>POST</Text>
@@ -45,7 +52,11 @@ export function CommunityPreviewList({ isLoading, posts, onPressPost }: Props) {
             <View style={styles.postPreviewFooter}>
               <View style={styles.avatar}>
                 {post.userProfile ? (
-                  <Image source={{ uri: post.userProfile }} style={styles.avatarImage} />
+                  <Image
+                    source={{ uri: post.userProfile }}
+                    style={styles.avatarImage}
+                    cachePolicy="memory-disk"
+                  />
                 ) : (
                   <DefaultProfile width={14} height={14} />
                 )}
@@ -63,7 +74,7 @@ export function CommunityPreviewList({ isLoading, posts, onPressPost }: Props) {
 
 const styles = StyleSheet.create({
   centerBox: { paddingVertical: 22, alignItems: "center", justifyContent: "center" },
-  centerText: { ...typography.body4, color: colors.gray[500], marginTop: 10 },
+  centerText: { ...typography.body4, color: colors.gray[600], marginTop: 10 },
   postPreview: { flexDirection: "row", marginTop: 12, minHeight: 92, gap: 12 },
   postPreviewImage: {
     width: 92,
@@ -74,7 +85,7 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[200],
   },
   postPreviewFallback: { alignItems: "center", justifyContent: "center" },
-  postPreviewFallbackText: { ...typography.caption1, color: colors.gray[400] },
+  postPreviewFallbackText: { ...typography.caption1, color: colors.gray[600] },
   postPreviewText: { flex: 1, justifyContent: "center", gap: 6 },
   titleRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   postPreviewTitle: { ...typography.body3, color: colors.gray[800], flexShrink: 1 },
@@ -92,5 +103,5 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[300],
   },
   avatarImage: { width: "100%", height: "100%" },
-  postPreviewMeta: { ...typography.caption2, color: colors.gray[400], flexShrink: 1 },
+  postPreviewMeta: { ...typography.caption2, color: colors.gray[600], flexShrink: 1 },
 });

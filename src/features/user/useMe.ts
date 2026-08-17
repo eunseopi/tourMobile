@@ -1,5 +1,6 @@
 import { type SessionMe } from "../../api/users";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
+import { gradeNameOf } from "src/utils/lib/moodGrade";
 
 export type Me = {
   id: string;
@@ -10,16 +11,6 @@ export type Me = {
   totalSteps: number;
   moodGrade: string; // 원본 코드
   gradeName: string; // 등급 한글 이름
-};
-
-// 서버 코드 → 한글 등급명
-const gradeNameOf = (code?: string) => {
-  switch (code) {
-    case "BALBADAK":
-      return "발바닥";
-    default:
-      return "발바닥";
-  }
 };
 
 const mapMe = (dto?: SessionMe): Me | null => {
