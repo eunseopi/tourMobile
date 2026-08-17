@@ -1,6 +1,30 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Keyboard, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { SpotComment } from "src/components/community/Comment/types";
 import { colors, typography } from "src/design/theme";
+
+/**
+ * 키보드가 열려있을 땐 KeyboardAvoidingView가 이미 키보드 바로 위까지 밀어올려주므로,
+ * 홈 인디케이터용 안전영역 패딩을 그대로 더하면 입력창과 키보드 사이에 빈 틈이 생긴다.
+ * 키보드가 닫혀있을 때만 안전영역 패딩을 적용한다.
+ */
+function useIsKeyboardVisible() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const showSub = Keyboard.addListener(showEvent, () => setVisible(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setVisible(false));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  return visible;
+}
 
 type Props = {
   text: string;
@@ -20,13 +44,16 @@ export function PostCommentComposer({
   onSubmit,
 }: Props) {
   const disabled = !text.trim() || isSubmitting;
+  const insets = useSafeAreaInsets();
+  const isKeyboardVisible = useIsKeyboardVisible();
+  const bottomPadding = isKeyboardVisible ? 10 : Math.max(insets.bottom, 10);
 
   return (
     <>
       {replyTarget ? (
         <View style={styles.replyBanner}>
           <Text style={styles.replyBannerText} numberOfLines={1}>
-            {replyTarget.userNickname || "댓글"}에게 답글 작성 중
+            {replyTarget.nickname || "댓글"}에게 답글 작성 중
           </Text>
           <Pressable onPress={onCancelReply}>
             <Text style={styles.cancelReplyText}>취소</Text>
@@ -34,7 +61,7 @@ export function PostCommentComposer({
         </View>
       ) : null}
 
-      <View style={styles.inputBar}>
+      <View style={[styles.inputBar, { paddingBottom: bottomPadding }]}>
         <TextInput
           value={text}
           onChangeText={onChangeText}

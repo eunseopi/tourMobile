@@ -1,18 +1,11 @@
+import { useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CompositeScreenProps } from "@react-navigation/native";
+import { useScrollToTop } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type {
   MainTabParamList,
   RootStackParamList,
@@ -21,10 +14,16 @@ import { communityApi } from "src/api/community";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, shadow, typography } from "src/design/theme";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
+import { FadeSlideIn } from "src/components/ui/FadeSlideIn";
+import { PressableScale } from "src/components/ui/PressableScale";
 import { useCommunityBanners } from "src/features/community/useCommunityBanners";
 import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import type { SpotPage } from "src/reducer/types";
 import { useCommunityStore } from "src/stores/communityStore";
+import { useReportedContentStore } from "src/stores/reportedContentStore";
+import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
+import SearchIcon from "src/assets/Search.svg";
 import WriteIcon from "src/assets/Icons.svg";
 import { CommunityHeader } from "./components/CommunityHeader";
 import { PostCard } from "./components/PostCard";
@@ -35,7 +34,9 @@ type Props = CompositeScreenProps<
 >;
 
 export default function CommunityScreen({ navigation }: Props) {
-  const tabBarHeight = useBottomTabBarHeight();
+  const listRef = useRef<FlatList<SpotPage["content"][number]>>(null);
+  useScrollToTop(listRef);
+  const tabBarHeight = useTabBarHeight();
   const queryClient = useQueryClient();
   const activeTab = useCommunityStore((state) => state.activeTab);
   const currentPage = useCommunityStore((state) => state.currentPage);
@@ -49,7 +50,10 @@ export default function CommunityScreen({ navigation }: Props) {
     isRefetching,
   } = useCommunityPosts(activeTab, currentPage, 20);
   const { data: banners = [] } = useCommunityBanners();
-  const posts = postPage?.content ?? [];
+  const reportedPostIds = useReportedContentStore((state) => state.reportedPostIds);
+  // /latest, /most-liked는 서버 쿼리에서 이미 관광공사(TourAPI) 데이터를 제외하고
+  // 유저 작성 글만 내려준다.
+  const posts = (postPage?.content ?? []).filter((post) => !reportedPostIds.includes(post.id));
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, liked }: { id: number; liked: boolean }) => {
@@ -121,12 +125,12 @@ export default function CommunityScreen({ navigation }: Props) {
         <ScreenHeader title="커뮤니티" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>게시글을 불러오지 못했어요.</Text>
-          <Pressable
+          <PressableScale
             style={commonStyles.primaryButton}
             onPress={() => refetch()}
           >
             <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
-          </Pressable>
+          </PressableScale>
         </View>
       </View>
     );
@@ -134,21 +138,38 @@ export default function CommunityScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="커뮤니티" showBack={false} />
+      <ScreenHeader
+        title="커뮤니티"
+        showBack={false}
+        right={
+          <View style={styles.headerActions}>
+            <Pressable
+              hitSlop={8}
+              onPress={() => navigation.navigate("CommunitySearch")}
+            >
+              <SearchIcon width={22} height={22} />
+            </Pressable>
+            <NotificationBellButton />
+          </View>
+        }
+      />
       <FlatList
+        ref={listRef}
         style={styles.container}
         data={posts}
         keyExtractor={(item) => String(item.id)}
         ListHeaderComponent={
-          <CommunityHeader
-            activeTab={activeTab}
-            banners={banners}
-            onChangeTab={setActiveTab}
-          />
+          <View style={styles.headerPadding}>
+            <CommunityHeader
+              activeTab={activeTab}
+              banners={banners}
+              onChangeTab={setActiveTab}
+            />
+          </View>
         }
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: 24 + tabBarHeight },
+          { paddingBottom: tabBarHeight },
         ]}
         refreshControl={
           <RefreshControl
@@ -161,31 +182,36 @@ export default function CommunityScreen({ navigation }: Props) {
             <Text style={styles.mutedText}>게시물이 없습니다.</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <PostCard
-            post={item}
-            onPress={() => {
-              if (item.type === "CHALLENGE") {
-                navigation.navigate("Main", { screen: "Challenge" });
-              } else if (item.type === "SPOT") {
-                navigation.navigate("SpotDetail", { spotId: item.id });
-              } else {
-                navigation.navigate("PostDetail", { postId: item.id });
-              }
-            }}
-            onToggleLike={() =>
-              likeMutation.mutate({ id: item.id, liked: !item.likedByMe })
-            }
-          />
+        renderItem={({ item, index }) => (
+          <FadeSlideIn delay={Math.min(index, 8) * 40}>
+            <PostCard
+              post={item}
+              onPress={() => {
+                if (item.type === "CHALLENGE") {
+                  navigation.navigate("Main", { screen: "Challenge" });
+                } else if (item.type === "SPOT") {
+                  navigation.navigate("SpotDetail", { spotId: item.id });
+                } else {
+                  navigation.navigate("PostDetail", { postId: item.id });
+                }
+              }}
+              onToggleLike={() => {
+                // 연타로 같은 게시글에 좋아요/취소가 겹쳐 들어가면 서버에서 충돌로
+                // 실패하는 경우가 있어, 해당 게시글에 이미 요청이 진행 중이면 무시한다.
+                if (likeMutation.isPending && likeMutation.variables?.id === item.id) return;
+                likeMutation.mutate({ id: item.id, liked: !item.likedByMe });
+              }}
+            />
+          </FadeSlideIn>
         )}
       />
 
-      <Pressable
+      <PressableScale
         style={[styles.fab]}
         onPress={() => navigation.navigate("PostWrite")}
       >
         <WriteIcon width={26} height={26} />
-      </Pressable>
+      </PressableScale>
     </View>
   );
 }
@@ -199,11 +225,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bg[50],
   },
-  content: {
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  content: {},
+  headerPadding: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 96,
-    gap: 20,
+    paddingBottom: 12,
   },
   center: {
     flex: 1,
@@ -219,7 +250,7 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     ...typography.body4,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   errorText: {
     ...typography.body3,

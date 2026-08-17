@@ -1,8 +1,15 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { colors, shadow, typography } from "src/design/theme";
+import { useRef } from "react";
+import { Image } from "expo-image";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import { colors, typography } from "src/design/theme";
+import { useCommentCount } from "src/features/community/useCommentCount";
 import type { Spot } from "src/reducer/types";
 import { formatDate } from "src/utils/formDate";
+import CommentIcon from "src/assets/CommentIcon.svg";
 import DefaultProfile from "src/assets/default_profile.svg";
+import HeartFilledIcon from "src/assets/HeartFilled.svg";
+import HeartOutlineIcon from "src/assets/HeartOutline.svg";
 
 type Props = {
   post: Spot;
@@ -11,77 +18,121 @@ type Props = {
 };
 
 export function PostCard({ post, onPress, onToggleLike }: Props) {
+  const commentCount = useCommentCount(post.id);
+  const coverImage = post.imageUrls?.[0];
+  const extraImageCount = (post.imageUrls?.length ?? 0) - 1;
+  const cardScale = useRef(new Animated.Value(1)).current;
+  const heartScale = useRef(new Animated.Value(1)).current;
+
+  const animateCardTo = (value: number) => {
+    Animated.spring(cardScale, { toValue: value, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
+  };
+
+  const handleToggleLike = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    heartScale.setValue(0.7);
+    Animated.spring(heartScale, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 16 }).start();
+    onToggleLike();
+  };
+
   return (
-    <Pressable style={styles.postCard} onPress={onPress}>
+    <Animated.View style={{ transform: [{ scale: cardScale }] }}>
+      <Pressable
+        style={styles.postCard}
+        onPress={onPress}
+        onPressIn={() => animateCardTo(0.98)}
+        onPressOut={() => animateCardTo(1)}
+      >
       <View style={styles.postHeader}>
         <View style={styles.avatar}>
           {post.userProfile ? (
-            <Image source={{ uri: post.userProfile }} style={styles.avatarImage} />
+            <Image
+              source={{ uri: post.userProfile }}
+              style={styles.avatarImage}
+              cachePolicy="memory-disk"
+              transition={150}
+            />
           ) : (
-            <DefaultProfile width={40} height={40} />
+            <DefaultProfile width={32} height={32} />
           )}
         </View>
-        <View style={styles.authorBox}>
-          <Text style={styles.author}>{post.userNickname || "익명"}</Text>
-          <Text style={styles.date}>{formatDate(post.createdAt)}</Text>
-        </View>
-      </View>
-
-      {post.imageUrls?.length ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.imageContainer}
-        >
-          {post.imageUrls.map((image, index) => (
-            <Image key={`${image}-${index}`} source={{ uri: image }} style={styles.postImage} />
-          ))}
-        </ScrollView>
-      ) : null}
-
-      <View style={styles.contentSection}>
-        <View style={styles.locationTag}>
-          <Text style={styles.locationIcon}>⌖</Text>
-          <Text style={styles.locationText} numberOfLines={1}>{post.name}</Text>
-        </View>
-        <Text style={styles.description} numberOfLines={3}>
-          {post.description}
+        <Text style={styles.author} numberOfLines={1}>
+          {post.userNickname || "익명"}
         </Text>
       </View>
 
-      <View style={styles.actionSection}>
+      {coverImage ? (
+        <View style={styles.imageWrapper}>
+          <Image
+            source={{ uri: coverImage }}
+            style={styles.image}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={150}
+          />
+          {extraImageCount > 0 ? (
+            <View style={styles.imageCountBadge}>
+              <Text style={styles.imageCountText}>1/{extraImageCount + 1}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
+      <View style={styles.actionRow}>
         <Pressable
-          style={styles.actionButton}
           onPress={(event) => {
             event.stopPropagation();
-            onToggleLike();
+            handleToggleLike();
           }}
+          hitSlop={6}
         >
-          <Text style={[styles.actionText, post.likedByMe && styles.likedText]}>
-            {post.likedByMe ? "♥" : "♡"} 좋아요 {post.likeCount || 0}
-          </Text>
+          <Animated.View style={{ transform: [{ scale: heartScale }] }}>
+            {post.likedByMe ? (
+              <HeartFilledIcon width={24} height={24} />
+            ) : (
+              <HeartOutlineIcon width={24} height={24} />
+            )}
+          </Animated.View>
         </Pressable>
+        <CommentIcon width={23} height={23} />
       </View>
-    </Pressable>
+
+      <Text style={styles.likeCount}>좋아요 {post.likeCount || 0}개</Text>
+
+      <View style={styles.captionBlock}>
+        <Text style={styles.caption} numberOfLines={2}>
+          {post.title}
+        </Text>
+        <Text style={styles.description} numberOfLines={2}>
+          {post.description}
+        </Text>
+        {commentCount > 0 ? (
+          <Text style={styles.viewCommentsText}>댓글 {commentCount}개 모두 보기</Text>
+        ) : null}
+        <Text style={styles.date}>{formatDate(post.createdAt)}</Text>
+      </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   postCard: {
-    paddingTop: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
     backgroundColor: colors.bg[0],
-    ...shadow.card,
+    borderBottomWidth: 8,
+    borderBottomColor: colors.bg[50],
   },
   postHeader: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 9,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -93,79 +144,68 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  authorBox: {
-    flex: 1,
-    marginLeft: 9,
-    gap: 2,
-  },
   author: {
     ...typography.body3,
     color: colors.gray[800],
+    flexShrink: 1,
   },
-  date: {
-    ...typography.caption2,
-    color: colors.gray[400],
-  },
-  imageContainer: {
-    gap: 8,
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  postImage: {
-    width: 130,
-    height: 130,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: colors.gray[200],
+  imageWrapper: {
+    width: "100%",
+    aspectRatio: 1,
     backgroundColor: colors.gray[100],
   },
-  contentSection: {
-    gap: 12,
-    paddingTop: 7,
-    paddingBottom: 12,
+  image: {
+    width: "100%",
+    height: "100%",
   },
-  locationTag: {
-    alignSelf: "flex-start",
+  imageCountBadge: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.55)",
+  },
+  imageCountText: {
+    ...typography.caption2,
+    fontSize: 11,
+    color: colors.base[0],
+  },
+  actionRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 14,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+  },
+  likeCount: {
+    ...typography.body3,
+    color: colors.gray[800],
+    paddingHorizontal: 16,
+    marginTop: 6,
+  },
+  captionBlock: {
+    paddingHorizontal: 16,
+    paddingTop: 4,
+    paddingBottom: 12,
     gap: 4,
-    maxWidth: "100%",
-    paddingVertical: 6,
-    paddingHorizontal: 7,
-    borderRadius: 50,
-    backgroundColor: colors.gray[100],
   },
-  locationIcon: {
-    ...typography.caption1,
-    color: colors.gray[400],
-  },
-  locationText: {
-    ...typography.caption1,
-    color: colors.gray[500],
+  caption: {
+    ...typography.body3,
+    color: colors.gray[800],
   },
   description: {
     ...typography.body4,
     color: colors.gray[600],
   },
-  actionSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 8,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.gray[200],
-  },
-  actionButton: {
-    flex: 1,
-    minHeight: 32,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  actionText: {
+  viewCommentsText: {
     ...typography.caption1,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
-  likedText: {
-    color: colors.primary[400],
+  date: {
+    ...typography.caption2,
+    color: colors.gray[600],
+    marginTop: 2,
   },
 });

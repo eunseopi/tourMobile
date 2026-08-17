@@ -1,17 +1,93 @@
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Image } from "expo-image";
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
+import type { ReportReason } from "src/api/community";
 import type { SpotComment } from "src/components/community/Comment/types";
 import { colors, typography } from "src/design/theme";
-import { formatDate } from "src/utils/formDate";
+import { useBlockUser } from "src/features/community/useBlockUser";
 import DefaultProfile from "src/assets/default_profile.svg";
+import { ReportModal } from "./ReportModal";
 
 type Props = {
   comments: SpotComment[];
   isLoading: boolean;
   onRefresh: () => void;
   onReply: (comment: SpotComment) => void;
+  onToggleLike: (comment: SpotComment) => void;
+  isMyComment: (comment: SpotComment) => boolean;
+  onDeleteComment: (comment: SpotComment) => void;
+  onUpdateComment: (comment: SpotComment, text: string) => void;
+  isUpdatingComment: boolean;
+  onReportComment: (comment: SpotComment, reason: ReportReason, detail: string) => void;
+  isReportingComment: boolean;
 };
 
-export function PostCommentList({ comments, isLoading, onRefresh, onReply }: Props) {
+export function PostCommentList({
+  comments,
+  isLoading,
+  onRefresh,
+  onReply,
+  onToggleLike,
+  isMyComment,
+  onDeleteComment,
+  onUpdateComment,
+  isUpdatingComment,
+  onReportComment,
+  isReportingComment,
+}: Props) {
+  const [reportTarget, setReportTarget] = useState<SpotComment | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const { block } = useBlockUser();
+
+  const handleBlock = (comment: SpotComment) => {
+    if (comment.userId == null) return;
+    const nickname = comment.nickname || "이 사용자";
+    Alert.alert(
+      "사용자 차단",
+      `${nickname}님을 차단할까요?\n차단하면 이 사용자의 글과 댓글이 더 이상 보이지 않아요.`,
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "차단하기",
+          style: "destructive",
+          onPress: () => {
+            block.mutate(comment.userId!, {
+              onSuccess: () => Alert.alert("차단 완료", `${nickname}님을 차단했어요.`),
+              onError: () => Alert.alert("차단 실패", "잠시 후 다시 시도해주세요."),
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDelete = (comment: SpotComment) => {
+    Alert.alert("댓글 삭제", "댓글을 삭제할까요?", [
+      { text: "취소", style: "cancel" },
+      { text: "삭제", style: "destructive", onPress: () => onDeleteComment(comment) },
+    ]);
+  };
+
+  const startEdit = (comment: SpotComment) => {
+    setEditingId(comment.id);
+    setEditText(comment.text);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const saveEdit = (comment: SpotComment) => {
+    const value = editText.trim();
+    if (!value) return;
+    onUpdateComment(comment, value);
+    setEditingId(null);
+    setEditText("");
+  };
+
   return (
     <>
       <View style={styles.commentHeader}>
@@ -34,37 +110,150 @@ export function PostCommentList({ comments, isLoading, onRefresh, onReply }: Pro
           <CommentItem
             key={`${comment.parentReplyId ?? "root"}-${comment.id}`}
             comment={comment}
+            isMine={isMyComment(comment)}
+            isEditing={editingId === comment.id}
+            editText={editText}
+            isSavingEdit={isUpdatingComment}
+            onChangeEditText={setEditText}
+            onStartEdit={() => startEdit(comment)}
+            onCancelEdit={cancelEdit}
+            onSaveEdit={() => saveEdit(comment)}
             onReply={() => onReply(comment)}
+            onToggleLike={() => onToggleLike(comment)}
+            onDelete={() => handleDelete(comment)}
+            onReport={() => setReportTarget(comment)}
+            onBlock={comment.userId != null ? () => handleBlock(comment) : undefined}
           />
         ))
       )}
+
+      <ReportModal
+        visible={!!reportTarget}
+        targetLabel="댓글"
+        isSubmitting={isReportingComment}
+        onClose={() => setReportTarget(null)}
+        onSubmit={(reason, detail) => {
+          if (reportTarget) onReportComment(reportTarget, reason, detail);
+          setReportTarget(null);
+        }}
+      />
     </>
   );
 }
 
-function CommentItem({ comment, onReply }: { comment: SpotComment; onReply: () => void }) {
+function CommentItem({
+  comment,
+  isMine,
+  isEditing,
+  editText,
+  isSavingEdit,
+  onChangeEditText,
+  onStartEdit,
+  onCancelEdit,
+  onSaveEdit,
+  onReply,
+  onToggleLike,
+  onDelete,
+  onReport,
+  onBlock,
+}: {
+  comment: SpotComment;
+  isMine: boolean;
+  isEditing: boolean;
+  editText: string;
+  isSavingEdit: boolean;
+  onChangeEditText: (value: string) => void;
+  onStartEdit: () => void;
+  onCancelEdit: () => void;
+  onSaveEdit: () => void;
+  onReply: () => void;
+  onToggleLike: () => void;
+  onDelete: () => void;
+  onReport: () => void;
+  onBlock?: () => void;
+}) {
   const isReply = comment.parentReplyId != null;
 
   return (
     <View style={[styles.commentItem, isReply && styles.replyItem]}>
       <View style={styles.commentAvatar}>
-        {comment.userProfile ? (
-          <Image source={{ uri: comment.userProfile }} style={styles.commentAvatarImage} />
+        {comment.profileImageUrl ? (
+          <Image
+            source={{ uri: comment.profileImageUrl }}
+            style={styles.commentAvatarImage}
+            cachePolicy="memory-disk"
+            transition={150}
+          />
         ) : (
           <DefaultProfile width={40} height={40} />
         )}
       </View>
       <View style={styles.commentBody}>
         <View style={styles.commentMetaRow}>
-          <Text style={styles.commentAuthor}>{comment.userNickname || "익명"}</Text>
-          {comment.createdAt ? <Text style={styles.commentDate}>{formatDate(comment.createdAt)}</Text> : null}
+          <Text style={styles.commentAuthor}>{comment.nickname || "익명"}</Text>
+          {comment.relativeTime ? <Text style={styles.commentDate}>{comment.relativeTime}</Text> : null}
         </View>
-        <Text style={styles.commentText}>{comment.text}</Text>
-        {!isReply ? (
-          <Pressable style={styles.replyButton} onPress={onReply}>
-            <Text style={styles.replyButtonText}>답글</Text>
-          </Pressable>
-        ) : null}
+
+        {isEditing ? (
+          <View style={styles.editBox}>
+            <TextInput
+              style={styles.editInput}
+              value={editText}
+              onChangeText={onChangeEditText}
+              multiline
+              autoFocus
+            />
+            <View style={styles.editActionRow}>
+              <Pressable style={styles.replyButton} onPress={onCancelEdit} hitSlop={8}>
+                <Text style={styles.replyButtonText}>취소</Text>
+              </Pressable>
+              <Pressable style={styles.replyButton} onPress={onSaveEdit} disabled={isSavingEdit} hitSlop={8}>
+                <Text style={[styles.replyButtonText, styles.saveButtonText]}>
+                  {isSavingEdit ? "저장 중..." : "저장"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.commentText}>{comment.isDeleted ? "삭제된 댓글이에요." : comment.text}</Text>
+            {!comment.isDeleted ? (
+              <View style={styles.commentActionRow}>
+                <Pressable style={styles.commentLikeButton} onPress={onToggleLike} hitSlop={8}>
+                  <Text style={[styles.commentLikeText, comment.likedByMe && styles.commentLikedText]}>
+                    {comment.likedByMe ? "♥" : "♡"} {comment.likeCount ?? 0}
+                  </Text>
+                </Pressable>
+                {!isReply ? (
+                  <Pressable style={styles.replyButton} onPress={onReply} hitSlop={8}>
+                    <Text style={styles.replyButtonText}>답글</Text>
+                  </Pressable>
+                ) : null}
+                {isMine ? (
+                  <>
+                    <Pressable style={styles.replyButton} onPress={onStartEdit} hitSlop={8}>
+                      <Text style={styles.replyButtonText}>수정</Text>
+                    </Pressable>
+                    <Pressable style={styles.replyButton} onPress={onDelete} hitSlop={8}>
+                      <Text style={styles.replyButtonText}>삭제</Text>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    {onBlock ? (
+                      <Pressable style={styles.replyButton} onPress={onBlock} hitSlop={8}>
+                        <Text style={styles.replyButtonText}>차단</Text>
+                      </Pressable>
+                    ) : null}
+                    <Pressable style={styles.replyButton} onPress={onReport} hitSlop={8}>
+                      <Text style={styles.replyButtonText}>신고</Text>
+                    </Pressable>
+                  </>
+                )}
+              </View>
+            ) : null}
+          </>
+        )}
       </View>
     </View>
   );
@@ -102,7 +291,7 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     ...typography.body4,
-    color: colors.gray[400],
+    color: colors.gray[600],
     textAlign: "center",
   },
   commentItem: {
@@ -145,19 +334,57 @@ const styles = StyleSheet.create({
   },
   commentDate: {
     ...typography.caption2,
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
   commentText: {
     ...typography.body4,
     color: colors.gray[700],
     marginTop: 5,
   },
+  commentActionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 8,
+  },
+  commentLikeButton: {
+    minHeight: 20,
+    justifyContent: "center",
+  },
+  commentLikeText: {
+    ...typography.caption1,
+    color: colors.gray[600],
+  },
+  commentLikedText: {
+    color: colors.primary[400],
+  },
   replyButton: {
     alignSelf: "flex-start",
-    marginTop: 8,
   },
   replyButtonText: {
     ...typography.caption1,
-    color: colors.gray[500],
+    color: colors.gray[600],
+  },
+  editBox: {
+    marginTop: 6,
+    gap: 8,
+  },
+  editInput: {
+    minHeight: 60,
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+    borderRadius: 8,
+    padding: 10,
+    ...typography.body4,
+    color: colors.gray[800],
+    textAlignVertical: "top",
+  },
+  editActionRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 16,
+  },
+  saveButtonText: {
+    color: colors.primary[400],
   },
 });
