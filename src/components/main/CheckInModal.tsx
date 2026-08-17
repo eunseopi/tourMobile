@@ -1,13 +1,19 @@
+import { useEffect, useRef } from "react";
 import {
+  Animated,
   Modal,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import * as Haptics from "expo-haptics";
+import { PressableScale } from "src/components/ui/PressableScale";
+import HanlabongActive from "src/assets/hanlabong.svg";
+import HanlabongInactive from "src/assets/hanlabong-dis.svg";
 
 type Props = {
   open: boolean;
+  mode?: "success" | "already";
   day: number;
   reward: number;
   bonus?: number;
@@ -19,41 +25,75 @@ const DAYS = [1, 2, 3, 4, 5, 6, 7];
 
 export default function CheckInModal({
   open,
+  mode = "success",
   day,
   reward,
   bonus = 0,
   onClose,
   onClaim,
 }: Props) {
+  const scale = useRef(new Animated.Value(0.85)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  const stampPop = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!open) return;
+    scale.setValue(0.85);
+    opacity.setValue(0);
+    stampPop.setValue(0);
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    Animated.parallel([
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 14, bounciness: 10 }),
+      Animated.timing(opacity, { toValue: 1, duration: 180, useNativeDriver: true }),
+    ]).start();
+    Animated.spring(stampPop, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 10,
+      bounciness: 18,
+      delay: 150,
+    }).start();
+  }, [open, scale, opacity, stampPop]);
+
   return (
     <Modal transparent visible={open} animationType="fade" onRequestClose={onClose}>
       <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <Text style={styles.title}>하루제주 입장을 환영해요!</Text>
-          <Text style={styles.desc}>
-            {day}일 출석 성공! <Text style={styles.highlight}>{reward}</Text> 한라봉을 지급했어요!
-            {bonus > 0 ? (
-              <>
-                {" "}
-                7일 연속 보너스 <Text style={styles.highlight}>{bonus}</Text> 추가 지급!
-              </>
-            ) : null}
+        <Animated.View style={[styles.modal, { opacity, transform: [{ scale }] }]}>
+          <Text style={styles.title}>
+            {mode === "already" ? "오늘 출석 완료!" : "하루제주 입장을 환영해요!"}
           </Text>
+
+          {mode === "already" ? (
+            <Text style={styles.desc}>
+              오늘 출석체크는 이미 완료했어요! 도장이 찍혔어요.{"\n"}내일 또 눌러서 연속
+              스탬프를 이어가 보세요 🍊
+            </Text>
+          ) : (
+            <Text style={styles.desc}>
+              {day}일 출석 성공! <Text style={styles.highlight}>{reward}</Text> 한라봉을 지급했어요!
+              {bonus > 0 ? (
+                <>
+                  {" "}
+                  7일 연속 보너스 <Text style={styles.highlight}>{bonus}</Text> 추가 지급!
+                </>
+              ) : null}
+            </Text>
+          )}
 
           <View style={styles.board}>
             <View style={styles.row}>
               {DAYS.slice(0, 4).map((item) => (
-                <Stamp key={item} item={item} active={item <= day} current={item === day} />
+                <Stamp key={item} item={item} active={item <= day} current={item === day} popAnim={stampPop} />
               ))}
             </View>
             <View style={styles.rowReverse}>
               {DAYS.slice(4).map((item) => (
-                <Stamp key={item} item={item} active={item <= day} current={item === day} />
+                <Stamp key={item} item={item} active={item <= day} current={item === day} popAnim={stampPop} />
               ))}
             </View>
           </View>
 
-          <Pressable
+          <PressableScale
             style={styles.primaryButton}
             onPress={() => {
               onClaim();
@@ -61,8 +101,8 @@ export default function CheckInModal({
             }}
           >
             <Text style={styles.primaryButtonText}>홈으로 가기</Text>
-          </Pressable>
-        </View>
+          </PressableScale>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -72,17 +112,34 @@ function Stamp({
   item,
   active,
   current,
+  label,
+  popAnim,
 }: {
   item: number;
   active: boolean;
   current: boolean;
+  label?: string;
+  popAnim: Animated.Value;
 }) {
   return (
     <View style={styles.stampWrap}>
-      <View style={[styles.stamp, active && styles.stampActive]}>
-        <Text style={[styles.stampIcon, active && styles.stampIconActive]}>🍊</Text>
-      </View>
-      <Text style={[styles.stampLabel, current && styles.stampLabelCurrent]}>{item}일차</Text>
+      <Animated.View
+        style={[
+          styles.stamp,
+          active && styles.stampActive,
+          current && styles.stampCurrent,
+          current ? { transform: [{ scale: popAnim }] } : null,
+        ]}
+      >
+        {active ? (
+          <HanlabongActive width={34} height={34} />
+        ) : (
+          <HanlabongInactive width={34} height={34} />
+        )}
+      </Animated.View>
+      <Text style={[styles.stampLabel, current && styles.stampLabelCurrent]}>
+        {label ?? `${item}일차`}
+      </Text>
     </View>
   );
 }
@@ -123,6 +180,10 @@ const styles = StyleSheet.create({
     marginTop: 22,
     gap: 16,
   },
+  singleStampBoard: {
+    marginTop: 22,
+    alignItems: "center",
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -148,12 +209,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ffbf98",
   },
-  stampIcon: {
-    fontSize: 22,
-    opacity: 0.45,
-  },
-  stampIconActive: {
-    opacity: 1,
+  stampCurrent: {
+    borderWidth: 2,
+    borderColor: "#ff8b4c",
   },
   stampLabel: {
     marginTop: 8,

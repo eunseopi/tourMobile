@@ -1,73 +1,38 @@
-import { useCallback, useEffect, useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { attendanceApi } from "src/api/attendanceApi";
 import { QK } from "src/utils/lib/queryKeys";
 
-type CheckInState = {
-  shouldOpen: boolean;
-  day: number;
-  reward: number;
-  bonus: number;
-};
-
-const memoryAttendance = new Set<string>();
-
-const todayKey = () => `attendance:${new Date().toISOString().slice(0, 10)}`;
-
-function readDone(key: string) {
-  return memoryAttendance.has(key);
-}
-
-function writeDone(key: string) {
-  memoryAttendance.add(key);
+/**
+ * 앱 켜자마자 자동으로 조용히 체크하던 이전 방식은 성공/실패를 눈으로 확인할 수 없어서
+ * "출석이 되는지 안 되는지조차 모르겠다"는 문제가 있었다. 홈 화면의 "출석체크" 버튼을
+ * 사용자가 직접 눌러서 매번 결과(보상 또는 "이미 완료")를 바로 확인하는 방식으로 바꿨다.
+ */
+export function useAttendanceStatus() {
+  return useQuery({
+    queryKey: QK.attendanceStatus,
+    queryFn: async () => {
+      const { data } = await attendanceApi.getStatus();
+      return data.data;
+    },
+  });
 }
 
 export function useCheckIn() {
   const queryClient = useQueryClient();
-  const dateKey = todayKey();
 
   const mutation = useMutation({
-    mutationKey: QK.attendanceCheck(dateKey),
     mutationFn: async () => {
       const { data } = await attendanceApi.check();
-      return data;
+      return data.data;
     },
-    onSuccess: (data) => {
-      writeDone(dateKey);
-      queryClient.setQueryData(QK.attendanceCheck(dateKey), data);
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QK.sessionMe });
-    },
-    onError: () => {
-      writeDone(dateKey);
+      void queryClient.invalidateQueries({ queryKey: QK.attendanceStatus });
     },
   });
 
-  const run = useCallback(() => {
-    if (readDone(dateKey)) return;
-    if (mutation.isPending || mutation.isSuccess) return;
-    mutation.mutate();
-  }, [dateKey, mutation]);
-
-  useEffect(() => {
-    run();
-  }, [run]);
-
-  const state = useMemo<CheckInState>(() => {
-    const data = mutation.data;
-    const day = Number(data?.days ?? 0);
-    const reward = Number(data?.baseHallabong ?? 0);
-    const bonus = Number(data?.bonusHallabong ?? 0);
-    return {
-      shouldOpen: reward + bonus > 0,
-      day,
-      reward,
-      bonus,
-    };
-  }, [mutation.data]);
-
-  const claim = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: QK.sessionMe });
-  }, [queryClient]);
-
-  return { state, claim, isLoading: mutation.isPending };
+  return {
+    checkIn: mutation.mutateAsync,
+    isChecking: mutation.isPending,
+  };
 }

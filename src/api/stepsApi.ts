@@ -13,6 +13,6 @@ type ApiRes<T> = { success: boolean; data: T };
 
 export const stepsApi = {
   save: (stepCount: number) => api.post("v1/steps", { stepCount }),
-  convert: (requestedPoints: number, signal?: AbortSignal) =>
-    api.post<ApiRes<ConvertRes>>("/v1/steps/convert", { requestedPoints }, { signal }),
+  convert: (requestedPoints: number, requestId: string, signal?: AbortSignal) =>
+    api.post<ApiRes<ConvertRes>>("/v1/steps/convert", { requestedPoints, requestId }, { signal }),
 };
