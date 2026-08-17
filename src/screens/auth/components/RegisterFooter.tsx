@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     ...typography.body1,
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
   primaryButton: {
     flex: 2,
@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
     color: colors.base[0],
   },
   primaryButtonTextDisabled: {
-    color: colors.gray[400],
+    color: colors.gray[600],
   },
 });

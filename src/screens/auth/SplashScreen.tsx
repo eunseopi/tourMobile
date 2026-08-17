@@ -1,31 +1,48 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { HallabongLogo } from "src/components/brand/HallabongLogo";
-import { colors, layout, typography } from "src/design/theme";
+import { AppModal } from "src/components/ui/AppModal";
+import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
+import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
+import { PRIVACY_POLICY_CONTENT, TERMS_OF_SERVICE_CONTENT } from "src/config/legalContent";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { onboardingStorage } from "src/utils/lib/onboardingStorage";
+import { termsStorage } from "src/utils/lib/termsStorage";
+
+const TERMS_CONTENT = `[이용약관]
+
+${TERMS_OF_SERVICE_CONTENT}
+
+
+[개인정보 수집 및 이용 동의]
+
+${PRIVACY_POLICY_CONTENT}`;
 
 type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 
 export default function SplashScreen({ navigation }: Props) {
-  const [canLeaveSplash, setCanLeaveSplash] = useState(false);
-  const [canContinueWithoutSession, setCanContinueWithoutSession] = useState(false);
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
-  const { data: session, isFetching } = useSessionMe();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [hasCheckedTermsStorage, setHasCheckedTermsStorage] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const { data: session } = useSessionMe();
   const nextRoute = useMemo(
-    () => (session ? "Main" : hasOnboarded ? "RegisterChoice" : "LanguageSetting"),
+    () => (session ? "Main" : hasOnboarded ? "RegisterChoice" : "Permission"),
     [session, hasOnboarded]
   );
-  const isCheckingSession = !session && isFetching;
 
   useEffect(() => {
     onboardingStorage.getHasOnboarded().then((value) => {
       setHasOnboarded(value);
       setHasCheckedOnboarding(true);
+    });
+    termsStorage.getHasAgreed().then((value) => {
+      setAgreedToTerms(value);
+      setHasCheckedTermsStorage(true);
     });
   }, []);
 
@@ -33,24 +50,20 @@ export default function SplashScreen({ navigation }: Props) {
     navigation.replace(nextRoute);
   }, [navigation, nextRoute]);
 
+  // 이미 로그인된 세션이 있을 때만 버튼 없이 바로 넘어간다. 그 외에는 "시작하기"를 눌러야만 진행된다.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCanLeaveSplash(true);
-    }, 1200);
-    const fallbackTimer = setTimeout(() => {
-      setCanContinueWithoutSession(true);
-    }, 2200);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(fallbackTimer);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!canLeaveSplash || !hasCheckedOnboarding || (isCheckingSession && !canContinueWithoutSession)) return;
+    if (!session || !hasCheckedOnboarding) return;
     goNext();
-  }, [canContinueWithoutSession, canLeaveSplash, goNext, hasCheckedOnboarding, isCheckingSession]);
+  }, [session, hasCheckedOnboarding, goNext]);
+
+  const isReady = hasCheckedOnboarding && hasCheckedTermsStorage;
+  const canStart = isReady && agreedToTerms;
+
+  const handleStart = () => {
+    if (!canStart) return;
+    void termsStorage.setHasAgreed();
+    goNext();
+  };
 
   return (
     <View style={styles.container}>
@@ -64,10 +77,32 @@ export default function SplashScreen({ navigation }: Props) {
       </View>
 
       <View style={commonStyles.bottomAction}>
-        <Pressable style={commonStyles.primaryButton} onPress={goNext}>
-          <Text style={commonStyles.primaryButtonText}>시작하기</Text>
-        </Pressable>
+        <View style={styles.agreeRow}>
+          <Pressable
+            style={styles.agreeCheckArea}
+            onPress={() => setAgreedToTerms((prev) => !prev)}
+            hitSlop={8}
+          >
+            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+              {agreedToTerms ? <Text style={styles.checkboxMark}>✓</Text> : null}
+            </View>
+            <Text style={styles.agreeText}>이용약관 및 개인정보 처리방침에 동의합니다 (필수)</Text>
+          </Pressable>
+
+          <Pressable onPress={() => setIsTermsModalOpen(true)} hitSlop={8}>
+            <Text style={styles.viewLink}>보기</Text>
+          </Pressable>
+        </View>
+
+        <PrimaryActionButton label="시작하기" disabled={!canStart} onPress={handleStart} />
       </View>
+
+      <AppModal visible={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} variant="sheet">
+        <Text style={styles.modalTitle}>이용약관 및 개인정보 처리방침</Text>
+        <ScrollView style={styles.modalScroll}>
+          <Text style={styles.termsText}>{TERMS_CONTENT}</Text>
+        </ScrollView>
+      </AppModal>
     </View>
   );
 }
@@ -96,5 +131,60 @@ const styles = StyleSheet.create({
   subtitle: {
     ...typography.body4,
     color: colors.gray[700],
+  },
+  termsText: {
+    ...typography.caption2,
+    color: colors.gray[600],
+    lineHeight: 20,
+  },
+  agreeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+    paddingVertical: 4,
+  },
+  agreeCheckArea: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexShrink: 1,
+  },
+  viewLink: {
+    ...typography.caption2,
+    color: colors.gray[600],
+    textDecorationLine: "underline",
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.gray[400],
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.bg[0],
+  },
+  checkboxChecked: {
+    borderColor: colors.primary[400],
+    backgroundColor: colors.primary[400],
+  },
+  checkboxMark: {
+    fontSize: 13,
+    lineHeight: 13,
+    fontWeight: "700",
+    color: colors.base[0],
+  },
+  agreeText: {
+    ...typography.body4,
+    color: colors.gray[600],
+  },
+  modalTitle: {
+    ...typography.head3,
+    color: colors.gray[800],
+    marginBottom: 14,
+  },
+  modalScroll: {
+    maxHeight: "70%",
   },
 });

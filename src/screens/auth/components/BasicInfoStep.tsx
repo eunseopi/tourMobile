@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   segmentButtonText: {
     ...typography.body2,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   segmentButtonTextActive: {
     ...typography.body1,

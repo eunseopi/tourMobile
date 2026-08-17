@@ -1,12 +1,7 @@
 import { useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { FormTextField } from "src/components/form/FormTextField";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
@@ -17,7 +12,7 @@ import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useResetPassword } from "src/features/user/useResetPassword";
 import {
-  validatePassword,
+  validateSignupPassword,
   validatePasswordConfirm,
 } from "src/utils/validation/authValidation";
 
@@ -29,7 +24,7 @@ export default function PasswordResetScreen({ navigation }: Props) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  const passwordError = useMemo(() => validatePassword(password), [password]);
+  const passwordError = useMemo(() => validateSignupPassword(password), [password]);
   const confirmError = useMemo(
     () => validatePasswordConfirm(password, confirm),
     [password, confirm]

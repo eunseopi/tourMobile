@@ -1,19 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import type { AxiosError } from "axios";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "src/app/navigation/types";
+import ChevronLeftIcon from "src/assets/ChevronLeft.svg";
 import { FormTextField } from "src/components/form/FormTextField";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { colors, layout, typography } from "src/design/theme";
@@ -116,8 +109,13 @@ export default function LoginScreen({ navigation }: Props) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Pressable style={styles.backButton} onPress={handleBack} hitSlop={12}>
-            <Text style={styles.backButtonText}>{"<"}</Text>
+          <Pressable
+            accessibilityLabel="뒤로가기"
+            style={styles.backButton}
+            onPress={handleBack}
+            hitSlop={12}
+          >
+            <ChevronLeftIcon width={11} height={18} />
           </Pressable>
 
           <Text style={styles.title}>{"다시 오신 것을 환영해요 :)\n로그인해주세요."}</Text>
@@ -200,12 +198,6 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
     marginBottom: 18,
-  },
-  backButtonText: {
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: "400",
-    color: colors.gray[800],
   },
   title: {
     ...typography.head3,

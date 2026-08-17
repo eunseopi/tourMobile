@@ -11,6 +11,23 @@ export const validatePassword = (password: string) => {
     return '';
 };
 
+export const validateSignupPassword = (password: string) => {
+    if (!password) return '비밀번호를 입력해주세요.';
+    if (password.length < 8 || password.length > 12) {
+        return '비밀번호는 8~12자로 입력해주세요.';
+    }
+    if (!/^[A-Za-z0-9!_@-]+$/.test(password)) {
+        return '영문, 숫자, 특수문자 ! _ @ -만 사용할 수 있어요.';
+    }
+    if (!/[!_@-]/.test(password)) {
+        return '특수문자(!, _, @, -)를 1개 이상 포함해주세요.';
+    }
+    if (!/[A-Za-z0-9]/.test(password)) {
+        return '영문 또는 숫자를 1개 이상 포함해주세요.';
+    }
+    return '';
+};
+
 export const validatePasswordConfirm = (pw: string, confirm: string) => {
     if (pw !== confirm) return '비밀번호가 일치하지 않습니다.';
     return '';

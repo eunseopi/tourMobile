@@ -4,9 +4,10 @@ import { Camera } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { registerForPushNotificationsAsync } from "src/features/notifications/usePushNotifications";
 import { onboardingStorage } from "src/utils/lib/onboardingStorage";
 import { colors, layout, typography } from "src/design/theme";
@@ -108,13 +109,7 @@ export default function PermissionScreen({ navigation }: Props) {
       </View>
 
       <View style={commonStyles.bottomAction}>
-        <Pressable style={commonStyles.primaryButton} onPress={handleAllow} disabled={isSubmitting}>
-          {isSubmitting ? (
-            <ActivityIndicator color={colors.base[0]} />
-          ) : (
-            <Text style={commonStyles.primaryButtonText}>확인</Text>
-          )}
-        </Pressable>
+        <PrimaryActionButton label="확인" isLoading={isSubmitting} onPress={handleAllow} />
       </View>
 
       <ErrorToast message={toastMessage} visible={toastVisible} onClose={() => setToastVisible(false)} />

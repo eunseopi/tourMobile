@@ -1,8 +1,8 @@
-import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from "react-native";
 import { colors, typography } from "src/design/theme";
 import { commonStyles } from "src/design/commonStyles";
-import DefaultProfile from "src/assets/default_profile.svg";
-import CameraIcon from "src/assets/Camera_2.svg";
+import { ProfileImagePicker } from "src/components/profile/ProfileImagePicker";
+import { PressableScale } from "src/components/ui/PressableScale";
 
 type Props = {
   isKakaoRegister: boolean;
@@ -39,30 +39,7 @@ export function ProfileStep({
     <View style={styles.section}>
       <Text style={styles.heading}>프로필을 설정해주세요.</Text>
       {!isKakaoRegister ? (
-        <>
-          <View style={styles.profileImageSection}>
-            <View style={styles.avatarWrapper}>
-              <View style={styles.avatarCircle}>
-                {imageUrl ? (
-                  <Image source={{ uri: imageUrl }} style={styles.profilePreview} />
-                ) : (
-                  <DefaultProfile width={68} height={72} />
-                )}
-              </View>
-              <Pressable style={styles.cameraBadge} onPress={onPickImage} hitSlop={8}>
-                <CameraIcon width={20} height={16} />
-              </Pressable>
-            </View>
-            <View style={styles.profileButtonColumn}>
-              <Pressable style={styles.secondaryButton} onPress={onPickImage}>
-                <Text style={styles.secondaryButtonText}>이미지 선택</Text>
-              </Pressable>
-              <Pressable style={styles.secondaryButton} onPress={onTakeImage}>
-                <Text style={styles.secondaryButtonText}>지금 촬영</Text>
-              </Pressable>
-            </View>
-          </View>
-        </>
+        <ProfileImagePicker imageUri={imageUrl} onPickImage={onPickImage} onTakeImage={onTakeImage} />
       ) : (
         <Text style={styles.profileNotice}>카카오 가입은 닉네임, 추천인, 관심 테마를 입력하면 완료됩니다.</Text>
       )}
@@ -77,13 +54,13 @@ export function ProfileStep({
       />
       {!!nicknameError && <Text style={styles.errorText}>{nicknameError}</Text>}
 
-      <Pressable style={styles.secondaryButton} onPress={onCheckNickname} disabled={isCheckingNickname}>
+      <PressableScale style={styles.secondaryButton} onPress={onCheckNickname} disabled={isCheckingNickname}>
         {isCheckingNickname ? (
           <ActivityIndicator color="#8b532f" />
         ) : (
           <Text style={styles.secondaryButtonText}>{isNicknameDuplicatedChecked ? "확인 완료" : "중복확인"}</Text>
         )}
-      </Pressable>
+      </PressableScale>
 
       <Text style={[styles.label, styles.inlineTop]}>추천인을 입력해주세요.</Text>
       <TextInput
@@ -127,50 +104,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     ...typography.caption1,
     color: colors.gray[600],
-  },
-  profileImageSection: {
-    paddingVertical: 20,
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  avatarWrapper: {
-    width: 90,
-    height: 90,
-    position: "relative",
-  },
-  avatarCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    backgroundColor: colors.gray[200],
-    borderWidth: 1,
-    borderColor: colors.gray[300],
-  },
-  profilePreview: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-  },
-  cameraBadge: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.gray[200],
-    borderWidth: 1,
-    borderColor: colors.base[0],
-  },
-  profileButtonColumn: {
-    width: "100%",
-    gap: 10,
   },
   secondaryButton: {
     ...commonStyles.secondaryButton,

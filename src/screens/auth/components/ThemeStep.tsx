@@ -1,18 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, typography } from "src/design/theme";
+import { USER_THEME_OPTIONS } from "src/features/user/useThemeEditFlow";
 import AlertIcon from "src/assets/Alert.svg";
-
-const THEME_OPTIONS = [
-  "데이트",
-  "힐링",
-  "반려동물",
-  "사진 명소",
-  "가족 여행",
-  "자연",
-  "한달 살이",
-  "나홀로 여행",
-  "맛집 탐방",
-] as const;
 
 type Props = {
   selectedThemes: string[];
@@ -25,7 +14,7 @@ export function ThemeStep({ selectedThemes, onToggleTheme }: Props) {
       <Text style={styles.heading}>테마를 선택해주세요</Text>
       <Text style={styles.helperText}>선택한 테마를 참고하여 추천해드릴게요!</Text>
       <View style={styles.themeGrid}>
-        {THEME_OPTIONS.map((theme) => {
+        {USER_THEME_OPTIONS.map((theme) => {
           const active = selectedThemes.includes(theme);
           return (
             <Pressable
@@ -81,7 +70,7 @@ const styles = StyleSheet.create({
   },
   alertText: {
     ...typography.body3,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   themeChip: {
     width: "30.8%",
@@ -99,7 +88,7 @@ const styles = StyleSheet.create({
   },
   themeChipText: {
     ...typography.body3,
-    color: colors.gray[500],
+    color: colors.gray[600],
     textAlign: "center",
   },
   themeChipTextActive: {

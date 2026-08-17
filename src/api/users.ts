@@ -3,7 +3,7 @@ import type { UploadableImage } from "src/types/SpotTypes";
 
 // 유저정보
 export type SessionMe = {
-    userId: string;
+    userId: number;
     email: string;
     name: string;
     nickname: string;
@@ -59,4 +59,8 @@ export const userApi = {
     },
     deleteProfileImg: (signal?: AbortSignal) =>
         api.delete<ApiRes<string>>('v1/users/profile', { signal }),
+
+    // 회원 탈퇴
+    deleteAccount: (email: string, signal?: AbortSignal) =>
+        api.delete<ApiRes<string>>('v1/users/account/delete', { params: { email }, signal }),
 }

@@ -1,7 +1,8 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { RootStackParamList } from "src/app/navigation/types";
+import ChevronLeftIcon from "src/assets/ChevronLeft.svg";
 import { colors, layout } from "src/design/theme";
 import { useRegisterFlow } from "src/features/auth/useRegisterFlow";
 import { BasicInfoStep } from "./components/BasicInfoStep";
@@ -36,6 +37,14 @@ export default function RegisterScreen({ navigation, route }: Props) {
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <View style={styles.layout}>
           <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            <Pressable
+              accessibilityLabel="뒤로가기"
+              hitSlop={12}
+              style={styles.backButton}
+              onPress={register.handleBack}
+            >
+              <ChevronLeftIcon width={11} height={18} />
+            </Pressable>
             <RegisterStepBar
               totalSteps={register.totalSteps}
               currentStep={register.step}
@@ -137,6 +146,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: layout.screenPadding,
     paddingTop: 12,
     paddingBottom: 132,
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    minWidth: 32,
+    minHeight: 32,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginBottom: 8,
   },
   form: {
     flex: 1,

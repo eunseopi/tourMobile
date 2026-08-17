@@ -1,5 +1,5 @@
 import { useMemo, useReducer, useState } from "react";
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import * as ImagePicker from "expo-image-picker";
 import { useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
@@ -12,7 +12,7 @@ import { authStorage } from "src/utils/lib/authStorage";
 import { toJpeg } from "src/utils/lib/image";
 import {
   validateEmail,
-  validatePassword,
+  validateSignupPassword,
   validatePasswordConfirm,
 } from "src/utils/validation/authValidation";
 
@@ -190,7 +190,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
     if (step === 0) return state.authPassed;
     if (step === 1) return !!state.gender && /^\d{4}$/.test(state.birthYear.trim());
     if (step === 2) {
-      return !validatePassword(state.password) && !validatePasswordConfirm(state.password, passwordConfirm);
+      return !validateSignupPassword(state.password) && !validatePasswordConfirm(state.password, passwordConfirm);
     }
     if (step === 3) {
       return (
@@ -397,7 +397,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       const asset = result.assets[0];
       if (!asset) return;
 
-      const { uri } = await toJpeg(asset.uri);
+      const { uri } = await toJpeg(asset.uri, { width: asset.width, height: asset.height });
       setSelectedProfileImage({
         uri,
         name: `register-${Date.now()}.jpg`,
@@ -427,7 +427,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
       const asset = result.assets[0];
       if (!asset) return;
 
-      const { uri } = await toJpeg(asset.uri);
+      const { uri } = await toJpeg(asset.uri, { width: asset.width, height: asset.height });
       setSelectedProfileImage({
         uri,
         name: `register-${Date.now()}.jpg`,
@@ -440,7 +440,7 @@ export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegister
   };
 
   const handleRegisterPassword = async () => {
-    const passwordMessage = validatePassword(state.password);
+    const passwordMessage = validateSignupPassword(state.password);
     if (passwordMessage) {
       Alert.alert("입력 확인", passwordMessage);
       return false;

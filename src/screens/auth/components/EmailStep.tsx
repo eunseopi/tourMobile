@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   hintText: {
     marginTop: 6,
     ...typography.caption2,
-    color: colors.gray[500],
+    color: colors.gray[600],
   },
   successText: {
     marginTop: 6,
