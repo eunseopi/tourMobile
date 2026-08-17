@@ -2,10 +2,10 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ScrollView, StyleSheet, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { ProfileImagePicker } from "src/components/profile/ProfileImagePicker";
 import { commonStyles } from "src/design/commonStyles";
 import { layout } from "src/design/theme";
 import { useProfileEditFlow } from "src/features/user/useProfileEditFlow";
-import { ProfileEditImagePicker } from "./components/ProfileEditImagePicker";
 import { ProfileEditStateView } from "./components/ProfileEditStateView";
 import { ProfileEditSubmitBar } from "./components/ProfileEditSubmitBar";
 import { ProfileNicknameForm } from "./components/ProfileNicknameForm";
@@ -39,9 +39,8 @@ export default function ProfileEditScreen({ navigation }: Props) {
         style={styles.container}
         contentContainerStyle={styles.content}
       >
-        <ProfileEditImagePicker
-          profileUri={profileEdit.profileUri}
-          fallbackInitial={profileEdit.fallbackInitial}
+        <ProfileImagePicker
+          imageUri={profileEdit.profileUri}
           hasProfileImage={!!profileEdit.me.profile}
           hasSelectedImage={!!profileEdit.selectedImage}
           isDeletingImage={profileEdit.isDeletingImage}

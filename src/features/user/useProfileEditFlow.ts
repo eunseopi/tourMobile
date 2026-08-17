@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Alert } from "react-native";
+import { Alert } from "src/components/ui/AppAlert";
 import * as ImagePicker from "expo-image-picker";
 import { authApi } from "src/api/auth";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
@@ -20,7 +20,7 @@ function validateNickname(value: string) {
 }
 
 async function toUploadableImage(asset: ImagePicker.ImagePickerAsset): Promise<UploadableImage> {
-  const { uri } = await toJpeg(asset.uri);
+  const { uri } = await toJpeg(asset.uri, { width: asset.width, height: asset.height });
   return {
     uri,
     name: `profile-${Date.now()}.jpg`,
@@ -42,7 +42,6 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
 
   const nicknameChanged = useMemo(() => (me?.nickname ?? "") !== nickname, [me?.nickname, nickname]);
   const profileUri = selectedImage?.uri ?? me?.profile ?? undefined;
-  const fallbackInitial = (me?.nickname || me?.name || "제").slice(0, 1);
   const hasImageChange = !!selectedImage;
   const isSubmitDisabled = isSaving || (!nicknameChanged && !hasImageChange);
 
@@ -179,7 +178,6 @@ export function useProfileEditFlow({ onComplete }: UseProfileEditFlowOptions) {
     nickname,
     error,
     profileUri,
-    fallbackInitial,
     selectedImage,
     isLoading,
     isError,
