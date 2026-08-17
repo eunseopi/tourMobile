@@ -10,10 +10,15 @@ import ChallengeIcon from "src/assets/Challenge_gray.svg";
 import ChallengeActiveIcon from "src/assets/Challenge_ic.svg";
 import MyPageIcon from "src/assets/MyPage.svg";
 import MyPageActiveIcon from "src/assets/myPage_active.svg";
+import ShopIcon from "src/assets/Store_gray.svg";
+import ShopActiveIcon from "src/assets/store.svg";
 import { colors, typography } from "src/design/theme";
+import { useRegisterPushToken } from "src/features/notifications/useRegisterPushToken";
+import { useStepTracking } from "src/features/steps/useStepTracking";
 import MainScreen from "src/screens/main/MainScreen";
 import CommunityScreen from "src/screens/community/CommunityScreen";
 import ChallengeScreen from "src/screens/challenge/ChallengeScreen";
+import ShopScreen from "src/screens/shop/ShopScreen";
 import MyPageScreen from "src/screens/my-page/MyPageScreen";
 import type { MainTabParamList } from "./types";
 
@@ -25,12 +30,15 @@ const TAB_ICONS: Record<keyof MainTabParamList, { active: SvgIcon; inactive: Svg
   Home: { active: HomeActiveIcon, inactive: HomeIcon },
   Community: { active: CommunityActiveIcon, inactive: CommunityIcon },
   Challenge: { active: ChallengeActiveIcon, inactive: ChallengeIcon },
+  Shop: { active: ShopActiveIcon, inactive: ShopIcon },
   MyPage: { active: MyPageActiveIcon, inactive: MyPageIcon },
 };
 
 export function MainTabNavigator() {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 8);
+  const bottomInset = Math.max(insets.bottom, 8) + 8;
+  useRegisterPushToken();
+  useStepTracking();
 
   return (
     <Tab.Navigator
@@ -49,8 +57,9 @@ export function MainTabNavigator() {
       })}
     >
       <Tab.Screen name="Home" component={MainScreen} options={{ tabBarLabel: "홈" }} />
-      <Tab.Screen name="Community" component={CommunityScreen} options={{ tabBarLabel: "커뮤니티" }} />
       <Tab.Screen name="Challenge" component={ChallengeScreen} options={{ tabBarLabel: "챌린지" }} />
+      <Tab.Screen name="Community" component={CommunityScreen} options={{ tabBarLabel: "커뮤니티" }} />
+      <Tab.Screen name="Shop" component={ShopScreen} options={{ tabBarLabel: "상점" }} />
       <Tab.Screen name="MyPage" component={MyPageScreen} options={{ tabBarLabel: "마이페이지" }} />
     </Tab.Navigator>
   );
