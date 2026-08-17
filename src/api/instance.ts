@@ -50,6 +50,8 @@ api.interceptors.request.use(
         delete (header as any)["Content-Type"];
         delete (header as any)["content-type"];
       }
+      // 이미지 업로드는 느린 네트워크에서 기본 15초를 넘길 수 있어 여유를 둔다.
+      config.timeout = 40_000;
     } else {
       if ((header as any)?.set)
         (header as AxiosHeaders).set("Content-Type", "application/json");
