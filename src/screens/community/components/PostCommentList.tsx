@@ -51,7 +51,7 @@ export function PostCommentList({
         { text: "취소", style: "cancel" },
         {
           text: "차단하기",
-          style: "destructive",
+          style: "communityBlock",
           onPress: () => {
             block.mutate(comment.userId!, {
               onSuccess: () => Alert.alert("차단 완료", `${nickname}님을 차단했어요.`),
@@ -66,7 +66,7 @@ export function PostCommentList({
   const handleDelete = (comment: SpotComment) => {
     Alert.alert("댓글 삭제", "댓글을 삭제할까요?", [
       { text: "취소", style: "cancel" },
-      { text: "삭제", style: "destructive", onPress: () => onDeleteComment(comment) },
+      { text: "삭제", style: "communityDelete", onPress: () => onDeleteComment(comment) },
     ]);
   };
 

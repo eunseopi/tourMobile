@@ -44,15 +44,16 @@ export default function PostDetailScreen({ navigation, route }: Props) {
         { text: "취소", style: "cancel" },
         {
           text: "수정",
+          style: "communityEdit",
           onPress: () => navigation.navigate("PostEdit", { postId: route.params.postId }),
         },
         {
           text: "삭제",
-          style: "destructive",
+          style: "communityDelete",
           onPress: () => {
             Alert.alert("게시글 삭제", "게시글을 삭제할까요? 삭제하면 복구할 수 없어요.", [
               { text: "취소", style: "cancel" },
-              { text: "삭제", style: "destructive", onPress: postDetail.handleDeletePost },
+              { text: "삭제", style: "communityDelete", onPress: postDetail.handleDeletePost },
             ]);
           },
         },
@@ -64,10 +65,10 @@ export default function PostDetailScreen({ navigation, route }: Props) {
       { text: "취소", style: "cancel" },
       {
         text: "작성자 차단",
-        style: "destructive",
+        style: "communityBlock",
         onPress: () => handleBlockAuthor(),
       },
-      { text: "신고", style: "destructive", onPress: () => setIsReportModalOpen(true) },
+      { text: "신고", style: "communityReport", onPress: () => setIsReportModalOpen(true) },
     ]);
   };
 
@@ -81,7 +82,7 @@ export default function PostDetailScreen({ navigation, route }: Props) {
         { text: "취소", style: "cancel" },
         {
           text: "차단하기",
-          style: "destructive",
+          style: "communityBlock",
           onPress: () => {
             block.mutate(postDetail.post!.userId, {
               onSuccess: () => {

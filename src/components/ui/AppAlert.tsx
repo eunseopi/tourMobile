@@ -4,7 +4,14 @@ import { PressableScale } from "src/components/ui/PressableScale";
 import { colors, shadow, typography } from "src/design/theme";
 import HanlabongIcon from "src/assets/hanlabong.svg";
 
-type AlertButtonStyle = "default" | "cancel" | "destructive";
+type AlertButtonStyle =
+  | "default"
+  | "cancel"
+  | "destructive"
+  | "communityEdit"
+  | "communityDelete"
+  | "communityBlock"
+  | "communityReport";
 export type AlertButton = {
   text?: string;
   onPress?: (value?: string) => void;
@@ -84,6 +91,10 @@ export function AppAlertHost() {
                   !isColumn && styles.buttonFlex,
                   button.style === "cancel" && styles.cancelButton,
                   button.style === "destructive" && styles.destructiveButton,
+                  button.style === "communityEdit" && styles.communityEditButton,
+                  button.style === "communityDelete" && styles.communityDeleteButton,
+                  button.style === "communityBlock" && styles.communityBlockButton,
+                  button.style === "communityReport" && styles.communityReportButton,
                 ]}
                 onPress={() => handlePress(button)}
               >
@@ -92,6 +103,10 @@ export function AppAlertHost() {
                     styles.buttonText,
                     button.style === "cancel" && styles.cancelButtonText,
                     button.style === "destructive" && styles.destructiveButtonText,
+                    button.style === "communityEdit" && styles.communityEditButtonText,
+                    button.style === "communityDelete" && styles.communityDeleteButtonText,
+                    button.style === "communityBlock" && styles.communityBlockButtonText,
+                    button.style === "communityReport" && styles.communityReportButtonText,
                   ]}
                 >
                   {button.text ?? "확인"}
@@ -163,7 +178,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cancelButton: {
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.primary[50],
+    borderWidth: 1,
+    borderColor: colors.primary[100],
   },
   destructiveButton: {
     backgroundColor: colors.error[100],
@@ -174,9 +191,33 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   cancelButtonText: {
-    color: colors.gray[700],
+    color: colors.primary[500],
   },
   destructiveButtonText: {
+    color: colors.base[0],
+  },
+  communityEditButton: {
+    backgroundColor: colors.primary[200],
+  },
+  communityDeleteButton: {
+    backgroundColor: colors.primary[400],
+  },
+  communityBlockButton: {
+    backgroundColor: colors.primary[100],
+  },
+  communityReportButton: {
+    backgroundColor: colors.primary[400],
+  },
+  communityEditButtonText: {
+    color: colors.primary[600],
+  },
+  communityDeleteButtonText: {
+    color: colors.base[0],
+  },
+  communityBlockButtonText: {
+    color: colors.primary[600],
+  },
+  communityReportButtonText: {
     color: colors.base[0],
   },
 });

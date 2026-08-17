@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { REPORT_REASONS, type ReportReason } from "src/api/community";
-import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
 
 type Props = {
@@ -65,11 +64,11 @@ export function ReportModal({ visible, targetLabel, isSubmitting, onClose, onSub
               <Text style={styles.cancelButtonText}>취소</Text>
             </Pressable>
             <Pressable
-              style={[commonStyles.primaryButton, styles.submitButton]}
+              style={styles.submitButton}
               onPress={handleSubmit}
               disabled={isSubmitting}
             >
-              <Text style={commonStyles.primaryButtonText}>
+              <Text style={styles.submitButtonText}>
                 {isSubmitting ? "신고 접수 중..." : "신고하기"}
               </Text>
             </Pressable>
@@ -157,13 +156,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.gray[100],
+    backgroundColor: colors.primary[50],
+    borderWidth: 1,
+    borderColor: colors.primary[100],
   },
   cancelButtonText: {
     ...typography.body1,
-    color: colors.gray[600],
+    color: colors.primary[500],
   },
   submitButton: {
     flex: 2,
+    minHeight: 48,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primary[400],
+  },
+  submitButtonText: {
+    ...typography.body1,
+    color: colors.base[0],
+    fontWeight: "700",
   },
 });
