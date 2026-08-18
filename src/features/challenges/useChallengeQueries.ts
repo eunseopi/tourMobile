@@ -4,6 +4,7 @@ import { challengeApi } from "src/api/challengeApi";
 import type { ChallengeCardData } from "src/reducer/types";
 import { useChallengeStore } from "src/stores/challengeStore";
 import { QK } from "src/utils/lib/queryKeys";
+import { CHALLENGE_REWARD_POINT } from "src/config/challenge";
 
 const fmt = (value?: string | number | Date) => {
   const date = value ? new Date(value) : new Date();
@@ -30,6 +31,7 @@ const toUpcomingCard = (row: any): ChallengeCardData => ({
   statusLabel: "진행전",
   dateText: fmt(),
   imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  point: CHALLENGE_REWARD_POINT,
   description: row?.description ?? "",
   ...challengeCoords(row),
   categoryTone: row?.themeName ? "primary" : "neutral",
@@ -46,6 +48,7 @@ const toOngoingCard = (row: any): ChallengeCardData => {
     statusLabel: "진행중",
     dateText: start && end ? `${start} ~ ${end}` : start || end || "",
     imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+    point: CHALLENGE_REWARD_POINT,
     description: row?.description ?? "",
     ...challengeCoords(row),
     categoryTone: row?.themeName ? "primary" : "neutral",
@@ -63,6 +66,7 @@ const toCompletedCard = (row: any): ChallengeCardData => ({
       ? fmt(row.endDate)
       : "",
   imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  point: CHALLENGE_REWARD_POINT,
   description: row?.description ?? "",
   ...challengeCoords(row),
   categoryTone: row?.themeName ? "primary" : "neutral",

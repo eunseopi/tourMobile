@@ -4,6 +4,7 @@ import * as Location from "expo-location";
 import { useStartChallenge } from "src/features/challenges/useChallengeMutations";
 import type { ChallengeCardData } from "src/reducer/types";
 import { getCurrentPositionWithFallback } from "src/utils/lib/location";
+import { CHALLENGE_REWARD_POINT } from "src/config/challenge";
 
 type UseChallengeStartFlowOptions = {
   challenge: ChallengeCardData;
@@ -32,17 +33,14 @@ export function useChallengeStartFlow({ challenge, onStarted }: UseChallengeStar
         }
       }
 
-      const res = await startChallenge.mutateAsync({
+      await startChallenge.mutateAsync({
         id: challenge.id,
         latitude,
         longitude,
       });
 
-      const point = res.data.data.point;
       const message =
-        point > 0
-          ? `진행중 탭에서 확인할 수 있어요.\n완료하면 한라봉 ${point}개를 받아요! 🍊`
-          : "진행중 탭에서 확인할 수 있어요.";
+        `진행중 탭에서 확인할 수 있어요.\n완료하면 한라봉 ${CHALLENGE_REWARD_POINT}개를 받아요! 🍊`;
 
       Alert.alert("챌린지 시작", message);
       onStarted();

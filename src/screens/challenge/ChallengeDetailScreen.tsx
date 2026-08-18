@@ -6,6 +6,7 @@ import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { ImageViewerModal } from "src/components/ui/ImageViewerModal";
 import { PrimaryActionButton } from "src/components/ui/PrimaryActionButton";
 import { commonStyles } from "src/design/commonStyles";
+import { CHALLENGE_REWARD_POINT } from "src/config/challenge";
 import { colors, typography } from "src/design/theme";
 import { useChallengeStartFlow } from "src/features/challenges/useChallengeStartFlow";
 import { SpotRecommendationsWidget } from "src/screens/map/components/SpotRecommendationsWidget";
@@ -30,6 +31,11 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.titleBlock}>
           <Text style={styles.title}>{challenge.title}</Text>
+          <View style={styles.rewardBadge}>
+            <Text style={styles.rewardText}>
+              🍊 완료 보상 {CHALLENGE_REWARD_POINT.toLocaleString()} 한라봉
+            </Text>
+          </View>
           {challenge.description ? (
             <Text style={styles.description}>{challenge.description}</Text>
           ) : null}
@@ -108,6 +114,19 @@ const styles = StyleSheet.create({
     marginTop: 6,
     ...typography.body4,
     color: colors.gray[600],
+  },
+  rewardBadge: {
+    alignSelf: "flex-start",
+    marginTop: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    backgroundColor: colors.primary[50],
+  },
+  rewardText: {
+    ...typography.body4,
+    fontWeight: "700",
+    color: colors.primary[500],
   },
   imageBox: {
     width: "100%",

@@ -1,0 +1,1 @@
+export const CHALLENGE_REWARD_POINT = 300;

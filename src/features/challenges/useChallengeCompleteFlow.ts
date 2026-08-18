@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { useCancelChallenge, useCompleteChallenge } from "src/features/challenges/useChallengeMutations";
+import { challengeApi } from "src/api/challengeApi";
 import type { ChallengeCardData } from "src/reducer/types";
 import { toJpeg } from "src/utils/lib/image";
 import { getCurrentPositionWithFallback } from "src/utils/lib/location";
@@ -22,20 +23,16 @@ export function useChallengeCompleteFlow({
   const completeChallenge = useCompleteChallenge();
   const cancelChallenge = useCancelChallenge();
   const queryClient = useQueryClient();
-  const [selectedPhoto, setSelectedPhoto] = useState<{ uri: string; proofUrl: string } | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ uri: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const isSubmitting = submitting || completeChallenge.isPending;
 
   const toProofPhoto = async (asset: ImagePicker.ImagePickerAsset) => {
-    const { uri, base64 } = await toJpeg(asset.uri, {
-      base64: true,
+    const { uri } = await toJpeg(asset.uri, {
       width: asset.width,
       height: asset.height,
     });
-    return {
-      uri,
-      proofUrl: base64 ? `data:image/jpeg;base64,${base64}` : uri,
-    };
+    return { uri };
   };
 
   const handlePickPhoto = async () => {
@@ -105,16 +102,22 @@ export function useChallengeCompleteFlow({
         }
       }
 
+      const upload = await challengeApi.uploadProofImage(challenge.id, {
+        uri: selectedPhoto.uri,
+        name: `challenge-proof-${Date.now()}.jpg`,
+        type: "image/jpeg",
+      });
+
       const res = await completeChallenge.mutateAsync({
         id: challenge.id,
         latitude,
         longitude,
-        proofUrl: selectedPhoto.proofUrl,
+        proofUrl: upload.data.proofUrl,
         dateText: new Date().toISOString(),
       });
 
-      const awardedPoints = res.data.data.awardedPoints;
-      const completedMissions = res.data.data.completedMissions ?? [];
+      const awardedPoints = res.data.awardedPoints;
+      const completedMissions = res.data.completedMissions ?? [];
 
       let message = awardedPoints > 0
         ? `챌린지가 완료되었어요.\n한라봉 ${awardedPoints}개를 획득했어요! 🍊`

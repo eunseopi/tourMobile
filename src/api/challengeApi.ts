@@ -1,4 +1,5 @@
 import api from "./instance";
+import type { UploadableImage } from "src/types/SpotTypes";
 
 export type CompletedParams = {
   sort?: "latest" | "oldest"; // 기본 latest
@@ -25,8 +26,6 @@ export type ChallengeStartRes = {
   point: number;
 };
 
-type ApiRes<T> = { success: boolean; data: T };
-
 export const challengeApi = {
   getUpcoming: () => api.get("api/challenges/upcoming"),
   getOngoing: () => api.get("api/challenges/ongoing"),
@@ -36,7 +35,16 @@ export const challengeApi = {
       withCredentials: true,
     }),
   start: (id: string | number, latitude: number, longitude: number) =>
-    api.post<ApiRes<ChallengeStartRes>>(`api/challenges/${id}/start`, { latitude, longitude }),
+    api.post<ChallengeStartRes>(`api/challenges/${id}/start`, { latitude, longitude }),
+  uploadProofImage: (id: string | number, file: UploadableImage) => {
+    const form = new FormData();
+    form.append("file", {
+      uri: file.uri,
+      name: file.name ?? `challenge-proof-${Date.now()}.jpg`,
+      type: file.type ?? "image/jpeg",
+    } as any);
+    return api.post<{ proofUrl: string }>(`api/challenges/${id}/proof-image`, form);
+  },
   refreshUpcoming: () => api.post("api/challenges/upcoming/refresh"),
   cancel: (id: string | number) => api.post(`api/challenges/${id}/cancel`),
   complete: (
@@ -45,7 +53,7 @@ export const challengeApi = {
     longitude: number,
     proofUrl: string
   ) =>
-    api.post<ApiRes<ChallengeCompleteRes>>(`api/challenges/${id}/complete`, {
+    api.post<ChallengeCompleteRes>(`api/challenges/${id}/complete`, {
       latitude,
       longitude,
       proofUrl,

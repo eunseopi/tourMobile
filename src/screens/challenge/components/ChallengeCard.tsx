@@ -4,6 +4,7 @@ import NoneTrophy from "src/assets/noneTrophy.svg";
 import Stamp from "src/assets/Stamp.svg";
 import { colors, shadow, typography } from "src/design/theme";
 import type { ChallengeCardData } from "src/reducer/types";
+import { CHALLENGE_REWARD_POINT } from "src/config/challenge";
 
 type Props = {
   item: ChallengeCardData;
@@ -49,6 +50,7 @@ export function ChallengeCard({ item, highlighted, onPress }: Props) {
         <View style={styles.bottomLeft}>
           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
           <Text style={styles.status}>{item.statusLabel}</Text>
+          <Text style={styles.reward}>🍊 {CHALLENGE_REWARD_POINT.toLocaleString()} 한라봉</Text>
           {highlighted ? <Text style={styles.highlightText}>방금 완료한 챌린지예요</Text> : null}
         </View>
         {item.dateText ? <Text style={styles.cardDate}>{item.dateText}</Text> : null}
@@ -149,6 +151,15 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0,0,0,0.16)",
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+  },
+  reward: {
+    ...typography.caption1,
+    fontWeight: "700",
+    color: colors.primary[100],
+    marginTop: 3,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   cardDate: {
     position: "absolute",
