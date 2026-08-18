@@ -130,7 +130,24 @@ function registerReducer(state: RegisterState, action: RegisterAction): Register
 
 function getErrorMessage(error: unknown, fallback: string) {
   const axiosError = error as AxiosError<{ message?: string }>;
-  return axiosError.response?.data?.message || (error instanceof Error ? error.message : fallback);
+  const serverMessage = axiosError.response?.data?.message;
+  if (serverMessage) return serverMessage;
+
+  if (
+    axiosError.code === "ECONNABORTED" ||
+    axiosError.code === "ETIMEDOUT"
+  ) {
+    return "요청 시간이 초과됐어요. 네트워크 상태를 확인한 뒤 다시 시도해주세요.";
+  }
+
+  if (
+    axiosError.code === "ERR_NETWORK" ||
+    axiosError.message === "Network Error"
+  ) {
+    return "서버에 연결하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해주세요.";
+  }
+
+  return error instanceof Error ? error.message : fallback;
 }
 
 export function useRegisterFlow({ routeParams, onBack, onComplete }: UseRegisterFlowOptions) {
