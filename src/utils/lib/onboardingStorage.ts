@@ -8,4 +8,5 @@ export const onboardingStorage = {
     return raw === "true";
   },
   setHasOnboarded: () => AsyncStorage.setItem(HAS_ONBOARDED_KEY, "true"),
+  clearHasOnboarded: () => AsyncStorage.removeItem(HAS_ONBOARDED_KEY),
 };

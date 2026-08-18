@@ -8,4 +8,5 @@ export const termsStorage = {
     return raw === "true";
   },
   setHasAgreed: () => AsyncStorage.setItem(HAS_AGREED_TERMS_KEY, "true"),
+  clearHasAgreed: () => AsyncStorage.removeItem(HAS_AGREED_TERMS_KEY),
 };

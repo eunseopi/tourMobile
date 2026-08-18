@@ -18,7 +18,9 @@ import { useNotification } from "src/features/my-page/useNotification";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { authStorage } from "src/utils/lib/authStorage";
 import { gradeNameOf } from "src/utils/lib/moodGrade";
+import { onboardingStorage } from "src/utils/lib/onboardingStorage";
 import { QK } from "src/utils/lib/queryKeys";
+import { termsStorage } from "src/utils/lib/termsStorage";
 import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
 import { MyPageMenuList } from "./components/MyPageMenuList";
 import { MyProfileSummary } from "./components/MyProfileSummary";
@@ -90,8 +92,20 @@ export default function MyPageScreen({ navigation }: Props) {
             try {
               setIsDeletingAccount(true);
               await userApi.deleteAccount(me.email);
-              await authStorage.clearLoginAt();
-              queryClient.removeQueries({ queryKey: QK.sessionMe });
+              // 탈퇴 API는 계정만 비활성화하고 세션 쿠키는 유지하므로 별도로 로그아웃한다.
+              try {
+                await authApi.logout();
+              } catch {
+                // 계정 비활성화 직후 서버가 401을 반환해도 로컬 초기화는 계속한다.
+              }
+              await Promise.all([
+                authStorage.clearLoginAt(),
+                authStorage.clearRememberedEmail(),
+                onboardingStorage.clearHasOnboarded(),
+                termsStorage.clearHasAgreed(),
+              ]);
+              // 이전 사용자의 화면 데이터가 다음 가입자에게 잠깐이라도 노출되지 않게 모두 비운다.
+              queryClient.clear();
               goToFirstScreen();
             } catch {
               Alert.alert("탈퇴 실패", "회원 탈퇴 처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.");
