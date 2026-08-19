@@ -1,10 +1,11 @@
 import { useRef } from "react";
-import { Animated, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import NoneTrophy from "src/assets/noneTrophy.svg";
 import Stamp from "src/assets/Stamp.svg";
 import { colors, shadow, typography } from "src/design/theme";
 import type { ChallengeCardData } from "src/reducer/types";
 import { CHALLENGE_REWARD_POINT } from "src/config/challenge";
+import { ChallengeImage } from "./ChallengeImage";
 
 type Props = {
   item: ChallengeCardData;
@@ -30,9 +31,7 @@ export function ChallengeCard({ item, highlighted, onPress }: Props) {
         onPressOut={() => animateTo(1)}
       >
       <View style={styles.cardMedia}>
-        {item.imageUrl ? (
-          <Image source={{ uri: item.imageUrl }} style={styles.image} />
-        ) : null}
+        <ChallengeImage imageUrl={item.imageUrl} style={styles.image} />
 
         {isDone ? (
           <>

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { ImageViewerModal } from "src/components/ui/ImageViewerModal";
@@ -11,12 +11,18 @@ import { colors, typography } from "src/design/theme";
 import { useChallengeStartFlow } from "src/features/challenges/useChallengeStartFlow";
 import { SpotRecommendationsWidget } from "src/screens/map/components/SpotRecommendationsWidget";
 import { ChallengeStartInfo } from "./components/ChallengeStartInfo";
+import { ChallengeImage } from "./components/ChallengeImage";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ChallengeDetail">;
 
 export default function ChallengeDetailScreen({ navigation, route }: Props) {
   const { challenge } = route.params;
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [challenge.imageUrl]);
   const challengeStart = useChallengeStartFlow({
     challenge,
     onStarted: () => {
@@ -42,13 +48,19 @@ export default function ChallengeDetailScreen({ navigation, route }: Props) {
         </View>
 
         <View style={styles.imageBox}>
-          {challenge.imageUrl ? (
-            <Pressable onPress={() => setViewerOpen(true)}>
-              <Image source={{ uri: challenge.imageUrl }} style={styles.image} />
-            </Pressable>
-          ) : null}
+          <Pressable
+            style={styles.image}
+            disabled={!challenge.imageUrl || imageFailed}
+            onPress={() => setViewerOpen(true)}
+          >
+            <ChallengeImage
+              imageUrl={challenge.imageUrl}
+              style={styles.image}
+              onRemoteError={() => setImageFailed(true)}
+            />
+          </Pressable>
         </View>
-        {challenge.imageUrl ? (
+        {challenge.imageUrl && !imageFailed ? (
           <ImageViewerModal
             visible={viewerOpen}
             images={[challenge.imageUrl]}

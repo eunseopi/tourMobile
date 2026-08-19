@@ -91,40 +91,61 @@ export default function MainScreen({ navigation }: Props) {
   const tabBarHeight = useTabBarHeight();
 
   const handleStartChallenge = (item: NearbyMapItem) => {
-    Alert.alert("챌린지 시작", `'${item.name}' 챌린지를 시작할까요?`, [
-      { text: "취소", style: "cancel" },
-      {
-        text: "시작하기",
-        onPress: async () => {
-          try {
-            setStartingId(item.id);
-            const permission = await Location.requestForegroundPermissionsAsync();
-            let latitude = coords.latitude;
-            let longitude = coords.longitude;
+    const isSpot = item.type !== "CHALLENGE";
+    Alert.alert(
+      isSpot ? "챌린지에 추가" : "챌린지 시작",
+      isSpot
+        ? `'${item.name}'을(를) 진행중인 챌린지로 추가할까요?`
+        : `'${item.name}' 챌린지를 시작할까요?`,
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: isSpot ? "추가하기" : "시작하기",
+          onPress: async () => {
+            try {
+              setStartingId(item.id);
+              const permission = await Location.requestForegroundPermissionsAsync();
+              let latitude = coords.latitude;
+              let longitude = coords.longitude;
 
-            if (permission.status === "granted") {
-              try {
-                const current = await getCurrentPositionWithFallback();
-                latitude = current.coords.latitude;
-                longitude = current.coords.longitude;
-              } catch {
-                // 위치를 못 가져와도 이미 있는 좌표로 챌린지 시작은 계속 진행한다.
+              if (permission.status === "granted") {
+                try {
+                  const current = await getCurrentPositionWithFallback();
+                  latitude = current.coords.latitude;
+                  longitude = current.coords.longitude;
+                } catch {
+                  // 위치를 못 가져와도 이미 있는 좌표로 챌린지 시작은 계속 진행한다.
+                }
               }
-            }
 
-            await startChallenge.mutateAsync({ id: item.id, latitude, longitude });
-            Alert.alert("챌린지 시작", "챌린지 탭의 '진행중'에서 확인할 수 있어요.");
-          } catch (error: any) {
-            Alert.alert(
-              "시작 실패",
-              error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요."
-            );
-          } finally {
-            setStartingId(null);
-          }
+              await startChallenge.mutateAsync({ id: item.id, latitude, longitude });
+              Alert.alert(
+                isSpot ? "추가 완료" : "챌린지 시작",
+                "챌린지 탭의 '진행중'에서 확인할 수 있어요.",
+                [
+                  { text: "계속 둘러보기", style: "cancel" },
+                  {
+                    text: "확인하러 가기",
+                    onPress: () =>
+                      navigation.navigate("Challenge", {
+                        initialTab: "doing",
+                        highlightId: String(item.id),
+                      }),
+                  },
+                ],
+              );
+            } catch (error: any) {
+              Alert.alert(
+                "시작 실패",
+                error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요."
+              );
+            } finally {
+              setStartingId(null);
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   return (

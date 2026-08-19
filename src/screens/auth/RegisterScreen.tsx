@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,6 +10,7 @@ import { BasicInfoStep } from "./components/BasicInfoStep";
 import { EmailStep } from "./components/EmailStep";
 import { PasswordStep } from "./components/PasswordStep";
 import { ProfileStep } from "./components/ProfileStep";
+import { RegistrationPrivacyConsent } from "./components/RegistrationPrivacyConsent";
 import { RegisterFooter } from "./components/RegisterFooter";
 import { RegisterStepBar } from "./components/RegisterStepBar";
 import { ThemeStep } from "./components/ThemeStep";
@@ -16,6 +18,9 @@ import { ThemeStep } from "./components/ThemeStep";
 type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 
 export default function RegisterScreen({ navigation, route }: Props) {
+  // 수집 동의는 저장값으로 미리 선택하지 않고 회원가입 화면에 진입할 때마다 명시적으로 받는다.
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
+  const [hasConfirmedPrivacy, setHasConfirmedPrivacy] = useState(false);
   const register = useRegisterFlow({
     routeParams: route.params,
     onBack: () => {
@@ -31,6 +36,21 @@ export default function RegisterScreen({ navigation, route }: Props) {
         routes: [{ name: "Main" }],
       }),
   });
+
+  if (!hasConfirmedPrivacy) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        <RegistrationPrivacyConsent
+          agreed={privacyAgreed}
+          onToggle={() => setPrivacyAgreed((current) => !current)}
+          onBack={register.handleBack}
+          onContinue={() => {
+            if (privacyAgreed) setHasConfirmedPrivacy(true);
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>

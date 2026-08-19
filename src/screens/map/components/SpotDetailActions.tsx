@@ -23,7 +23,7 @@ export function SpotDetailActions({ onBack, onAddChallenge, isAddingChallenge }:
         {isAddingChallenge ? (
           <ActivityIndicator color={colors.base[0]} />
         ) : (
-          <Text style={styles.primaryButtonText}>챌린지에 추가하기</Text>
+          <Text style={styles.primaryButtonText}>챌린지 추가하기</Text>
         )}
       </PressableScale>
     </View>

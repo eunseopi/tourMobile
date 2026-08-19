@@ -56,7 +56,20 @@ export default function SpotDetailScreen({ route, navigation }: Props) {
             }
 
             await startChallenge.mutateAsync({ id: spot.id, latitude, longitude });
-            Alert.alert("추가 완료", "챌린지 탭의 '진행중'에서 확인할 수 있어요.");
+            Alert.alert("추가 완료", "챌린지 탭의 '진행중'에서 확인할 수 있어요.", [
+              { text: "계속 둘러보기", style: "cancel" },
+              {
+                text: "확인하러 가기",
+                onPress: () =>
+                  navigation.navigate("Main", {
+                    screen: "Challenge",
+                    params: {
+                      initialTab: "doing",
+                      highlightId: String(spot.id),
+                    },
+                  }),
+              },
+            ]);
           } catch (error: any) {
             Alert.alert(
               "추가 실패",

@@ -30,7 +30,7 @@ const toUpcomingCard = (row: any): ChallengeCardData => ({
   categoryLabel: row?.themeName ?? "취향 저격 스팟",
   statusLabel: "진행전",
   dateText: fmt(),
-  imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  imageUrl: row?.img1 ?? row?.imageUrl ?? null,
   point: CHALLENGE_REWARD_POINT,
   description: row?.description ?? "",
   ...challengeCoords(row),
@@ -47,7 +47,7 @@ const toOngoingCard = (row: any): ChallengeCardData => {
     categoryLabel: row?.themeName ?? "취향 저격 스팟",
     statusLabel: "진행중",
     dateText: start && end ? `${start} ~ ${end}` : start || end || "",
-    imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+    imageUrl: row?.img1 ?? row?.imageUrl ?? null,
     point: CHALLENGE_REWARD_POINT,
     description: row?.description ?? "",
     ...challengeCoords(row),
@@ -65,7 +65,7 @@ const toCompletedCard = (row: any): ChallengeCardData => ({
     : row?.endDate
       ? fmt(row.endDate)
       : "",
-  imageUrl: row?.img1 ?? row?.imageUrl ?? "",
+  imageUrl: row?.img1 ?? row?.imageUrl ?? null,
   point: CHALLENGE_REWARD_POINT,
   description: row?.description ?? "",
   ...challengeCoords(row),

@@ -15,13 +15,13 @@ import { UserLocationMarker } from "src/screens/map/components/UserLocationMarke
 
 export type NearbyMapItem = NearbySpot & { distanceKm: number | null };
 
-// 홈에서는 주변 데이터는 1km까지 불러오되, 지도 화면은 걷는 방향과 골목을
-// 구분할 수 있도록 현재 위치 중심 반경 약 100m까지 크게 확대한다.
+// 홈 미니맵은 현재 위치를 중심으로 반경 약 300m가 한 화면에 들어오게 한다.
 // 전체 지역 탐색은 별도 지도 화면에서 한다.
 const HOME_CLOSE_REGION_DELTA = {
-  latitudeDelta: 0.0018,
-  longitudeDelta: 0.0028,
+  latitudeDelta: 0.0054,
+  longitudeDelta: 0.0065,
 };
+const MINI_MAP_RADIUS_KM = 0.3;
 
 type Props = {
   latitude: number;
@@ -62,7 +62,13 @@ export function NearbyMapWidget({
   );
 
   const markers = useMemo(
-    () => items.filter((item) => item.type === "SPOT" || item.type === "CHALLENGE"),
+    () =>
+      items.filter(
+        (item) =>
+          item.type !== "POST" &&
+          item.distanceKm != null &&
+          item.distanceKm <= MINI_MAP_RADIUS_KM,
+      ),
     [items]
   );
 
@@ -162,14 +168,19 @@ export function NearbyMapWidget({
               <PressableScale style={styles.secondaryButton} onPress={() => setSelected(null)}>
                 <Text style={styles.secondaryButtonText}>돌아가기</Text>
               </PressableScale>
-              {selected.type === "CHALLENGE" && getChallengeStatus(selected, ongoingIds, completedIds) === "available" ? (
+              {selected.type !== "POST" &&
+              getChallengeStatus(selected, ongoingIds, completedIds) === "available" ? (
                 <PressableScale
                   style={[styles.primaryButton, isThisStarting && styles.primaryButtonDisabled]}
                   disabled={isThisStarting}
                   onPress={() => onStartChallenge(selected)}
                 >
                   <Text style={styles.primaryButtonText}>
-                    {isThisStarting ? "시작하는 중..." : "챌린지 시작하기"}
+                    {isThisStarting
+                      ? "추가하는 중..."
+                      : selected.type === "CHALLENGE"
+                        ? "챌린지 시작하기"
+                        : "챌린지 추가하기"}
                   </Text>
                 </PressableScale>
               ) : null}
@@ -240,6 +251,7 @@ const styles = StyleSheet.create({
   detailMeta: { ...typography.caption2, color: colors.gray[600] },
   detailActions: { flexDirection: "row", gap: 8, marginTop: 6 },
   secondaryButton: {
+    flex: 1,
     minHeight: 34,
     paddingHorizontal: 14,
     borderRadius: 8,
@@ -251,6 +263,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { ...typography.caption1, color: colors.gray[700] },
   primaryButton: {
+    flex: 1,
     minHeight: 34,
     paddingHorizontal: 14,
     borderRadius: 8,

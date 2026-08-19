@@ -6,7 +6,7 @@ export interface ChallengeCardData {
   categoryLabel: string;
   statusLabel: StatusLabel;
   dateText: string;
-  imageUrl: string;
+  imageUrl: string | null;
   point: number;
   description?: string;
   latitude?: number | null;

@@ -26,10 +26,11 @@ type Props = NativeStackScreenProps<RootStackParamList, "Splash">;
 export default function SplashScreen({ navigation }: Props) {
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
+  const [hasStoredTermsAgreement, setHasStoredTermsAgreement] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [hasCheckedTermsStorage, setHasCheckedTermsStorage] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-  const { data: session } = useSessionMe();
+  const { data: session, isFetched: hasCheckedSession } = useSessionMe();
   const nextRoute = useMemo(
     () => (session ? "Main" : hasOnboarded ? "RegisterChoice" : "Permission"),
     [session, hasOnboarded]
@@ -41,7 +42,7 @@ export default function SplashScreen({ navigation }: Props) {
       setHasCheckedOnboarding(true);
     });
     termsStorage.getHasAgreed().then((value) => {
-      setAgreedToTerms(value);
+      setHasStoredTermsAgreement(value);
       setHasCheckedTermsStorage(true);
     });
   }, []);
@@ -50,11 +51,22 @@ export default function SplashScreen({ navigation }: Props) {
     navigation.replace(nextRoute);
   }, [navigation, nextRoute]);
 
-  // 이미 로그인된 세션이 있을 때만 버튼 없이 바로 넘어간다. 그 외에는 "시작하기"를 눌러야만 진행된다.
+  // 기존 동의자는 체크박스를 다시 보여주지 않는다. 세션 조회까지 끝난 뒤 로그인 상태에 맞는 화면으로 이동한다.
   useEffect(() => {
-    if (!session || !hasCheckedOnboarding) return;
+    if (
+      !hasCheckedOnboarding ||
+      !hasCheckedTermsStorage ||
+      !hasCheckedSession ||
+      !hasStoredTermsAgreement
+    ) return;
     goNext();
-  }, [session, hasCheckedOnboarding, goNext]);
+  }, [
+    goNext,
+    hasCheckedOnboarding,
+    hasCheckedSession,
+    hasCheckedTermsStorage,
+    hasStoredTermsAgreement,
+  ]);
 
   const isReady = hasCheckedOnboarding && hasCheckedTermsStorage;
   const canStart = isReady && agreedToTerms;
@@ -76,26 +88,28 @@ export default function SplashScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <View style={commonStyles.bottomAction}>
-        <View style={styles.agreeRow}>
-          <Pressable
-            style={styles.agreeCheckArea}
-            onPress={() => setAgreedToTerms((prev) => !prev)}
-            hitSlop={8}
-          >
-            <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
-              {agreedToTerms ? <Text style={styles.checkboxMark}>✓</Text> : null}
-            </View>
-            <Text style={styles.agreeText}>이용약관 및 개인정보 처리방침에 동의합니다 (필수)</Text>
-          </Pressable>
+      {isReady && !hasStoredTermsAgreement ? (
+        <View style={commonStyles.bottomAction}>
+          <View style={styles.agreeRow}>
+            <Pressable
+              style={styles.agreeCheckArea}
+              onPress={() => setAgreedToTerms((prev) => !prev)}
+              hitSlop={8}
+            >
+              <View style={[styles.checkbox, agreedToTerms && styles.checkboxChecked]}>
+                {agreedToTerms ? <Text style={styles.checkboxMark}>✓</Text> : null}
+              </View>
+              <Text style={styles.agreeText}>이용약관 및 개인정보 처리방침에 동의합니다 (필수)</Text>
+            </Pressable>
 
-          <Pressable onPress={() => setIsTermsModalOpen(true)} hitSlop={8}>
-            <Text style={styles.viewLink}>보기</Text>
-          </Pressable>
+            <Pressable onPress={() => setIsTermsModalOpen(true)} hitSlop={8}>
+              <Text style={styles.viewLink}>보기</Text>
+            </Pressable>
+          </View>
+
+          <PrimaryActionButton label="시작하기" disabled={!canStart} onPress={handleStart} />
         </View>
-
-        <PrimaryActionButton label="시작하기" disabled={!canStart} onPress={handleStart} />
-      </View>
+      ) : null}
 
       <AppModal visible={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} variant="sheet">
         <Text style={styles.modalTitle}>이용약관 및 개인정보 처리방침</Text>

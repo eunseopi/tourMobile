@@ -5,6 +5,7 @@ import LocationPin from "src/assets/Location.svg";
 import SpotMarker from "src/assets/spot.svg";
 import type { ChallengeCardData } from "src/reducer/types";
 import { colors, typography } from "src/design/theme";
+import { useNearbySpots } from "src/features/main/useNearbySpots";
 
 type Props = {
   challenge: ChallengeCardData;
@@ -13,6 +14,13 @@ type Props = {
 
 export function ChallengeStartInfo({ challenge, onOpenMap }: Props) {
   const hasCoords = challenge.latitude != null && challenge.longitude != null;
+  const latitude = hasCoords ? Number(challenge.latitude) : undefined;
+  const longitude = hasCoords ? Number(challenge.longitude) : undefined;
+  const nearby = useNearbySpots(latitude, longitude, 1);
+  const nearbyPlaces = nearby.items.filter((item) => {
+    if (String(item.id) === String(challenge.id)) return false;
+    return Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude));
+  });
 
   return (
     <View style={styles.wrap}>
@@ -26,8 +34,8 @@ export function ChallengeStartInfo({ challenge, onOpenMap }: Props) {
           <MapView
             style={StyleSheet.absoluteFillObject}
             region={{
-              latitude: Number(challenge.latitude),
-              longitude: Number(challenge.longitude),
+              latitude: latitude!,
+              longitude: longitude!,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
@@ -38,10 +46,24 @@ export function ChallengeStartInfo({ challenge, onOpenMap }: Props) {
             pointerEvents="none"
           >
             <Marker
-              coordinate={{ latitude: Number(challenge.latitude), longitude: Number(challenge.longitude) }}
+              coordinate={{ latitude: latitude!, longitude: longitude! }}
+              title={challenge.title}
             >
               <SpotMarker width={30} height={31} />
             </Marker>
+            {nearbyPlaces.map((item) => (
+              <Marker
+                key={`${item.type ?? "SPOT"}-${item.id}`}
+                coordinate={{
+                  latitude: Number(item.latitude),
+                  longitude: Number(item.longitude),
+                }}
+                title={item.name}
+                anchor={{ x: 0.5, y: 0.5 }}
+              >
+                <View style={styles.nearbyMarker} />
+              </Marker>
+            ))}
           </MapView>
           <View style={styles.mapPreviewOverlay}>
             <Text style={styles.mapPreviewOverlayText}>지도에서 크게 보기</Text>
@@ -97,6 +119,14 @@ const styles = StyleSheet.create({
   mapPreviewOverlayText: {
     ...typography.caption1,
     color: colors.gray[700],
+  },
+  nearbyMarker: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: colors.base[0],
+    backgroundColor: colors.primary[400],
   },
   mapPreviewTitle: {
     ...typography.body1,

@@ -137,7 +137,7 @@ export const communityApi = {
     // 백엔드가 snake_case(image_url/detailUrl)로 내려주므로 프론트 타입에 맞게 변환한다
     return data.map((item) => ({
       id: item.id,
-      imageUrl: item.image_url ?? item.imageUrl,
+      imageUrl: item.image_url ?? item.imageUrl ?? null,
       title: item.title,
       linkUrl: item.detailUrl ?? item.linkUrl,
     }));

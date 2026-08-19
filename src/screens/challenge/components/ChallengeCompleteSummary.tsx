@@ -1,6 +1,7 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import type { ChallengeCardData } from "src/reducer/types";
 import { colors, shadow, typography } from "src/design/theme";
+import { ChallengeImage } from "./ChallengeImage";
 
 type Props = {
   challenge: ChallengeCardData;
@@ -14,7 +15,7 @@ export function ChallengeCompleteSummary({ challenge, badgeLabel }: Props) {
   return (
     <>
       <View style={styles.imageBox}>
-        {challenge.imageUrl ? <Image source={{ uri: challenge.imageUrl }} style={styles.image} /> : null}
+        <ChallengeImage imageUrl={challenge.imageUrl} style={styles.image} />
       </View>
 
       <Text style={[styles.badge, isPrimaryTone ? styles.badgePrimary : styles.badgeNeutral]}>
