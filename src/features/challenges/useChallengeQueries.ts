@@ -35,6 +35,7 @@ const toUpcomingCard = (row: any): ChallengeCardData => ({
   description: row?.description ?? "",
   ...challengeCoords(row),
   categoryTone: row?.themeName ? "primary" : "neutral",
+  recommendReason: row?.recommendReason ?? null,
 });
 
 const toOngoingCard = (row: any): ChallengeCardData => {

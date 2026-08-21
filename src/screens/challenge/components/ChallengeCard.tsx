@@ -49,6 +49,9 @@ export function ChallengeCard({ item, highlighted, onPress }: Props) {
         <View style={styles.bottomLeft}>
           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
           <Text style={styles.status}>{item.statusLabel}</Text>
+          {item.recommendReason === "PREF_THEME" && item.categoryLabel ? (
+            <Text style={styles.reasonText} numberOfLines={1}>{item.categoryLabel} 테마 선호</Text>
+          ) : null}
           <Text style={styles.reward}>🍊 {CHALLENGE_REWARD_POINT.toLocaleString()} 한라봉</Text>
           {highlighted ? <Text style={styles.highlightText}>방금 완료한 챌린지예요</Text> : null}
         </View>
@@ -145,6 +148,14 @@ const styles = StyleSheet.create({
   status: {
     ...typography.body1,
     fontWeight: "600",
+    color: colors.gray[100],
+    marginTop: 2,
+    textShadowColor: "rgba(0,0,0,0.16)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  reasonText: {
+    ...typography.caption2,
     color: colors.gray[100],
     marginTop: 2,
     textShadowColor: "rgba(0,0,0,0.16)",

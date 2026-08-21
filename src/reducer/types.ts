@@ -12,6 +12,7 @@ export interface ChallengeCardData {
   latitude?: number | null;
   longitude?: number | null;
   categoryTone?: "primary" | "neutral";
+  recommendReason?: "PREF_THEME" | "BACKFILL_RANDOM" | null;
 }
 
 export interface ChallengeState {
@@ -38,6 +39,8 @@ export interface Spot {
   createdAt: string;
   // true: 관광공사 TourAPI 동기화 데이터, false: 유저 작성 글(승격되어도 유지됨)
   official: boolean;
+  // POST 타입일 때만 값이 있음. 스팟으로 승격되기까지 좋아요 환산 기준 남은 개수(0이면 조건 충족).
+  likesUntilPromotion?: number | null;
 }
 
 export interface SpotPage {

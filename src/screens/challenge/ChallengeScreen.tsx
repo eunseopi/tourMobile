@@ -16,6 +16,7 @@ import TrophyColor from "src/assets/trophyColor.svg";
 import StampIcon from "src/assets/Stamp.svg";
 import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
+import { Alert } from "src/components/ui/AppAlert";
 import { FadeSlideIn } from "src/components/ui/FadeSlideIn";
 import { PressableScale } from "src/components/ui/PressableScale";
 import { colors, layout, typography } from "src/design/theme";
@@ -72,10 +73,20 @@ export default function ChallengeScreen({ navigation, route }: Props) {
     return "추천 챌린지가 없어요!";
   }, [tab]);
 
+  // pull-to-refresh는 데이터 동기화만 한다 - 여기서도 추천을 다시 뽑아버리면
+  // 그냥 화면을 당겼을 뿐인데 예고 없이 다른 장소로 바뀌어버린다.
   const handleRefresh = () => {
-    refreshUpcoming.mutate();
+    void upcomingQuery.refetch();
     void ongoingQuery.refetch();
     void completedQuery.refetch();
+  };
+
+  // "새로운 장소 보기"는 명시적으로 다른 곳을 요청하는 행동이므로 확인 후 진행한다.
+  const handleRequestNewPlaces = () => {
+    Alert.alert("새로운 장소를 보시겠어요?", "지금 추천된 장소가 다른 곳으로 바뀌어요.", [
+      { text: "취소", style: "cancel" },
+      { text: "새로 보기", onPress: () => refreshUpcoming.mutate() },
+    ]);
   };
 
   if (isLoading) {
@@ -98,7 +109,7 @@ export default function ChallengeScreen({ navigation, route }: Props) {
         {tab === "pre" ? (
           <PressableScale
             style={styles.refreshButton}
-            onPress={() => refreshUpcoming.mutate()}
+            onPress={handleRequestNewPlaces}
             disabled={refreshUpcoming.isPending}
           >
             {refreshUpcoming.isPending ? (

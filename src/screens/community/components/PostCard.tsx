@@ -99,6 +99,14 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
 
       <Text style={styles.likeCount}>좋아요 {post.likeCount || 0}개</Text>
 
+      {post.type === "POST" && typeof post.likesUntilPromotion === "number" ? (
+        <Text style={styles.promotionText}>
+          {post.likesUntilPromotion > 0
+            ? `스팟 승격까지 좋아요 ${post.likesUntilPromotion}개`
+            : "곧 스팟으로 승격돼요!"}
+        </Text>
+      ) : null}
+
       <View style={styles.captionBlock}>
         <Text style={styles.caption} numberOfLines={2}>
           {post.title}
@@ -184,6 +192,13 @@ const styles = StyleSheet.create({
     color: colors.gray[800],
     paddingHorizontal: 16,
     marginTop: 6,
+  },
+  promotionText: {
+    ...typography.caption1,
+    fontWeight: "600",
+    color: colors.primary[400],
+    paddingHorizontal: 16,
+    marginTop: 2,
   },
   captionBlock: {
     paddingHorizontal: 16,
