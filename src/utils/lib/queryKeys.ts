@@ -58,6 +58,7 @@ export const QK = {
     mDeleteAllNotifications: ['DELETE /v1/notification/all'] as const,
     mUpdateFcmToken: ['POST /v1/notification/fcm-token'] as const,
     mStepSave: ['POST /v1/steps'] as const,
+    exchangeStatus: ['GET /v1/steps/exchange/status'] as const,
     mChallengeStart: ['POST /api/challenges/:id/start'] as const,
     mChallengeComplete: ['POST /api/challenges/:id/complete'] as const,
     mChallengeRefreshUpcoming: ['POST /api/challenges/upcoming/refresh'] as const,

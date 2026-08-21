@@ -23,7 +23,8 @@ export function useCouponDetailFlow(exchangeId: string | number) {
         exchangeId: coupon.exchangeId,
         userId: me?.userId,
       });
-      Alert.alert("수령 완료", "쿠폰 사용 상태가 반영되었어요.");
+      const title = coupon.category === "JEJU_TICON" ? "사용 완료" : "수령 완료";
+      Alert.alert(title, "쿠폰 사용 상태가 반영되었어요.");
       void couponQuery.refetch();
     } catch (error: any) {
       Alert.alert(

@@ -20,6 +20,7 @@ export function useConvertSteps() {
         };
       });
       void queryClient.invalidateQueries({ queryKey: QK.sessionMe });
+      void queryClient.invalidateQueries({ queryKey: QK.exchangeStatus });
     },
   });
 }

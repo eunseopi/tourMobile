@@ -6,6 +6,7 @@ import type { RootStackParamList } from "src/app/navigation/types";
 import { ScreenHeader } from "src/components/navigation/ScreenHeader";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useConvertSteps } from "src/features/product/useConvertSteps";
+import { useExchangeStatus } from "src/features/product/useExchangeStatus";
 import { usePedometerSteps } from "src/features/steps/usePedometerSteps";
 import { commonStyles } from "src/design/commonStyles";
 import { colors, typography } from "src/design/theme";
@@ -16,20 +17,35 @@ import Clear from "src/assets/Clear.svg";
 
 type Props = NativeStackScreenProps<RootStackParamList, "PointConvert">;
 
-export default function PointConvertScreen({ navigation }: Props) {
+export default function PointConvertScreen(_props: Props) {
   const { data: me, refetch } = useSessionMe();
+  const exchangeStatus = useExchangeStatus();
   const convertSteps = useConvertSteps();
   const todaySteps = usePedometerSteps();
   const [value, setValue] = useState("");
 
+  const maxSingleExchange = exchangeStatus.data?.maxSingleExchange ?? 100;
+  const remainingPoints = exchangeStatus.data?.remainingPoints ?? maxSingleExchange;
+  const remainingExchangeCount = exchangeStatus.data?.remainingExchangeCount ?? null;
+  const maxDailyExchanges = exchangeStatus.data?.maxDailyExchanges ?? 20;
+  const maxApplicable = Math.min(maxSingleExchange, remainingPoints);
+
   const validation = useMemo(() => {
-    if (!value) return { ok: false, message: "한 번에 최대 100개까지 교환할 수 있어요." };
+    if (remainingExchangeCount === 0) {
+      return { ok: false, message: `오늘 교환 횟수를 모두 사용했어요. (최대 ${maxDailyExchanges}회)` };
+    }
+    if (!value) return { ok: false, message: `한 번에 최대 ${maxSingleExchange}개까지 교환할 수 있어요.` };
     const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) {
-      return { ok: false, message: "1~100 사이의 정수를 입력해주세요." };
+    if (!Number.isInteger(parsed) || parsed < 1 || parsed > maxApplicable) {
+      return { ok: false, message: `1~${maxApplicable} 사이의 정수를 입력해주세요.` };
     }
     return { ok: true, message: "전환 가능한 값이에요." };
-  }, [value]);
+  }, [value, maxApplicable, maxSingleExchange, remainingExchangeCount, maxDailyExchanges]);
+
+  const handleMax = () => {
+    if (maxApplicable <= 0) return;
+    setValue(String(maxApplicable));
+  };
 
   const handleConvert = async () => {
     if (!validation.ok) return;
@@ -37,21 +53,10 @@ export default function PointConvertScreen({ navigation }: Props) {
     try {
       const result = await convertSteps.mutateAsync(Number(value));
       await refetch();
+      setValue("");
       Alert.alert(
         "전환 완료",
-        `${result.convertedPoints}포인트가 한라봉으로 전환됐어요.`,
-        [
-          {
-            text: "확인",
-            onPress: () => {
-              if (navigation.canGoBack()) {
-                navigation.goBack();
-                return;
-              }
-              navigation.navigate("Main", { screen: "Shop" });
-            },
-          },
-        ]
+        `${result.convertedPoints}포인트가 한라봉으로 전환됐어요. (오늘 ${result.todayExchangeCount}/${maxDailyExchanges}회)`
       );
     } catch (error: any) {
       Alert.alert(
@@ -94,24 +99,42 @@ export default function PointConvertScreen({ navigation }: Props) {
         </View>
       </View>
 
-      <Text style={styles.label}>전환할 포인트</Text>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>전환할 포인트</Text>
+        {remainingExchangeCount !== null ? (
+          <Text style={styles.exchangeCountText}>
+            오늘 {remainingExchangeCount}/{maxDailyExchanges}회 남음
+          </Text>
+        ) : null}
+      </View>
       <View style={styles.inputBox}>
         <TextInput
           value={value}
           onChangeText={(next) => setValue(next.replace(/\D/g, ""))}
-          placeholder="1~100 입력"
+          placeholder={`1~${maxApplicable} 입력`}
           placeholderTextColor={colors.gray[400]}
           keyboardType="number-pad"
           style={[
             styles.input,
+            styles.inputWithMaxButton,
             value.length > 0 && !validation.ok && styles.inputNegative,
           ]}
         />
-        {value.length > 0 ? (
-          <Pressable style={styles.clearButton} onPress={() => setValue("")} hitSlop={8}>
-            <Clear width={20} height={20} />
+        <View style={styles.inputActions}>
+          {value.length > 0 ? (
+            <Pressable style={styles.clearButton} onPress={() => setValue("")} hitSlop={8}>
+              <Clear width={20} height={20} />
+            </Pressable>
+          ) : null}
+          <Pressable
+            style={styles.maxButton}
+            onPress={handleMax}
+            disabled={maxApplicable <= 0}
+            hitSlop={8}
+          >
+            <Text style={styles.maxButtonText}>최대</Text>
           </Pressable>
-        ) : null}
+        </View>
       </View>
       <Text style={[styles.helperText, validation.ok && styles.helperTextPositive]}>
         {validation.message}
@@ -163,17 +186,42 @@ const styles = StyleSheet.create({
     top: "50%",
     transform: [{ translateX: -15.5 }, { translateY: -6 }],
   },
-  label: { ...typography.body3, color: colors.gray[700], marginTop: 20, marginBottom: 8 },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  label: { ...typography.body3, color: colors.gray[700] },
+  exchangeCountText: { ...typography.caption1, color: colors.gray[600] },
   inputBox: { justifyContent: "center" },
-  input: { ...commonStyles.input, paddingRight: 44 },
+  input: { ...commonStyles.input },
+  inputWithMaxButton: { paddingRight: 96 },
   inputNegative: { borderColor: colors.error[100] },
-  clearButton: {
+  inputActions: {
     position: "absolute",
     right: 14,
     top: 0,
     bottom: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  clearButton: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  maxButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    backgroundColor: colors.primary[50],
+  },
+  maxButtonText: {
+    ...typography.caption1,
+    fontWeight: "700",
+    color: colors.primary[400],
   },
   helperText: { ...typography.caption2, color: colors.error[100], marginTop: 8 },
   helperTextPositive: { color: colors.primary[400] },

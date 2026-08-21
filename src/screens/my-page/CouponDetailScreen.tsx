@@ -39,6 +39,10 @@ export default function CouponDetailScreen({ route }: Props) {
     );
   }
 
+  const isTicon = couponDetail.coupon.category === "JEJU_TICON";
+  const acceptedLabel = isTicon ? "사용 완료" : "수령완료";
+  const pendingLabel = isTicon ? "사용 완료로 표시" : "수령하기";
+
   return (
     <View style={styles.screen}>
       <ScreenHeader title="사용하기" />
@@ -46,7 +50,7 @@ export default function CouponDetailScreen({ route }: Props) {
         <View style={styles.cardWrapper}>
           <CouponDetailCard coupon={couponDetail.coupon} />
           <PrimaryActionButton
-            label={couponDetail.coupon.accepted ? "수령완료" : "수령하기"}
+            label={couponDetail.coupon.accepted ? acceptedLabel : pendingLabel}
             isLoading={couponDetail.isAccepting}
             disabled={couponDetail.disabled}
             style={styles.actionButton}

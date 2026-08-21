@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Text, View } from "react-native";
+import QRCode from "react-native-qrcode-svg";
 import type { OwnedProduct } from "src/api/product";
 import { colors, shadow, typography } from "src/design/theme";
 
@@ -7,6 +8,8 @@ type Props = {
 };
 
 export function CouponDetailCard({ coupon }: Props) {
+  const isTicon = coupon.category === "JEJU_TICON";
+
   return (
     <View style={styles.couponBox}>
       <View style={styles.productImageWrapper}>
@@ -19,22 +22,49 @@ export function CouponDetailCard({ coupon }: Props) {
         </Text>
         <View style={styles.bar} />
 
-        <View style={styles.availablePlace}>
-          <Text style={styles.placeCaption}>사용처</Text>
-          <Text style={styles.placeText}>
-            인천광역시 중구 공항로271, 인천국제공항 제 1 여객터미널 교통센터 지하 1층
-          </Text>
-        </View>
+        {isTicon ? (
+          <>
+            <View style={styles.qrArea}>
+              {coupon.redeemCode ? (
+                <>
+                  <QRCode value={coupon.redeemCode} size={148} />
+                  <Text style={styles.redeemCode}>{coupon.redeemCode}</Text>
+                </>
+              ) : (
+                <Text style={styles.placeText}>코드를 불러오지 못했어요. 잠시 후 다시 시도해주세요.</Text>
+              )}
+            </View>
 
-        <View style={styles.alertBox}>
-          <Text style={styles.alertText}>
-            해당 버튼은 담당자에게 물품 수령 시 제출하며{`
+            <View style={styles.alertBox}>
+              <Text style={styles.alertText}>
+                제휴처 직원에게 이 QR 코드나 번호를 보여주고 할인받으세요.{`
 `}
-            1회만 사용 가능하고 재사용은 불가합니다.{`
+                1회만 사용 가능하고 재사용은 불가합니다.{`
 `}
-            ※ 사용 전 내용을 꼭 확인해 주세요. ※
-          </Text>
-        </View>
+                ※ 사용 전 내용을 꼭 확인해 주세요. ※
+              </Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.availablePlace}>
+              <Text style={styles.placeCaption}>사용처</Text>
+              <Text style={styles.placeText}>
+                인천광역시 중구 공항로271, 인천국제공항 제 1 여객터미널 교통센터 지하 1층
+              </Text>
+            </View>
+
+            <View style={styles.alertBox}>
+              <Text style={styles.alertText}>
+                해당 버튼은 담당자에게 물품 수령 시 제출하며{`
+`}
+                1회만 사용 가능하고 재사용은 불가합니다.{`
+`}
+                ※ 사용 전 내용을 꼭 확인해 주세요. ※
+              </Text>
+            </View>
+          </>
+        )}
       </View>
     </View>
   );
@@ -72,6 +102,17 @@ const styles = StyleSheet.create({
     height: 1,
     marginVertical: 16,
     backgroundColor: colors.gray[200],
+  },
+  qrArea: {
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 16,
+  },
+  redeemCode: {
+    ...typography.body1,
+    fontWeight: "700",
+    letterSpacing: 2,
+    color: colors.gray[800],
   },
   availablePlace: {
     marginBottom: 8,

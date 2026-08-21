@@ -10,6 +10,7 @@ export type OwnedProduct = {
     imageUrl: string;
     category: ProductCategory;
     accepted: boolean; // 내 상품권 응답에 존재
+    redeemCode?: string | null; // JEJU_TICON만 값이 있음(GOODS는 null)
 }
 
 type ApiRes<T> = { success: boolean; data: T };

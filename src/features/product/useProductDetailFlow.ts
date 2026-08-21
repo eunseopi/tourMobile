@@ -39,11 +39,19 @@ export function useProductDetailFlow({
       return;
     }
 
+    Alert.alert(
+      "이 상품으로 교환할까요?",
+      `${product.name}\n${(product.hallabongCost ?? 0).toLocaleString()} 한라봉이 차감됩니다.`,
+      [
+        { text: "취소", style: "cancel" },
+        { text: "교환하기", onPress: () => void doExchange(product.productId, me.userId) },
+      ]
+    );
+  };
+
+  const doExchange = async (productId: string | number, userId: number | string) => {
     try {
-      await exchangeProduct.mutateAsync({
-        productId: product.productId,
-        userId: me.userId,
-      });
+      await exchangeProduct.mutateAsync({ productId, userId });
 
       Alert.alert("구매 완료", "마이페이지에서 구매한 상품을 확인할 수 있어요.");
     } catch (error: any) {

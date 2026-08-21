@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
   ActivityIndicator,
@@ -16,18 +17,29 @@ import { commonStyles } from "src/design/commonStyles";
 import { colors, layout, typography } from "src/design/theme";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { useMyProducts } from "src/features/my-page/useMyProducts";
+import type { ProductCategory } from "src/types/ProductTypes";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MyCoupons">;
+
+const TABS: { value: ProductCategory; label: string }[] = [
+  { value: "JEJU_TICON", label: "제주티콘" },
+  { value: "GOODS", label: "굿즈" },
+];
 
 export default function MyCouponsScreen({ navigation }: Props) {
   const { data: me } = useSessionMe();
   const {
-    data: coupons = [],
+    data: allCoupons = [],
     isLoading,
     isError,
     refetch,
     isRefetching,
   } = useMyProducts(me?.userId);
+  const [tab, setTab] = useState<ProductCategory>("JEJU_TICON");
+  const coupons = useMemo(
+    () => allCoupons.filter((item) => item.category === tab),
+    [allCoupons, tab]
+  );
 
   if (isLoading) {
     return (
@@ -58,6 +70,19 @@ export default function MyCouponsScreen({ navigation }: Props) {
   return (
     <View style={styles.screen}>
       <ScreenHeader title="내 상품권" />
+      <View style={styles.tabRow}>
+        {TABS.map((item) => (
+          <Pressable
+            key={item.value}
+            style={[styles.tabButton, tab === item.value && styles.tabButtonActive]}
+            onPress={() => setTab(item.value)}
+          >
+            <Text style={[styles.tabButtonText, tab === item.value && styles.tabButtonTextActive]}>
+              {item.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
       <FlatList
       style={styles.container}
       data={coupons}
@@ -71,7 +96,9 @@ export default function MyCouponsScreen({ navigation }: Props) {
       ListEmptyComponent={
         <View style={styles.emptyBox}>
           <EmptyBuddy width={104} height={110} />
-          <Text style={styles.emptyText}>아직 보유한 상품권이 없어요.</Text>
+          <Text style={styles.emptyText}>
+            아직 보유한 {tab === "JEJU_TICON" ? "제주티콘" : "굿즈"}이 없어요.
+          </Text>
         </View>
       }
       renderItem={({ item }) => (
@@ -90,7 +117,7 @@ export default function MyCouponsScreen({ navigation }: Props) {
             {item.name}
           </Text>
           <Text style={[styles.status, item.accepted && styles.acceptedStatus]}>
-            {item.accepted ? "수령완료" : "사용 가능"}
+            {item.accepted ? (item.category === "JEJU_TICON" ? "사용 완료" : "수령완료") : "사용 가능"}
           </Text>
         </Pressable>
       )}
@@ -107,6 +134,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.bg[50],
+  },
+  tabRow: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: 14,
+    backgroundColor: colors.bg[50],
+  },
+  tabButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: colors.gray[100],
+  },
+  tabButtonActive: {
+    backgroundColor: colors.primary[400],
+  },
+  tabButtonText: {
+    ...typography.body3,
+    fontWeight: "600",
+    color: colors.gray[600],
+  },
+  tabButtonTextActive: {
+    color: colors.base[0],
   },
   content: {
     paddingHorizontal: layout.screenPadding,
