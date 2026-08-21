@@ -158,8 +158,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
 
     if (activeFilter === "ALL") return normalized;
     if (activeFilter === "SPOT") return normalized.filter((item) => item.type !== "CHALLENGE");
+    // SPOT 타입도 "챌린지에 추가"로 참여할 수 있어 type이 아닌 참여 상태로 걸러낸다.
     return normalized.filter((item) => {
-      if (item.type !== "CHALLENGE") return false;
       const status = getChallengeStatus(item, ongoingIds, completedIds);
       return activeFilter === "CHALLENGE_ONGOING" ? status === "ongoing" : status === "done";
     });

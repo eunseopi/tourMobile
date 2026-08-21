@@ -4,12 +4,13 @@ import type { MapMarkerItem } from "./types";
 export type ChallengeStatus = "available" | "ongoing" | "done";
 
 // 스팟/미시작 챌린지(이용 가능)는 주황, 내가 진행중인 챌린지는 파랑, 완료한 챌린지는 회색으로 구분한다.
+// "챌린지에 추가"로 SPOT 타입에서도 챌린지를 시작/완료할 수 있어(백엔드 start()가
+// CHALLENGE/SPOT 둘 다 허용) type을 기준으로 걸러내지 않고 참여 여부만 본다.
 export function getChallengeStatus(
   item: { id: string | number; type?: string },
   ongoingIds: Set<string>,
   completedIds: Set<string>
 ): ChallengeStatus {
-  if (item.type !== "CHALLENGE") return "available";
   const id = String(item.id);
   if (completedIds.has(id)) return "done";
   if (ongoingIds.has(id)) return "ongoing";
