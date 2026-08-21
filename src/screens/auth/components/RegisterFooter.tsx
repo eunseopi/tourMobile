@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, typography } from "src/design/theme";
 
 type Props = {
@@ -12,9 +13,11 @@ type Props = {
 
 export function RegisterFooter({ step, totalSteps, isSubmitting, isNextEnabled, onBack, onNext }: Props) {
   const isDisabled = isSubmitting || !isNextEnabled;
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8) + 8;
 
   return (
-    <View style={styles.footerRow}>
+    <View style={[styles.footerRow, { paddingBottom: bottomInset }]}>
       <Pressable style={styles.backButton} onPress={onBack}>
         <Text style={styles.backButtonText}>{step === 0 ? "뒤로" : "이전"}</Text>
       </Pressable>
@@ -45,7 +48,6 @@ const styles = StyleSheet.create({
     gap: 15,
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 34,
     backgroundColor: colors.bg[0],
   },
   backButton: {

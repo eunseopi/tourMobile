@@ -1,4 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChevronLeftIcon from "src/assets/ChevronLeft.svg";
 import { REGISTRATION_PRIVACY_CONSENT_CONTENT } from "src/config/legalContent";
 import { colors, layout, typography } from "src/design/theme";
@@ -11,6 +12,9 @@ type Props = {
 };
 
 export function RegistrationPrivacyConsent({ agreed, onToggle, onBack, onContinue }: Props) {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 8) + 8;
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -39,7 +43,7 @@ export function RegistrationPrivacyConsent({ agreed, onToggle, onBack, onContinu
         </Pressable>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: bottomInset }]}>
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ disabled: !agreed }}
@@ -89,7 +93,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     paddingHorizontal: layout.screenPadding,
     paddingTop: 12,
-    paddingBottom: 34,
     backgroundColor: colors.bg[0],
   },
   continueButton: {
