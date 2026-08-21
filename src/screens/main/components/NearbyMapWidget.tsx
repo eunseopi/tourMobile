@@ -21,7 +21,7 @@ const HOME_CLOSE_REGION_DELTA = {
   latitudeDelta: 0.0054,
   longitudeDelta: 0.0065,
 };
-const MINI_MAP_RADIUS_KM = 0.3;
+const MINI_MAP_RADIUS_KM = 0.5;
 
 type Props = {
   latitude: number;
