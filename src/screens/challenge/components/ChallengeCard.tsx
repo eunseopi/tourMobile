@@ -13,9 +13,17 @@ type Props = {
   onPress?: () => void;
 };
 
+// map/mapUtils.ts의 markerColor와 같은 상태별 색 규칙(진행전=주황/진행중=파랑/완료=회색)을 따른다.
+const STATUS_CHIP_COLOR: Record<string, string> = {
+  진행전: colors.primary[400],
+  진행중: "#3B82F6",
+  완료: colors.gray[400],
+};
+
 export function ChallengeCard({ item, highlighted, onPress }: Props) {
   const isDone = item.statusLabel === "완료";
   const isPrimaryTone = (item.categoryTone ?? "neutral") === "primary";
+  const statusChipColor = STATUS_CHIP_COLOR[item.statusLabel] ?? colors.gray[400];
   const scale = useRef(new Animated.Value(1)).current;
 
   const animateTo = (value: number) => {
@@ -48,9 +56,13 @@ export function ChallengeCard({ item, highlighted, onPress }: Props) {
 
         <View style={styles.bottomLeft}>
           <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-          <Text style={styles.status}>{item.statusLabel}</Text>
+          <View style={[styles.statusChip, { backgroundColor: statusChipColor }]}>
+            <Text style={styles.statusChipText}>{item.statusLabel}</Text>
+          </View>
           {item.recommendReason === "PREF_THEME" && item.categoryLabel ? (
-            <Text style={styles.reasonText} numberOfLines={1}>{item.categoryLabel} 테마 선호</Text>
+            <View style={styles.reasonChip}>
+              <Text style={styles.reasonChipText} numberOfLines={1}>{item.categoryLabel} 테마 선호</Text>
+            </View>
           ) : null}
           <Text style={styles.reward}>🍊 {CHALLENGE_REWARD_POINT.toLocaleString()} 한라봉</Text>
           {highlighted ? <Text style={styles.highlightText}>방금 완료한 챌린지예요</Text> : null}
@@ -145,22 +157,30 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  status: {
-    ...typography.body1,
-    fontWeight: "600",
-    color: colors.gray[100],
-    marginTop: 2,
-    textShadowColor: "rgba(0,0,0,0.16)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+  statusChip: {
+    alignSelf: "flex-start",
+    marginTop: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 20,
   },
-  reasonText: {
+  statusChipText: {
+    ...typography.caption1,
+    fontWeight: "700",
+    color: colors.base[0],
+  },
+  reasonChip: {
+    alignSelf: "flex-start",
+    marginTop: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.92)",
+  },
+  reasonChipText: {
     ...typography.caption2,
-    color: colors.gray[100],
-    marginTop: 2,
-    textShadowColor: "rgba(0,0,0,0.16)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    fontWeight: "700",
+    color: colors.primary[500],
   },
   reward: {
     ...typography.caption1,
