@@ -47,18 +47,24 @@ export function MyProfileSummary({
               cachePolicy="memory-disk"
               transition={150}
               onError={(e) => {
-                console.warn("[MyProfileSummary] 프로필 이미지 로드 실패:", profile, e.error);
+                console.warn(
+                  "[MyProfileSummary] 프로필 이미지 로드 실패:",
+                  profile,
+                  e.error
+                );
                 setImageFailed(true);
               }}
             />
           ) : (
-            <DefaultProfile width={72} height={72} />
+            <DefaultProfile width={80} height={80} />
           )}
         </View>
 
         <View style={styles.nicknameWrapper}>
           <View style={styles.nicknameBox}>
-            <Text style={styles.nickname} numberOfLines={1}>{displayName}</Text>
+            <Text style={styles.nickname} numberOfLines={1}>
+              {displayName}
+            </Text>
             <PenIcon width={16} height={16} />
           </View>
           <Pressable
@@ -87,7 +93,9 @@ export function MyProfileSummary({
             <Hanlabong width={18} height={18} />
             <Text style={styles.statLabel}>내 한라봉</Text>
           </View>
-          <Text style={styles.statValue}>{(hallabong ?? 0).toLocaleString("ko-KR")}</Text>
+          <Text style={styles.statValue}>
+            {(hallabong ?? 0).toLocaleString("ko-KR")}
+          </Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statBox}>
@@ -95,7 +103,9 @@ export function MyProfileSummary({
             <Steps width={18} height={18} />
             <Text style={styles.statLabel}>누적 걸음수</Text>
           </View>
-          <Text style={styles.statValue}>{(totalSteps ?? 0).toLocaleString("ko-KR")}</Text>
+          <Text style={styles.statValue}>
+            {(totalSteps ?? 0).toLocaleString("ko-KR")}
+          </Text>
         </View>
       </View>
     </View>
@@ -104,12 +114,27 @@ export function MyProfileSummary({
 
 const styles = StyleSheet.create({
   profileWrapper: { backgroundColor: colors.bg[0], padding: 20, gap: 20 },
-  profileBox: { flexDirection: "row", alignItems: "center", gap: 30 },
-  profileImageWrapper: { width: 100, height: 100, borderRadius: 50, borderWidth: 1, borderColor: colors.gray[300], backgroundColor: colors.gray[200], alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  profileBox: { flexDirection: "row", alignItems: "center", gap: 20 },
+  profileImageWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.gray[200],
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
   profileImage: { width: "100%", height: "100%" },
   nicknameWrapper: { flex: 1, paddingTop: 20, paddingBottom: 18 },
-  nicknameBox: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 12 },
-  nickname: { width: 140, ...typography.head3, color: colors.gray[800] },
+  nicknameBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    marginBottom: 12,
+  },
+  nickname: { width: "auto", ...typography.head3, color: colors.gray[800] },
   levelBadge: {
     flexDirection: "row",
     alignItems: "center",
@@ -122,7 +147,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary[200],
   },
-  levelBadgeText: { ...typography.caption1, fontWeight: "700", color: colors.primary[500] },
+  levelBadgeText: {
+    ...typography.caption1,
+    fontWeight: "700",
+    color: colors.primary[500],
+  },
   statsRow: {
     flexDirection: "row",
     borderRadius: 12,
@@ -130,7 +159,11 @@ const styles = StyleSheet.create({
     ...shadow.card,
   },
   statBox: { flex: 1, paddingVertical: 16, paddingHorizontal: 14, gap: 8 },
-  statDivider: { width: 1, marginVertical: 14, backgroundColor: colors.gray[200] },
+  statDivider: {
+    width: 1,
+    marginVertical: 14,
+    backgroundColor: colors.gray[200],
+  },
   statLabelRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   statLabel: { ...typography.caption1, color: colors.gray[600] },
   statValue: { ...typography.head3, color: colors.gray[800] },
