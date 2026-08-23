@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Alert } from "src/components/ui/AppAlert";
 import type { RootStackParamList } from "src/app/navigation/types";
 import type { ReportReason } from "src/api/community";
@@ -18,7 +17,6 @@ import { ReportModal } from "./components/ReportModal";
 type Props = NativeStackScreenProps<RootStackParamList, "PostDetail">;
 
 export default function PostDetailScreen({ navigation, route }: Props) {
-  const insets = useSafeAreaInsets();
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const { block } = useBlockUser();
   const goBackToFeed = () => {
@@ -115,7 +113,7 @@ export default function PostDetailScreen({ navigation, route }: Props) {
       <KeyboardAvoidingView
         style={styles.keyboardRoot}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? insets.top + 52 : 0}
+        keyboardVerticalOffset={0}
       >
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
           <PostDetailContent

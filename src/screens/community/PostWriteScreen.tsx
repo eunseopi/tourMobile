@@ -42,7 +42,7 @@ export default function PostWriteScreen({ navigation, route }: Props) {
       <KeyboardAvoidingView
         style={styles.keyboardRoot}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 88 : 0}
+        keyboardVerticalOffset={0}
       >
       <ScrollView
         style={styles.scroll}

@@ -2,11 +2,24 @@ import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CompositeScreenProps } from "@react-navigation/native";
 import { useScrollToTop } from "@react-navigation/native";
-import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Alert } from "src/components/ui/AppAlert";
-import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from "src/app/navigation/types";
 import { authApi } from "src/api/auth";
 import { userApi } from "src/api/users";
 import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
@@ -44,13 +57,15 @@ export default function MyPageScreen({ navigation }: Props) {
 
   const goToLogin = () => {
     const rootNavigation =
-      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
+      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ??
+      navigation;
     rootNavigation.reset({ index: 0, routes: [{ name: "Login" }] });
   };
 
   const goToFirstScreen = () => {
     const rootNavigation =
-      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ?? navigation;
+      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>() ??
+      navigation;
     rootNavigation.reset({ index: 0, routes: [{ name: "Splash" }] });
   };
 
@@ -108,7 +123,10 @@ export default function MyPageScreen({ navigation }: Props) {
               queryClient.clear();
               goToFirstScreen();
             } catch {
-              Alert.alert("탈퇴 실패", "회원 탈퇴 처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.");
+              Alert.alert(
+                "탈퇴 실패",
+                "회원 탈퇴 처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요."
+              );
             } finally {
               setIsDeletingAccount(false);
             }
@@ -136,7 +154,10 @@ export default function MyPageScreen({ navigation }: Props) {
         <ScreenHeader title="마이페이지" showBack={false} />
         <View style={styles.center}>
           <Text style={styles.errorText}>내 정보를 불러오지 못했어요.</Text>
-          <PressableScale style={commonStyles.primaryButton} onPress={() => refetch()}>
+          <PressableScale
+            style={commonStyles.primaryButton}
+            onPress={() => refetch()}
+          >
             <Text style={commonStyles.primaryButtonText}>다시 시도</Text>
           </PressableScale>
         </View>
@@ -146,11 +167,16 @@ export default function MyPageScreen({ navigation }: Props) {
 
   return (
     <View style={styles.screen}>
-      <ScreenHeader title="마이페이지" showBack={false} right={<NotificationBellButton />} />
+      <ScreenHeader
+        title="마이페이지"
+        showBack={false}
+        right={<NotificationBellButton />}
+      />
       <ScrollView
         ref={scrollRef}
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}
+        contentContainerStyle={styles.content}
+        bounces={false}
       >
         <MyProfileSummary
           profile={me.profile}
@@ -162,7 +188,7 @@ export default function MyPageScreen({ navigation }: Props) {
           onPressProfile={() => navigation.navigate("ProfileEdit")}
         />
 
-        <View style={styles.menuArea}>
+        <View style={[styles.menuArea, { paddingBottom: tabBarHeight - 60 }]}>
           <MyPageMenuList
             notiEnabled={notiEnabled}
             onToggleNoti={toggleNoti}
@@ -177,7 +203,12 @@ export default function MyPageScreen({ navigation }: Props) {
           />
 
           <View style={styles.accountActions}>
-            <PressableScale style={styles.logoutButton} scaleTo={0.96} onPress={handleLogout} disabled={isLoggingOut}>
+            <PressableScale
+              style={styles.logoutButton}
+              scaleTo={0.96}
+              onPress={handleLogout}
+              disabled={isLoggingOut}
+            >
               <Text style={styles.logoutButtonText}>
                 {isLoggingOut ? "로그아웃 중..." : "로그아웃"}
               </Text>
@@ -205,7 +236,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg[0] },
   content: {},
   menuArea: { padding: 20, backgroundColor: colors.bg[50] },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12, padding: 24, backgroundColor: colors.bg[0] },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
+    padding: 24,
+    backgroundColor: colors.bg[0],
+  },
   mutedText: { ...typography.body4, color: colors.gray[600] },
   errorText: { ...typography.body3, color: colors.error[100] },
   accountActions: {
@@ -215,7 +253,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 8,
   },
-  logoutButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 8 },
+  logoutButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+  },
   logoutButtonText: { ...typography.body3, color: colors.gray[600] },
   actionDivider: { ...typography.body3, color: colors.gray[300] },
   deleteAccountButtonText: { ...typography.body3, color: colors.error[100] },
