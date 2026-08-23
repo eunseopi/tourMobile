@@ -4,7 +4,15 @@ import type { CompositeScreenProps } from "@react-navigation/native";
 import { useScrollToTop } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Alert } from "src/components/ui/AppAlert";
 import type {
   MainTabParamList,
@@ -50,10 +58,14 @@ export default function CommunityScreen({ navigation }: Props) {
     isRefetching,
   } = useCommunityPosts(activeTab, currentPage, 20);
   const { data: banners = [] } = useCommunityBanners();
-  const reportedPostIds = useReportedContentStore((state) => state.reportedPostIds);
+  const reportedPostIds = useReportedContentStore(
+    (state) => state.reportedPostIds
+  );
   // /latest, /most-liked는 서버 쿼리에서 이미 관광공사(TourAPI) 데이터를 제외하고
   // 유저 작성 글만 내려준다.
-  const posts = (postPage?.content ?? []).filter((post) => !reportedPostIds.includes(post.id));
+  const posts = (postPage?.content ?? []).filter(
+    (post) => !reportedPostIds.includes(post.id)
+  );
 
   const likeMutation = useMutation({
     mutationFn: async ({ id, liked }: { id: number; liked: boolean }) => {
@@ -169,7 +181,7 @@ export default function CommunityScreen({ navigation }: Props) {
         }
         contentContainerStyle={[
           styles.content,
-          { paddingBottom: tabBarHeight },
+          { paddingBottom: tabBarHeight - 70 },
         ]}
         refreshControl={
           <RefreshControl
@@ -198,7 +210,11 @@ export default function CommunityScreen({ navigation }: Props) {
               onToggleLike={() => {
                 // 연타로 같은 게시글에 좋아요/취소가 겹쳐 들어가면 서버에서 충돌로
                 // 실패하는 경우가 있어, 해당 게시글에 이미 요청이 진행 중이면 무시한다.
-                if (likeMutation.isPending && likeMutation.variables?.id === item.id) return;
+                if (
+                  likeMutation.isPending &&
+                  likeMutation.variables?.id === item.id
+                )
+                  return;
                 likeMutation.mutate({ id: item.id, liked: !item.likedByMe });
               }}
             />

@@ -188,7 +188,7 @@ export default function MyPageScreen({ navigation }: Props) {
           onPressProfile={() => navigation.navigate("ProfileEdit")}
         />
 
-        <View style={[styles.menuArea, { paddingBottom: tabBarHeight - 60 }]}>
+        <View style={[styles.menuArea, { paddingBottom: tabBarHeight - 100 }]}>
           <MyPageMenuList
             notiEnabled={notiEnabled}
             onToggleNoti={toggleNoti}

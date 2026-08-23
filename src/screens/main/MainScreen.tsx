@@ -7,20 +7,29 @@ import * as Location from "expo-location";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 import { Alert } from "src/components/ui/AppAlert";
 import { SafeAreaView } from "react-native-safe-area-context";
-import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from "src/app/navigation/types";
 import { colors, spacing } from "src/design/theme";
 import { useStartChallenge } from "src/features/challenges/useChallengeMutations";
 import { useCommunityPosts } from "src/features/community/useCommunityPosts";
 import { useNearbySpots } from "src/features/main/useNearbySpots";
 import { usePedometerSteps } from "src/features/steps/usePedometerSteps";
 import { useSessionMe } from "src/features/my-page/useSessionMe";
-import { getCurrentPositionWithFallback, joinUniqueParts } from "src/utils/lib/location";
+import {
+  getCurrentPositionWithFallback,
+  joinUniqueParts,
+} from "src/utils/lib/location";
 import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
 import { CheckInButton } from "./components/CheckInButton";
 import { CommunityPreviewList } from "./components/CommunityPreviewList";
 import { HomeSection } from "./components/HomeSection";
 import { MainHero } from "./components/MainHero";
-import { NearbyMapWidget, type NearbyMapItem } from "./components/NearbyMapWidget";
+import {
+  NearbyMapWidget,
+  type NearbyMapItem,
+} from "./components/NearbyMapWidget";
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, "Home">,
@@ -64,7 +73,10 @@ export default function MainScreen({ navigation }: Props) {
         const places = await Location.reverseGeocodeAsync(nextCoords);
         const place = places[0];
         if (place) {
-          const region = joinUniqueParts([place.region, place.district || place.city], 2);
+          const region = joinUniqueParts(
+            [place.region, place.district || place.city],
+            2
+          );
           if (region) setLocationLabel(region);
         }
       } catch {
@@ -83,7 +95,10 @@ export default function MainScreen({ navigation }: Props) {
   };
 
   const nearestItems = useMemo(
-    () => [...nearby.items].sort((a, b) => (a.distanceKm ?? 99) - (b.distanceKm ?? 99)).slice(0, 20),
+    () =>
+      [...nearby.items]
+        .sort((a, b) => (a.distanceKm ?? 99) - (b.distanceKm ?? 99))
+        .slice(0, 20),
     [nearby.items]
   );
 
@@ -104,7 +119,8 @@ export default function MainScreen({ navigation }: Props) {
           onPress: async () => {
             try {
               setStartingId(item.id);
-              const permission = await Location.requestForegroundPermissionsAsync();
+              const permission =
+                await Location.requestForegroundPermissionsAsync();
               let latitude = coords.latitude;
               let longitude = coords.longitude;
 
@@ -118,7 +134,11 @@ export default function MainScreen({ navigation }: Props) {
                 }
               }
 
-              await startChallenge.mutateAsync({ id: item.id, latitude, longitude });
+              await startChallenge.mutateAsync({
+                id: item.id,
+                latitude,
+                longitude,
+              });
               Alert.alert(
                 isSpot ? "추가 완료" : "챌린지 시작",
                 "챌린지 탭의 '진행중'에서 확인할 수 있어요.",
@@ -132,19 +152,21 @@ export default function MainScreen({ navigation }: Props) {
                         highlightId: String(item.id),
                       }),
                   },
-                ],
+                ]
               );
             } catch (error: any) {
               Alert.alert(
                 "시작 실패",
-                error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요."
+                error?.response?.data?.message ??
+                  error?.message ??
+                  "잠시 후 다시 시도해주세요."
               );
             } finally {
               setStartingId(null);
             }
           },
         },
-      ],
+      ]
     );
   };
 
@@ -153,7 +175,10 @@ export default function MainScreen({ navigation }: Props) {
       <ScrollView
         ref={scrollRef}
         style={styles.container}
-        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight }]}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: tabBarHeight - 40 },
+        ]}
         refreshControl={
           <RefreshControl
             refreshing={nearby.isRefetching || community.isRefetching}
@@ -197,11 +222,17 @@ export default function MainScreen({ navigation }: Props) {
           />
         </HomeSection>
 
-        <HomeSection title="최신 커뮤니티" linkLabel="더 보기" onPressLink={() => navigation.navigate("Community")}>
+        <HomeSection
+          title="최신 커뮤니티"
+          linkLabel="더 보기"
+          onPressLink={() => navigation.navigate("Community")}
+        >
           <CommunityPreviewList
             isLoading={community.isLoading}
             posts={latestPosts}
-            onPressPost={(post) => navigation.navigate("PostDetail", { postId: post.id })}
+            onPressPost={(post) =>
+              navigation.navigate("PostDetail", { postId: post.id })
+            }
           />
         </HomeSection>
       </ScrollView>

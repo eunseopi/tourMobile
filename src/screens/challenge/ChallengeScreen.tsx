@@ -11,7 +11,10 @@ import {
   Text,
   View,
 } from "react-native";
-import type { MainTabParamList, RootStackParamList } from "src/app/navigation/types";
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from "src/app/navigation/types";
 import TrophyColor from "src/assets/trophyColor.svg";
 import StampIcon from "src/assets/Stamp.svg";
 import { NotificationBellButton } from "src/components/navigation/NotificationBellButton";
@@ -40,7 +43,9 @@ export default function ChallengeScreen({ navigation, route }: Props) {
   const listRef = useRef<FlatList>(null);
   useScrollToTop(listRef);
   const tabBarHeight = useTabBarHeight();
-  const [tab, setTab] = useState<ChallengeTab>(route.params?.initialTab ?? "pre");
+  const [tab, setTab] = useState<ChallengeTab>(
+    route.params?.initialTab ?? "pre"
+  );
   const upcomingQuery = useLoadUpcomingChallenges();
   const ongoingQuery = useLoadOngoingChallenges();
   const completedQuery = useLoadCompletedChallenges();
@@ -60,7 +65,9 @@ export default function ChallengeScreen({ navigation, route }: Props) {
 
   const visible = tab === "pre" ? ready : tab === "doing" ? doing : done;
   const isLoading =
-    upcomingQuery.isLoading || ongoingQuery.isLoading || completedQuery.isLoading;
+    upcomingQuery.isLoading ||
+    ongoingQuery.isLoading ||
+    completedQuery.isLoading;
   const isRefreshing =
     upcomingQuery.isRefetching ||
     ongoingQuery.isRefetching ||
@@ -83,10 +90,14 @@ export default function ChallengeScreen({ navigation, route }: Props) {
 
   // "새로운 장소 보기"는 명시적으로 다른 곳을 요청하는 행동이므로 확인 후 진행한다.
   const handleRequestNewPlaces = () => {
-    Alert.alert("새로운 장소를 보시겠어요?", "지금 추천된 장소가 다른 곳으로 바뀌어요.", [
-      { text: "취소", style: "cancel" },
-      { text: "새로 보기", onPress: () => refreshUpcoming.mutate() },
-    ]);
+    Alert.alert(
+      "새로운 장소를 보시겠어요?",
+      "지금 추천된 장소가 다른 곳으로 바뀌어요.",
+      [
+        { text: "취소", style: "cancel" },
+        { text: "새로 보기", onPress: () => refreshUpcoming.mutate() },
+      ]
+    );
   };
 
   if (isLoading) {
@@ -103,7 +114,11 @@ export default function ChallengeScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="챌린지" showBack={false} right={<NotificationBellButton />} />
+      <ScreenHeader
+        title="챌린지"
+        showBack={false}
+        right={<NotificationBellButton />}
+      />
       <View style={styles.header}>
         <ChallengeTabs value={tab} onChange={setTab} />
         {tab === "pre" ? (
@@ -142,7 +157,10 @@ export default function ChallengeScreen({ navigation, route }: Props) {
         ref={listRef}
         data={visible}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.listContent, { paddingBottom: tabBarHeight }]}
+        contentContainerStyle={[
+          styles.listContent,
+          { paddingBottom: tabBarHeight - 70 },
+        ]}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
