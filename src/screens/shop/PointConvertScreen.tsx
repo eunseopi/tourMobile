@@ -50,8 +50,17 @@ export default function PointConvertScreen(_props: Props) {
   const handleConvert = async () => {
     if (!validation.ok) return;
 
+    const parsed = Number(value);
+    const freshStatus = await exchangeStatus.refetch();
+    const freshRemainingPoints = freshStatus.data?.remainingPoints ?? remainingPoints;
+    const freshMaxApplicable = Math.min(maxSingleExchange, freshRemainingPoints);
+    if (parsed > freshMaxApplicable) {
+      Alert.alert("포인트가 부족해요", `지금 전환 가능한 포인트는 ${freshMaxApplicable}개예요.`);
+      return;
+    }
+
     try {
-      const result = await convertSteps.mutateAsync(Number(value));
+      const result = await convertSteps.mutateAsync(parsed);
       await refetch();
       setValue("");
       Alert.alert(
@@ -59,10 +68,15 @@ export default function PointConvertScreen(_props: Props) {
         `${result.convertedPoints}포인트가 한라봉으로 전환됐어요. (오늘 ${result.todayExchangeCount}/${maxDailyExchanges}회)`
       );
     } catch (error: any) {
-      Alert.alert(
-        "전환 실패",
-        error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요."
-      );
+      const errorCode = error?.response?.data?.errorCode;
+      const message = error?.response?.data?.message ?? error?.message ?? "잠시 후 다시 시도해주세요.";
+
+      if (errorCode === "INSUFFICIENT_STEPS") {
+        await exchangeStatus.refetch();
+        Alert.alert("포인트가 부족해요", message);
+        return;
+      }
+      Alert.alert("전환 실패", message);
     }
   };
 
