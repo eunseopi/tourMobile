@@ -1,5 +1,9 @@
 import api from "./instance";
 
+// TourAPI content_type_id 기반 3분류. 유저가 직접 쓴 글은 content_type_id가 없어
+// UNIQUE_SPOT으로 편입된다 (백엔드 SpotCategory.fromContentTypeId 참고).
+export type SpotCategory = "TOURIST_SPOT" | "RESTAURANT" | "UNIQUE_SPOT";
+
 export type NearbySpot = {
   id: number | string;
   name: string;
@@ -10,6 +14,7 @@ export type NearbySpot = {
   imageUrls?: string[];
   type?: "POST" | "SPOT" | "CHALLENGE"; // 서버가 채워주기 시작
   challengeOngoing?: boolean;
+  category?: SpotCategory;
 };
 
 export interface SpotMapRes {
@@ -18,6 +23,7 @@ export interface SpotMapRes {
   latitude: number;
   longitude: number;
   type: "POST" | "SPOT" | "CHALLENGE" | string;
+  category?: SpotCategory;
 }
 
 export type SpotRecommendation = {
@@ -36,11 +42,11 @@ export type SpotRecommendation = {
 type ApiRes<T> = { success: boolean; data: T };
 
 export const spotsApi = {
-  getNearby: (lat: number, lng: number, radiusKm: number) => {
+  getNearby: (lat: number, lng: number, radiusKm: number, category?: SpotCategory | null) => {
     const safeLat = Number(lat.toFixed(6));
     const safeLng = Number(lng.toFixed(6));
     return api.get(`api/spots/nearby`, {
-      params: { lat: safeLat, lng: safeLng, radiusKm },
+      params: { lat: safeLat, lng: safeLng, radiusKm, category: category ?? undefined },
     });
   },
   search: (query: string) =>

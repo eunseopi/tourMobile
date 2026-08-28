@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
 import MapView, { type Region } from "react-native-maps";
 import type { RootStackParamList } from "src/app/navigation/types";
-import { spotsApi } from "src/api/spotsApi";
+import { spotsApi, type SpotCategory } from "src/api/spotsApi";
 import {
   useLoadCompletedChallenges,
   useLoadOngoingChallenges,
@@ -14,8 +14,8 @@ import {
 import { haversineKm, useNearbySpots } from "src/features/main/useNearbySpots";
 import { getCurrentPositionWithFallback, getLocationErrorMessage, joinUniqueParts } from "src/utils/lib/location";
 import { RADIUS_OPTIONS } from "./components/MapHud";
-import { getChallengeStatus, normalizeType, pickDominantType } from "./mapUtils";
-import type { ClusteredMarker, MapFilter, MapMarkerItem } from "./types";
+import { normalizeType, pickDominantType } from "./mapUtils";
+import type { ClusteredMarker, MapMarkerItem } from "./types";
 
 type Navigation = NativeStackNavigationProp<RootStackParamList, "Map">;
 type Params = RootStackParamList["Map"];
@@ -45,7 +45,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
   const [selectedId, setSelectedId] = useState<string | number | null>(null);
   const [isLocating, setIsLocating] = useState(true);
   const [radiusKm, setRadiusKm] = useState<(typeof RADIUS_OPTIONS)[number]>(1);
-  const [activeFilter, setActiveFilter] = useState<MapFilter>(params?.filter ?? "ALL");
+  const [category, setCategory] = useState<SpotCategory | null>(null);
   const [searchText, setSearchText] = useState("");
   const [pendingFocusId, setPendingFocusId] = useState<string | number | null>(null);
   const [isConfirmingLocation, setIsConfirmingLocation] = useState(false);
@@ -60,7 +60,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     longitude: DEFAULT_REGION.longitude,
   });
 
-  const nearby = useNearbySpots(fetchCenter?.latitude, fetchCenter?.longitude, radiusKm);
+  const nearby = useNearbySpots(fetchCenter?.latitude, fetchCenter?.longitude, radiusKm, category);
   const ongoing = useLoadOngoingChallenges();
   const upcoming = useLoadUpcomingChallenges();
   const completed = useLoadCompletedChallenges();
@@ -89,6 +89,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         longitude: Number(item.longitude),
         likeCount: 0,
         type: normalizeType(item.type),
+        category: item.category,
       }));
     },
     staleTime: 60_000,
@@ -162,19 +163,28 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
   );
 
   const filteredMarkers = useMemo(() => {
-    const normalized = baseMarkers.map((item) => ({
-      ...item,
-      type: normalizeType(item.type),
-    }));
+    const normalized = baseMarkers.map((item) => {
+      // 표시용 거리는 항상 실제 GPS 위치(currentLocation) 기준으로 다시 계산한다.
+      // nearby.items의 distanceKm은 검색 반경 조회 기준점(fetchCenter, 지도를 크게
+      // 패닝하기 전엔 갱신 안 됨)으로 계산돼 있어서, 홈 화면(실제 위치 기준)에서 보던
+      // 거리랑 지도 화면에서 크게 달라 보이는 원인이 된다.
+      const distanceKm = currentLocation
+        ? haversineKm(
+            currentLocation.latitude,
+            currentLocation.longitude,
+            Number(item.latitude),
+            Number(item.longitude),
+          )
+        : (item.distanceKm ?? null);
 
-    if (activeFilter === "ALL") return normalized;
-    if (activeFilter === "SPOT") return normalized.filter((item) => item.type !== "CHALLENGE");
-    // SPOT 타입도 "챌린지에 추가"로 참여할 수 있어 type이 아닌 참여 상태로 걸러낸다.
-    return normalized.filter((item) => {
-      const status = getChallengeStatus(item, ongoingIds, completedIds);
-      return activeFilter === "CHALLENGE_ONGOING" ? status === "ongoing" : status === "done";
+      return { ...item, type: normalizeType(item.type), distanceKm };
     });
-  }, [activeFilter, baseMarkers, ongoingIds, completedIds]);
+
+    // nearby 목록은 서버에서 이미 category로 필터링돼서 내려오지만(재필터는 no-op),
+    // 검색 결과(search.data)는 서버 필터링이 없어서 여기서 클라이언트단으로 걸러야 한다.
+    if (!category) return normalized;
+    return normalized.filter((item) => item.category === category);
+  }, [category, baseMarkers, currentLocation]);
 
   const selectedItem = useMemo(() => {
     return filteredMarkers.find((item) => String(item.id) === String(selectedId)) ?? null;
@@ -243,7 +253,6 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
 
   useEffect(() => {
     if (!params) return;
-    if (params.filter) setActiveFilter(params.filter);
     if (params.latitude != null && params.longitude != null) {
       const focusedRegion: Region = {
         latitude: Number(params.latitude),
@@ -305,6 +314,10 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
 
   const handleRadiusChange = (radius: (typeof RADIUS_OPTIONS)[number]) => {
     setRadiusKm(radius);
+  };
+
+  const handleCategoryChange = (next: SpotCategory | null) => {
+    setCategory(next);
   };
 
   const handleMarkerPress = (id: string | number) => {
@@ -430,7 +443,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     currentLocation,
     isLocating,
     radiusKm,
-    activeFilter,
+    category,
     searchText,
     nearby,
     search,
@@ -441,8 +454,8 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     setRegion,
     handleRegionChangeComplete,
     setSearchText,
-    setActiveFilter,
     handleRadiusChange,
+    handleCategoryChange,
     recenter,
     handleMarkerPress,
     handleClusterPress,

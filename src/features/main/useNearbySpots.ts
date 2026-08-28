@@ -1,18 +1,19 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { spotsApi, type NearbySpot } from "src/api/spotsApi";
+import { spotsApi, type NearbySpot, type SpotCategory } from "src/api/spotsApi";
 
 export function useNearbySpots(
   latitude?: number,
   longitude?: number,
-  radiusKm = 3
+  radiusKm = 3,
+  category?: SpotCategory | null
 ) {
   const query = useQuery<NearbySpot[], Error>({
-    queryKey: ["nearbySpots", latitude, longitude, radiusKm],
+    queryKey: ["nearbySpots", latitude, longitude, radiusKm, category ?? null],
     enabled: latitude != null && longitude != null,
     queryFn: async () => {
       if (latitude == null || longitude == null) return [];
-      const response = await spotsApi.getNearby(latitude, longitude, radiusKm);
+      const response = await spotsApi.getNearby(latitude, longitude, radiusKm, category);
       const payload = response.data?.data ?? response.data ?? [];
       return Array.isArray(payload) ? (payload as NearbySpot[]) : [];
     },

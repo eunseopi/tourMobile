@@ -3,14 +3,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ChevronLeftIcon from "src/assets/ChevronLeft.svg";
 import ClearIcon from "src/assets/Clear.svg";
 import LocationIcon from "src/assets/Location.svg";
+import type { SpotCategory } from "src/api/spotsApi";
 import { colors, shadow, typography } from "src/design/theme";
-import type { MapFilter } from "../types";
 
-const FILTERS: Array<{ key: MapFilter; label: string }> = [
-  { key: "ALL", label: "전체" },
-  { key: "SPOT", label: "스팟" },
-  { key: "CHALLENGE_ONGOING", label: "챌린지중" },
-  { key: "CHALLENGE_DONE", label: "챌린지완료" },
+const CATEGORIES: Array<{ key: SpotCategory | null; label: string }> = [
+  { key: null, label: "전체" },
+  { key: "TOURIST_SPOT", label: "관광지" },
+  { key: "RESTAURANT", label: "식당" },
+  { key: "UNIQUE_SPOT", label: "이색 스팟" },
 ];
 
 export const RADIUS_OPTIONS = [1, 3, 5] as const;
@@ -19,10 +19,10 @@ type Props = {
   isLocating: boolean;
   markerCount: number;
   searchText: string;
-  activeFilter: MapFilter;
+  category: SpotCategory | null;
   radiusKm: (typeof RADIUS_OPTIONS)[number];
   onChangeSearchText: (value: string) => void;
-  onChangeFilter: (filter: MapFilter) => void;
+  onChangeCategory: (category: SpotCategory | null) => void;
   onChangeRadius: (radius: (typeof RADIUS_OPTIONS)[number]) => void;
   onRecenter: () => void;
   onBack?: () => void;
@@ -32,10 +32,10 @@ export function MapHud({
   isLocating,
   markerCount,
   searchText,
-  activeFilter,
+  category,
   radiusKm,
   onChangeSearchText,
-  onChangeFilter,
+  onChangeCategory,
   onChangeRadius,
   onRecenter,
   onBack,
@@ -88,14 +88,15 @@ export function MapHud({
           ) : null}
         </View>
 
+        <Text style={styles.rowLabel}>카테고리</Text>
         <View style={styles.filterRow}>
-          {FILTERS.map((item) => {
-            const active = item.key === activeFilter;
+          {CATEGORIES.map((item) => {
+            const active = item.key === category;
             return (
               <Pressable
-                key={item.key}
+                key={item.key ?? "ALL"}
                 style={[styles.filterChip, active && styles.filterChipActive]}
-                onPress={() => onChangeFilter(item.key)}
+                onPress={() => onChangeCategory(item.key)}
               >
                 <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>
                   {item.label}
@@ -181,6 +182,11 @@ const styles = StyleSheet.create({
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
+  },
+  rowLabel: {
+    ...typography.caption2,
+    color: colors.gray[600],
+    marginLeft: 2,
   },
   filterRow: { flexDirection: "row", gap: 4 },
   filterChip: {

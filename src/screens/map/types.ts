@@ -1,5 +1,3 @@
-export type MapFilter = "ALL" | "SPOT" | "CHALLENGE_ONGOING" | "CHALLENGE_DONE";
-
 export type MapMarkerItem = {
   id: string | number;
   name: string;
@@ -11,6 +9,7 @@ export type MapMarkerItem = {
   type?: "POST" | "SPOT" | "CHALLENGE" | string;
   challengeOngoing?: boolean;
   distanceKm?: number | null;
+  category?: "TOURIST_SPOT" | "RESTAURANT" | "UNIQUE_SPOT";
 };
 
 export type ClusteredMarker =

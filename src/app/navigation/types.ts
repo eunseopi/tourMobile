@@ -26,7 +26,6 @@ export type RootStackParamList = {
         focusId?: string | number;
         latitude?: number;
         longitude?: number;
-        filter?: "ALL" | "SPOT" | "CHALLENGE_ONGOING" | "CHALLENGE_DONE";
         pickMode?: boolean;
       }
     | undefined;

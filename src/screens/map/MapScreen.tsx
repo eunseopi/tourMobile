@@ -57,10 +57,10 @@ export default function MapScreen({ navigation, route }: Props) {
         isLocating={map.isLocating}
         markerCount={map.filteredMarkers.length}
         searchText={map.searchText}
-        activeFilter={map.activeFilter}
+        category={map.category}
         radiusKm={map.radiusKm}
         onChangeSearchText={map.setSearchText}
-        onChangeFilter={map.setActiveFilter}
+        onChangeCategory={map.handleCategoryChange}
         onChangeRadius={map.handleRadiusChange}
         onRecenter={map.recenter}
       />

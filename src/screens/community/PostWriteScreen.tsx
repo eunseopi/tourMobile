@@ -31,7 +31,6 @@ export default function PostWriteScreen({ navigation, route }: Props) {
         focusId: spotId,
         latitude,
         longitude,
-        filter: "SPOT",
       });
     },
   });
