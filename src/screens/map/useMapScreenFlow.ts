@@ -11,7 +11,7 @@ import {
   useLoadOngoingChallenges,
   useLoadUpcomingChallenges,
 } from "src/features/challenges/useChallengeQueries";
-import { useNearbySpots } from "src/features/main/useNearbySpots";
+import { haversineKm, useNearbySpots } from "src/features/main/useNearbySpots";
 import { getCurrentPositionWithFallback, getLocationErrorMessage, joinUniqueParts } from "src/utils/lib/location";
 import { RADIUS_OPTIONS } from "./components/MapHud";
 import { getChallengeStatus, normalizeType, pickDominantType } from "./mapUtils";
@@ -33,6 +33,12 @@ const MAP_VIEW_DELTAS = {
   longitudeDelta: DEFAULT_REGION.longitudeDelta,
 };
 
+// 지도를 드래그할 때마다 정확한 좌표로 근처 스팟을 다시 조회하면 팬 제스처가 끝날
+// 때마다(때론 애니메이션 도중에도) 매번 새 네트워크 요청 + 마커 재계산이 발생해
+// 지도가 버벅이거나 멈춘 것처럼 보인다. 검색 중심을 이 거리 이상 벗어났을 때만
+// 다시 조회하도록 완충한다.
+const FETCH_REFRESH_DISTANCE_KM = 0.3;
+
 export function useMapScreenFlow(navigation: Navigation, params: Params) {
   const mapRef = useRef<MapView | null>(null);
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
@@ -49,8 +55,12 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     longitude: number;
     accuracy: number | null;
   } | null>(null);
+  const [fetchCenter, setFetchCenter] = useState<{ latitude: number; longitude: number } | null>({
+    latitude: DEFAULT_REGION.latitude,
+    longitude: DEFAULT_REGION.longitude,
+  });
 
-  const nearby = useNearbySpots(region.latitude, region.longitude, radiusKm);
+  const nearby = useNearbySpots(fetchCenter?.latitude, fetchCenter?.longitude, radiusKm);
   const ongoing = useLoadOngoingChallenges();
   const upcoming = useLoadUpcomingChallenges();
   const completed = useLoadCompletedChallenges();
@@ -103,6 +113,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
           ...MAP_VIEW_DELTAS,
         };
         setRegion(nextRegion);
+        setFetchCenter({ latitude: nextRegion.latitude, longitude: nextRegion.longitude });
         mapRef.current?.animateToRegion(nextRegion, 500);
       } finally {
         setIsLocating(false);
@@ -271,10 +282,25 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
         ...MAP_VIEW_DELTAS,
       };
       setRegion(nextRegion);
+      setFetchCenter({ latitude: nextRegion.latitude, longitude: nextRegion.longitude });
       mapRef.current?.animateToRegion(nextRegion, 500);
     } catch (error) {
       Alert.alert("위치 확인 실패", getLocationErrorMessage(error));
     }
+  };
+
+  const handleRegionChangeComplete = (nextRegion: Region) => {
+    setRegion(nextRegion);
+    setFetchCenter((prev) => {
+      if (
+        prev &&
+        haversineKm(prev.latitude, prev.longitude, nextRegion.latitude, nextRegion.longitude) <
+          FETCH_REFRESH_DISTANCE_KM
+      ) {
+        return prev;
+      }
+      return { latitude: nextRegion.latitude, longitude: nextRegion.longitude };
+    });
   };
 
   const handleRadiusChange = (radius: (typeof RADIUS_OPTIONS)[number]) => {
@@ -413,6 +439,7 @@ export function useMapScreenFlow(navigation: Navigation, params: Params) {
     ongoingIds,
     completedIds,
     setRegion,
+    handleRegionChangeComplete,
     setSearchText,
     setActiveFilter,
     handleRadiusChange,

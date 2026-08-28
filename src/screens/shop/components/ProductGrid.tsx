@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useCallback, useRef } from "react";
 import { useScrollToTop } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
@@ -17,9 +17,45 @@ type Props = {
   onPressProduct: (productId: string | number) => void;
 };
 
+const ProductCard = memo(function ProductCard({
+  product,
+  onPress,
+}: {
+  product: Product;
+  onPress: (productId: string | number) => void;
+}) {
+  return (
+    <PressableScale style={styles.productCard} scaleTo={0.97} onPress={() => onPress(product.productId)}>
+      <View style={styles.productImageWrapper}>
+        {product.imageUrl ? (
+          <Image
+            source={{ uri: product.imageUrl }}
+            style={styles.productImage}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            transition={150}
+          />
+        ) : null}
+      </View>
+      <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+      {typeof product.hallabongCost === "number" ? (
+        <View style={styles.productPriceRow}>
+          <Text style={styles.productPrice}>{product.hallabongCost.toLocaleString("ko-KR")}</Text>
+          <Hanlabong width={24} height={24} />
+        </View>
+      ) : null}
+    </PressableScale>
+  );
+});
+
 export function ProductGrid({ products, isLoading, isError, error, onRefresh, onPressProduct }: Props) {
   const listRef = useRef<FlatList<Product>>(null);
   useScrollToTop(listRef);
+
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => <ProductCard product={item} onPress={onPressProduct} />,
+    [onPressProduct]
+  );
 
   if (isLoading) {
     return (
@@ -55,28 +91,7 @@ export function ProductGrid({ products, isLoading, isError, error, onRefresh, on
           <Text style={styles.mutedText}>표시할 상품이 없어요.</Text>
         </View>
       }
-      renderItem={({ item }) => (
-        <PressableScale style={styles.productCard} scaleTo={0.97} onPress={() => onPressProduct(item.productId)}>
-          <View style={styles.productImageWrapper}>
-            {item.imageUrl ? (
-              <Image
-                source={{ uri: item.imageUrl }}
-                style={styles.productImage}
-                contentFit="cover"
-                cachePolicy="memory-disk"
-                transition={150}
-              />
-            ) : null}
-          </View>
-          <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-          {typeof item.hallabongCost === "number" ? (
-            <View style={styles.productPriceRow}>
-              <Text style={styles.productPrice}>{item.hallabongCost.toLocaleString("ko-KR")}</Text>
-              <Hanlabong width={24} height={24} />
-            </View>
-          ) : null}
-        </PressableScale>
-      )}
+      renderItem={renderItem}
     />
   );
 }

@@ -23,7 +23,7 @@ export default function MapScreen({ navigation, route }: Props) {
         ref={map.mapRef}
         style={styles.map}
         initialRegion={map.region}
-        onRegionChangeComplete={map.setRegion}
+        onRegionChangeComplete={map.handleRegionChangeComplete}
         showsUserLocation={false}
         showsMyLocationButton={false}
       >

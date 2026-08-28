@@ -21,9 +21,18 @@ export const useReportedContentStore = create<ReportedContentState>((set, get) =
       AsyncStorage.getItem(REPORTED_POSTS_KEY),
       AsyncStorage.getItem(REPORTED_COMMENTS_KEY),
     ]);
+    // 저장된 값이 손상되어 있어도(예: 강제 종료 중 쓰기 중단) 앱 시작이 막히지 않도록 개별적으로 방어한다.
+    const safeParse = (value: string | null): number[] => {
+      if (!value) return [];
+      try {
+        return JSON.parse(value) as number[];
+      } catch {
+        return [];
+      }
+    };
     set({
-      reportedPostIds: posts ? (JSON.parse(posts) as number[]) : [],
-      reportedCommentIds: comments ? (JSON.parse(comments) as number[]) : [],
+      reportedPostIds: safeParse(posts),
+      reportedCommentIds: safeParse(comments),
     });
   },
   reportPost: (id) => {

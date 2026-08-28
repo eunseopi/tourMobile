@@ -154,12 +154,6 @@ export const communityApi = {
     });
     return res.data;
   },
-  getCommentCount: async (spotId: number): Promise<number> => {
-    const res = await api.get<CommentRes>(`/api/spots/${spotId}/comments`, {
-      params: { page: 0, size: 1 },
-    });
-    return res.data.totalElements ?? 0;
-  },
   postComment: async (spotId: number, text: string): Promise<SpotComment> => {
     const res = await api.post<SpotComment>(`/api/spots/${spotId}/comments`, { text });
     return res.data;

@@ -1,9 +1,8 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { Image } from "expo-image";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { colors, typography } from "src/design/theme";
-import { useCommentCount } from "src/features/community/useCommentCount";
 import type { Spot } from "src/reducer/types";
 import { formatDate } from "src/utils/formDate";
 import CommentIcon from "src/assets/CommentIcon.svg";
@@ -13,12 +12,15 @@ import HeartOutlineIcon from "src/assets/HeartOutline.svg";
 
 type Props = {
   post: Spot;
-  onPress: () => void;
-  onToggleLike: () => void;
+  onPress: (post: Spot) => void;
+  onToggleLike: (post: Spot) => void;
 };
 
-export function PostCard({ post, onPress, onToggleLike }: Props) {
-  const commentCount = useCommentCount(post.id);
+// 좋아요 탭 한 번에 피드 전체가 다시 렌더링되는 걸 막기 위해, post 참조와 콜백이
+// 그대로면(같은 함수 참조 + 변경되지 않은 post) 리렌더를 건너뛴다. onPress/onToggleLike는
+// 호출부(CommunityScreen)에서 useCallback으로 고정된 최상위 함수를 그대로 넘겨야 효과가 있다.
+export const PostCard = memo(function PostCard({ post, onPress, onToggleLike }: Props) {
+  const commentCount = post.commentCount ?? 0;
   const coverImage = post.imageUrls?.[0];
   const extraImageCount = (post.imageUrls?.length ?? 0) - 1;
   const cardScale = useRef(new Animated.Value(1)).current;
@@ -32,14 +34,14 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     heartScale.setValue(0.7);
     Animated.spring(heartScale, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 16 }).start();
-    onToggleLike();
+    onToggleLike(post);
   };
 
   return (
     <Animated.View style={{ transform: [{ scale: cardScale }] }}>
       <Pressable
         style={styles.postCard}
-        onPress={onPress}
+        onPress={() => onPress(post)}
         onPressIn={() => animateCardTo(0.98)}
         onPressOut={() => animateCardTo(1)}
       >
@@ -122,7 +124,7 @@ export function PostCard({ post, onPress, onToggleLike }: Props) {
       </Pressable>
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   postCard: {

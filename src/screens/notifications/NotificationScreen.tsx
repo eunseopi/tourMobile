@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { Alert } from "src/components/ui/AppAlert";
@@ -67,6 +67,33 @@ export default function NotificationScreen({ navigation }: Props) {
 
   const hasUnread = notifications.some((item) => !item.read);
 
+  // 알림 목록은 20초마다 자동 폴링되므로(useNotificationList), 매번 새 배열을 받는다.
+  // 콜백을 최상위에서 한 번만 만들어 고정된 참조로 넘겨야 memo(NotificationRow)가
+  // 안 바뀐 항목의 리렌더를 실제로 건너뛴다.
+  const handleRowPress = useCallback(
+    (item: NotificationDto) => {
+      if (!item.read) markAsRead(item.id);
+      const target = resolveNotificationTarget(item.contextKey);
+      if (target?.screen === "PostDetail") {
+        navigation.navigate("PostDetail", { postId: target.postId });
+      } else if (target?.screen === "SpotDetail") {
+        navigation.navigate("SpotDetail", { spotId: target.spotId });
+      } else if (target?.screen === "MissionList") {
+        navigation.navigate("MissionList");
+      }
+    },
+    [markAsRead, navigation]
+  );
+
+  const handleRowDelete = useCallback((id: number) => deleteOne(id), [deleteOne]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: NotificationDto }) => (
+      <NotificationRow item={item} onPress={handleRowPress} onDelete={handleRowDelete} />
+    ),
+    [handleRowPress, handleRowDelete]
+  );
+
   const handleDeleteAll = () => {
     if (notifications.length === 0) return;
     Alert.alert("전체 삭제", "받은 알림을 모두 삭제할까요?", [
@@ -130,39 +157,23 @@ export default function NotificationScreen({ navigation }: Props) {
             <Text style={styles.emptyText}>아직 받은 알림이 없어요.</Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <NotificationRow
-            item={item}
-            onPress={() => {
-              if (!item.read) markAsRead(item.id);
-              const target = resolveNotificationTarget(item.contextKey);
-              if (target?.screen === "PostDetail") {
-                navigation.navigate("PostDetail", { postId: target.postId });
-              } else if (target?.screen === "SpotDetail") {
-                navigation.navigate("SpotDetail", { spotId: target.spotId });
-              } else if (target?.screen === "MissionList") {
-                navigation.navigate("MissionList");
-              }
-            }}
-            onDelete={() => deleteOne(item.id)}
-          />
-        )}
+        renderItem={renderItem}
       />
     </View>
   );
 }
 
-function NotificationRow({
+const NotificationRow = memo(function NotificationRow({
   item,
   onPress,
   onDelete,
 }: {
   item: NotificationDto;
-  onPress: () => void;
-  onDelete: () => void;
+  onPress: (item: NotificationDto) => void;
+  onDelete: (id: number) => void;
 }) {
   return (
-    <Pressable style={styles.row} onPress={onPress}>
+    <Pressable style={styles.row} onPress={() => onPress(item)}>
       {!item.read ? <View style={styles.unreadDot} /> : <View style={styles.unreadDotSpacer} />}
       <View style={styles.rowBody}>
         <Text style={styles.rowTitle}>{NOTIFICATION_TYPE_LABEL[item.type] ?? "알림"}</Text>
@@ -171,12 +182,17 @@ function NotificationRow({
         </Text>
         <Text style={styles.rowTime}>{formatReceivedAt(item)}</Text>
       </View>
-      <Pressable accessibilityLabel="알림 삭제" hitSlop={8} onPress={onDelete} style={styles.deleteButton}>
+      <Pressable
+        accessibilityLabel="알림 삭제"
+        hitSlop={8}
+        onPress={() => onDelete(item.id)}
+        style={styles.deleteButton}
+      >
         <ClearIcon width={18} height={18} />
       </Pressable>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   headerActions: {

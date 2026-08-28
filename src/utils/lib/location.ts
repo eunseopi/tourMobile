@@ -59,15 +59,42 @@ function watchForOnePosition(): Promise<Location.LocationObject | null> {
   });
 }
 
+// 두 전략 중 먼저 실제 위치를 준 쪽을 즉시 채택한다. Promise.all로 기다리면 한쪽이
+// 이미 성공해도 (최대 8초 타임아웃으로 끝나는) 나머지 전략까지 기다리게 되어,
+// 지도 화면 진입 시 위치를 잡는 데 불필요하게 오래 걸리는 원인이 된다.
+function firstSuccessfulPosition(
+  candidates: Promise<Location.LocationObject | null>[],
+): Promise<Location.LocationObject | null> {
+  return new Promise((resolve) => {
+    let settled = false;
+    let remaining = candidates.length;
+
+    candidates.forEach((candidate) => {
+      candidate.then((value) => {
+        if (settled) return;
+        if (value) {
+          settled = true;
+          resolve(value);
+          return;
+        }
+        remaining -= 1;
+        if (remaining === 0 && !settled) {
+          settled = true;
+          resolve(null);
+        }
+      });
+    });
+  });
+}
+
 export async function getCurrentPositionWithFallback() {
-  // 실기기는 지속 구독이, 일부 에뮬레이터는 단발성 요청이 더 안정적이다.
-  // 두 요청을 동시에 열고 둘 다 8초 안에 끝나게 해 무한 대기를 막는다.
-  const [current, watched] = await Promise.all([
+  // 실기기는 지속 구독이, 일부 에뮬레이터는 단발성 요청이 더 안정적이라 둘 다 열어두되,
+  // 둘 중 먼저 성공하는 결과를 바로 쓴다(둘 다 실패해야 아래 마지막 캐시 위치로 넘어간다).
+  const position = await firstSuccessfulPosition([
     currentPositionWithTimeout(),
     watchForOnePosition(),
   ]);
-  if (watched) return watched;
-  if (current) return current;
+  if (position) return position;
 
   const lastKnown = await Location.getLastKnownPositionAsync({});
   if (lastKnown) return lastKnown;

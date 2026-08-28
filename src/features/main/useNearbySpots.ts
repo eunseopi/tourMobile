@@ -35,7 +35,7 @@ export function useNearbySpots(
   };
 }
 
-function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+export function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   const toRad = (value: number) => (value * Math.PI) / 180;
   const earthRadiusKm = 6371;
   const dLat = toRad(lat2 - lat1);

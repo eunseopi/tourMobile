@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CompositeScreenProps } from "@react-navigation/native";
 import { useScrollToTop } from "@react-navigation/native";
@@ -40,6 +40,8 @@ type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, "Community">,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+type PostItem = SpotPage["content"][number];
 
 export default function CommunityScreen({ navigation }: Props) {
   const listRef = useRef<FlatList<SpotPage["content"][number]>>(null);
@@ -119,6 +121,42 @@ export default function CommunityScreen({ navigation }: Props) {
     },
   });
 
+  // PostCard를 memo로 감싸도, renderItem이 매번 새 화살표 함수를 넘기면 의미가 없다.
+  // likeMutation은 매 렌더마다 새 객체일 수 있어 ref로 최신 값만 참조하고, 콜백 자체는
+  // 고정된 참조를 유지해 변경되지 않은 카드는 리렌더를 건너뛰도록 한다.
+  const likeMutationRef = useRef(likeMutation);
+  likeMutationRef.current = likeMutation;
+
+  const handlePostPress = useCallback(
+    (post: PostItem) => {
+      if (post.type === "CHALLENGE") {
+        navigation.navigate("Main", { screen: "Challenge" });
+      } else if (post.type === "SPOT") {
+        navigation.navigate("SpotDetail", { spotId: post.id });
+      } else {
+        navigation.navigate("PostDetail", { postId: post.id });
+      }
+    },
+    [navigation]
+  );
+
+  const handleToggleLike = useCallback((post: PostItem) => {
+    const mutation = likeMutationRef.current;
+    // 연타로 같은 게시글에 좋아요/취소가 겹쳐 들어가면 서버에서 충돌로
+    // 실패하는 경우가 있어, 해당 게시글에 이미 요청이 진행 중이면 무시한다.
+    if (mutation.isPending && mutation.variables?.id === post.id) return;
+    mutation.mutate({ id: post.id, liked: !post.likedByMe });
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: PostItem; index: number }) => (
+      <FadeSlideIn delay={Math.min(index, 8) * 40}>
+        <PostCard post={item} onPress={handlePostPress} onToggleLike={handleToggleLike} />
+      </FadeSlideIn>
+    ),
+    [handlePostPress, handleToggleLike]
+  );
+
   if (isLoading) {
     return (
       <View style={styles.screen}>
@@ -194,32 +232,7 @@ export default function CommunityScreen({ navigation }: Props) {
             <Text style={styles.mutedText}>게시물이 없습니다.</Text>
           </View>
         }
-        renderItem={({ item, index }) => (
-          <FadeSlideIn delay={Math.min(index, 8) * 40}>
-            <PostCard
-              post={item}
-              onPress={() => {
-                if (item.type === "CHALLENGE") {
-                  navigation.navigate("Main", { screen: "Challenge" });
-                } else if (item.type === "SPOT") {
-                  navigation.navigate("SpotDetail", { spotId: item.id });
-                } else {
-                  navigation.navigate("PostDetail", { postId: item.id });
-                }
-              }}
-              onToggleLike={() => {
-                // 연타로 같은 게시글에 좋아요/취소가 겹쳐 들어가면 서버에서 충돌로
-                // 실패하는 경우가 있어, 해당 게시글에 이미 요청이 진행 중이면 무시한다.
-                if (
-                  likeMutation.isPending &&
-                  likeMutation.variables?.id === item.id
-                )
-                  return;
-                likeMutation.mutate({ id: item.id, liked: !item.likedByMe });
-              }}
-            />
-          </FadeSlideIn>
-        )}
+        renderItem={renderItem}
       />
 
       <PressableScale

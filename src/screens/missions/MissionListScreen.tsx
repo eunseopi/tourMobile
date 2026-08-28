@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Image } from "expo-image";
 import {
@@ -13,11 +14,80 @@ import { PressableScale } from "src/components/ui/PressableScale";
 import { FadeSlideIn } from "src/components/ui/FadeSlideIn";
 import { colors, shadow, typography } from "src/design/theme";
 import { useMissions } from "src/features/missions/useMissions";
+import type { MissionTheme } from "src/api/missions";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MissionList">;
 
+const MissionCard = memo(function MissionCard({
+  mission,
+  delay,
+  onPress,
+}: {
+  mission: MissionTheme;
+  delay: number;
+  onPress: (mission: MissionTheme) => void;
+}) {
+  const progress = mission.totalSteps > 0 ? mission.completedSteps / mission.totalSteps : 0;
+  return (
+    <FadeSlideIn delay={delay}>
+      <PressableScale style={styles.card} onPress={() => onPress(mission)}>
+        <View style={styles.coverWrap}>
+          {mission.coverImageUrl ? (
+            <Image
+              source={{ uri: mission.coverImageUrl }}
+              style={styles.cover}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={150}
+            />
+          ) : (
+            <View style={[styles.cover, styles.coverPlaceholder]} />
+          )}
+          {mission.completed ? (
+            <View style={styles.completeBadge}>
+              <Text style={styles.completeBadgeText}>완주!</Text>
+            </View>
+          ) : null}
+        </View>
+        <View style={styles.cardBody}>
+          <Text style={styles.cardTitle}>{mission.title}</Text>
+          <Text style={styles.cardDescription} numberOfLines={2}>
+            {mission.description}
+          </Text>
+          <View style={styles.progressRow}>
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${Math.round(progress * 100)}%` },
+                  mission.completed && styles.progressFillDone,
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>
+              {mission.completedSteps}/{mission.totalSteps}
+            </Text>
+          </View>
+        </View>
+      </PressableScale>
+    </FadeSlideIn>
+  );
+});
+
 export default function MissionListScreen({ navigation }: Props) {
   const { data: missions, isLoading, isError, refetch } = useMissions();
+
+  const handlePressMission = useCallback(
+    (mission: MissionTheme) => navigation.navigate("MissionDetail", { mission }),
+    [navigation]
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }: { item: MissionTheme; index: number }) => (
+      <MissionCard mission={item} delay={Math.min(index, 8) * 40} onPress={handlePressMission} />
+    ),
+    [handlePressMission]
+  );
 
   return (
     <View style={styles.screen}>
@@ -49,56 +119,7 @@ export default function MissionListScreen({ navigation }: Props) {
               <Text style={styles.mutedText}>아직 준비된 미션이 없어요.</Text>
             </View>
           }
-          renderItem={({ item, index }) => {
-            const progress = item.totalSteps > 0 ? item.completedSteps / item.totalSteps : 0;
-            return (
-              <FadeSlideIn delay={Math.min(index, 8) * 40}>
-                <PressableScale
-                  style={styles.card}
-                  onPress={() => navigation.navigate("MissionDetail", { mission: item })}
-                >
-                  <View style={styles.coverWrap}>
-                    {item.coverImageUrl ? (
-                      <Image
-                        source={{ uri: item.coverImageUrl }}
-                        style={styles.cover}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        transition={150}
-                      />
-                    ) : (
-                      <View style={[styles.cover, styles.coverPlaceholder]} />
-                    )}
-                    {item.completed ? (
-                      <View style={styles.completeBadge}>
-                        <Text style={styles.completeBadgeText}>완주!</Text>
-                      </View>
-                    ) : null}
-                  </View>
-                  <View style={styles.cardBody}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.cardDescription} numberOfLines={2}>
-                      {item.description}
-                    </Text>
-                    <View style={styles.progressRow}>
-                      <View style={styles.progressTrack}>
-                        <View
-                          style={[
-                            styles.progressFill,
-                            { width: `${Math.round(progress * 100)}%` },
-                            item.completed && styles.progressFillDone,
-                          ]}
-                        />
-                      </View>
-                      <Text style={styles.progressText}>
-                        {item.completedSteps}/{item.totalSteps}
-                      </Text>
-                    </View>
-                  </View>
-                </PressableScale>
-              </FadeSlideIn>
-            );
-          }}
+          renderItem={renderItem}
         />
       )}
     </View>

@@ -41,6 +41,8 @@ export interface Spot {
   official: boolean;
   // POST 타입일 때만 값이 있음. 스팟으로 승격되기까지 좋아요 환산 기준 남은 개수(0이면 조건 충족).
   likesUntilPromotion?: number | null;
+  // 목록 응답에 배치로 포함되어 내려온다(카드당 개별 조회 없음). 구버전 서버 대비 optional로 둔다.
+  commentCount?: number;
 }
 
 export interface SpotPage {
