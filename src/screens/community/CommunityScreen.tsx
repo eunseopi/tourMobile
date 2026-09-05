@@ -50,7 +50,9 @@ export default function CommunityScreen({ navigation }: Props) {
   const queryClient = useQueryClient();
   const activeTab = useCommunityStore((state) => state.activeTab);
   const currentPage = useCommunityStore((state) => state.currentPage);
+  const typeFilter = useCommunityStore((state) => state.typeFilter);
   const setActiveTab = useCommunityStore((state) => state.setActiveTab);
+  const setTypeFilter = useCommunityStore((state) => state.setTypeFilter);
 
   const {
     data: postPage,
@@ -58,7 +60,7 @@ export default function CommunityScreen({ navigation }: Props) {
     isError,
     refetch,
     isRefetching,
-  } = useCommunityPosts(activeTab, currentPage, 20);
+  } = useCommunityPosts(activeTab, currentPage, 20, typeFilter);
   const { data: banners = [] } = useCommunityBanners();
   const reportedPostIds = useReportedContentStore(
     (state) => state.reportedPostIds
@@ -213,7 +215,9 @@ export default function CommunityScreen({ navigation }: Props) {
             <CommunityHeader
               activeTab={activeTab}
               banners={banners}
+              typeFilter={typeFilter}
               onChangeTab={setActiveTab}
+              onChangeTypeFilter={setTypeFilter}
             />
           </View>
         }

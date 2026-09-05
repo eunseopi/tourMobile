@@ -32,7 +32,6 @@ import { useSessionMe } from "src/features/my-page/useSessionMe";
 import { authStorage } from "src/utils/lib/authStorage";
 import { gradeNameOf } from "src/utils/lib/moodGrade";
 import { onboardingStorage } from "src/utils/lib/onboardingStorage";
-import { QK } from "src/utils/lib/queryKeys";
 import { termsStorage } from "src/utils/lib/termsStorage";
 import { useTabBarHeight } from "src/utils/lib/useTabBarHeight";
 import { MyPageMenuList } from "./components/MyPageMenuList";
@@ -83,7 +82,9 @@ export default function MyPageScreen({ navigation }: Props) {
             // 서버 로그아웃이 실패해도 로컬 세션은 정리한다
           } finally {
             await authStorage.clearLoginAt();
-            queryClient.removeQueries({ queryKey: QK.sessionMe });
+            // sessionMe만 지우면 다른 화면의 캐시(좋아요 상태, 활동 내역 등)가
+            // 다음에 로그인하는 계정에게 그대로 노출될 수 있어 전체를 비운다.
+            queryClient.clear();
             setIsLoggingOut(false);
             goToLogin();
           }

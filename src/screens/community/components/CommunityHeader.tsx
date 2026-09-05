@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import CloseIcon from "src/assets/Clear.svg";
 import { colors, typography } from "src/design/theme";
+import type { CommunityTypeFilter } from "src/stores/communityStore";
 
 export type CommunityTab = "latest" | "popular";
 
@@ -27,10 +28,19 @@ const TAB_ITEMS: Array<{ key: CommunityTab; label: string }> = [
   { key: "popular", label: "좋아요순" },
 ];
 
+const TYPE_FILTER_ITEMS: Array<{ key: CommunityTypeFilter; label: string }> = [
+  { key: "ALL", label: "전체" },
+  { key: "POST", label: "포스트" },
+  { key: "SPOT", label: "스팟" },
+  { key: "CHALLENGE", label: "챌린지" },
+];
+
 type Props = {
   activeTab: CommunityTab;
   banners: CommunityBanner[];
+  typeFilter: CommunityTypeFilter;
   onChangeTab: (tab: CommunityTab) => void;
+  onChangeTypeFilter: (typeFilter: CommunityTypeFilter) => void;
 };
 
 function BannerSlider({ items }: { items: CommunityBanner[] }) {
@@ -139,7 +149,13 @@ function BannerSlider({ items }: { items: CommunityBanner[] }) {
   );
 }
 
-export function CommunityHeader({ activeTab, banners, onChangeTab }: Props) {
+export function CommunityHeader({
+  activeTab,
+  banners,
+  typeFilter,
+  onChangeTab,
+  onChangeTypeFilter,
+}: Props) {
   return (
     <View>
       <View style={styles.titleSection}>
@@ -148,6 +164,28 @@ export function CommunityHeader({ activeTab, banners, onChangeTab }: Props) {
       </View>
 
       <BannerSlider items={banners} />
+
+      <View style={styles.typeFilterRow}>
+        {TYPE_FILTER_ITEMS.map((item) => {
+          const active = item.key === typeFilter;
+          return (
+            <Pressable
+              key={item.key}
+              style={[styles.typeFilterChip, active && styles.typeFilterChipActive]}
+              onPress={() => onChangeTypeFilter(item.key)}
+            >
+              <Text
+                style={[
+                  styles.typeFilterChipText,
+                  active && styles.typeFilterChipTextActive,
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
 
       <View style={styles.tabs}>
         {TAB_ITEMS.map((item) => {
@@ -231,10 +269,36 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 16,
   },
+  typeFilterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 16,
+  },
+  typeFilterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    backgroundColor: colors.bg[0],
+  },
+  typeFilterChipActive: {
+    borderColor: colors.primary[400],
+    backgroundColor: colors.primary[50],
+  },
+  typeFilterChipText: {
+    ...typography.caption1,
+    color: colors.gray[600],
+  },
+  typeFilterChipTextActive: {
+    fontWeight: "700",
+    color: colors.primary[500],
+  },
   tabs: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 30,
+    marginTop: 20,
     borderTopWidth: 1,
     borderTopColor: colors.gray[200],
     backgroundColor: colors.bg[0],

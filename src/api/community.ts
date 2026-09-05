@@ -26,6 +26,9 @@ export const REPORT_REASONS = [
 
 export type ReportReason = (typeof REPORT_REASONS)[number]["value"];
 
+// 커뮤니티 피드 타입 필터. 생략하면 전체 조회.
+export type CommunityContentType = "POST" | "SPOT" | "CHALLENGE";
+
 export type SpotCommunityResult = {
   id: number;
   title?: string;
@@ -77,15 +80,23 @@ export const communityApi = {
   },
 
   // 목록
-  getLatest: async (page = 0, size = 20): Promise<SpotPage> => {
+  getLatest: async (
+    page = 0,
+    size = 20,
+    type?: CommunityContentType
+  ): Promise<SpotPage> => {
     const res = await api.get<SpotPage>("/api/spots/latest", {
-      params: { page, size, sort: "createdAt,DESC" },
+      params: { page, size, sort: "createdAt,DESC", type },
     });
     return res.data;
   },
-  getPopular: async (page = 0, size = 20): Promise<SpotPage> => {
+  getPopular: async (
+    page = 0,
+    size = 20,
+    type?: CommunityContentType
+  ): Promise<SpotPage> => {
     const res = await api.get<SpotPage>("/api/spots/most-liked", {
-      params: { page, size, sort: "likeCount,DESC" },
+      params: { page, size, sort: "likeCount,DESC", type },
     });
     return res.data;
   },
@@ -116,10 +127,11 @@ export const communityApi = {
   searchCommunity: async (
     query: string,
     page = 0,
-    size = 10
+    size = 10,
+    type?: CommunityContentType
   ): Promise<SpotCommunityResultPage> => {
     const res = await api.get<ApiRes<SpotCommunityResultPage>>("/api/spots/community/search", {
-      params: { query, page, size },
+      params: { query, page, size, type },
     });
     return res.data.data;
   },

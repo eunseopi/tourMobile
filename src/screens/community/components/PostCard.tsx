@@ -16,6 +16,22 @@ type Props = {
   onToggleLike: (post: Spot) => void;
 };
 
+const TYPE_CHIP: Record<Spot["type"], { label: string; color: string; bg: string }> = {
+  POST: { label: "포스트", color: colors.gray[600], bg: colors.gray[100] },
+  SPOT: { label: "스팟", color: colors.primary[500], bg: colors.primary[50] },
+  CHALLENGE: { label: "챌린지", color: "#2563EB", bg: "#EAF1FF" },
+};
+
+function TypeChip({ type }: { type: Spot["type"] }) {
+  const chip = TYPE_CHIP[type];
+  if (!chip) return null;
+  return (
+    <View style={[styles.typeChip, { backgroundColor: chip.bg }]}>
+      <Text style={[styles.typeChipText, { color: chip.color }]}>{chip.label}</Text>
+    </View>
+  );
+}
+
 // 좋아요 탭 한 번에 피드 전체가 다시 렌더링되는 걸 막기 위해, post 참조와 콜백이
 // 그대로면(같은 함수 참조 + 변경되지 않은 post) 리렌더를 건너뛴다. onPress/onToggleLike는
 // 호출부(CommunityScreen)에서 useCallback으로 고정된 최상위 함수를 그대로 넘겨야 효과가 있다.
@@ -61,6 +77,7 @@ export const PostCard = memo(function PostCard({ post, onPress, onToggleLike }: 
         <Text style={styles.author} numberOfLines={1}>
           {post.userNickname || "익명"}
         </Text>
+        <TypeChip type={post.type} />
       </View>
 
       {coverImage ? (
@@ -106,6 +123,12 @@ export const PostCard = memo(function PostCard({ post, onPress, onToggleLike }: 
           {post.likesUntilPromotion > 0
             ? `스팟 승격까지 좋아요 ${post.likesUntilPromotion}개`
             : "곧 스팟으로 승격돼요!"}
+        </Text>
+      ) : null}
+
+      {post.type === "SPOT" ? (
+        <Text style={styles.promotionText}>
+          인기 스팟 중 상위권은 매시간 챌린지로 승격될 수 있어요
         </Text>
       ) : null}
 
@@ -158,6 +181,16 @@ const styles = StyleSheet.create({
     ...typography.body3,
     color: colors.gray[800],
     flexShrink: 1,
+  },
+  typeChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  typeChipText: {
+    ...typography.caption2,
+    fontSize: 11,
+    fontWeight: "700",
   },
   imageWrapper: {
     width: "100%",

@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     right: 16,
-    bottom: 282,
+    bottom: 210,
     flexDirection: "row",
     gap: 8,
   },

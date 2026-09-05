@@ -24,8 +24,12 @@ export const QK = {
     acceptToggle: (productId: string | number) =>
         ['POST /v1/products/:productId/accept-toggle', String(productId)] as const,
 
-    communityPosts: (tab: 'latest' | 'popular', page = 0, size = 20) =>
-        ['GET /api/spots', { tab, page, size }] as const,
+    communityPosts: (
+        tab: 'latest' | 'popular',
+        page = 0,
+        size = 20,
+        typeFilter: 'ALL' | 'POST' | 'SPOT' | 'CHALLENGE' = 'ALL',
+    ) => ['GET /api/spots', { tab, page, size, typeFilter }] as const,
     communityBanners: (date?: string) =>
         ['GET /api/community/events/banner', { date }] as const,
     allComments: (spotId: number) =>

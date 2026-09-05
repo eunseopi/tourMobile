@@ -2,7 +2,6 @@ import axios, { AxiosHeaders, type AxiosError, type InternalAxiosRequestConfig }
 import { queryClient } from "src/app/queryClient";
 import { resetToLogin } from "src/app/navigation/navigationRef";
 import { authStorage } from "src/utils/lib/authStorage";
-import { QK } from "src/utils/lib/queryKeys";
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? "https://jejuday.duckdns.org";
@@ -34,7 +33,9 @@ function isTransientNetworkError(error: AxiosError) {
 
 function handleSessionExpired() {
   void authStorage.clearLoginAt();
-  queryClient.removeQueries({ queryKey: QK.sessionMe });
+  // sessionMe만 지우면 다른 화면의 캐시가 다음에 로그인하는 계정에게
+  // 그대로 노출될 수 있어 전체를 비운다.
+  queryClient.clear();
   resetToLogin();
 }
 
